@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, Request, Form
+﻿from fastapi import FastAPI, Request, Form, Body, Path
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -36,6 +36,21 @@ def seed_users():
 # Popula usuários
 seed_users()
 
+def seed_desempenhos():
+    db = SessionLocal()
+    if db.query(models.Desempenho).count() == 0:
+        alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
+        for aluno in alunos:
+            db.add_all([
+                models.Desempenho(atleta_id=aluno.id, treino="Natação 50m", tempo=35.2, distancia=50),
+                models.Desempenho(atleta_id=aluno.id, treino="Natação 100m", tempo=80.5, distancia=100),
+            ])
+        db.commit()
+    db.close()
+
+seed_desempenhos()
+
+
 # Função auxiliar para buscar usuário por email
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
@@ -65,25 +80,8 @@ async def login(request: Request, email: str = Form(...), senha: str = Form(...)
 
 
 
-@app.get("/api/alunos", response_class=JSONResponse)
-async def api_alunos():
-    db = SessionLocal()
-    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
-    db.close()
-    
-    # Transformar em JSON
-    result = []
-    for a in alunos:
-        result.append({
-            "id": a.id,
-            "nome": a.nome,
-            "email": a.email,
-            "tipo": a.tipo.value
-        })
-    
-    return result
 
-
+    #ALUNOS
 
 # Dashboard do aluno (simplificado)
 @app.get("/aluno/dashboard/{aluno_id}", response_class=HTMLResponse)
@@ -99,6 +97,38 @@ async def aluno_dashboard(request: Request, aluno_id: int):
             "aluno": aluno
         }
     )
+
+
+@app.get("/api/atletas/{atleta_id}/desempenho", response_class=JSONResponse)
+async def api_desempenho(atleta_id: int):
+    db = SessionLocal()
+    atleta = db.query(models.User).filter(
+        models.User.id == atleta_id,
+        models.User.tipo == models.UserType.aluno
+    ).first()
+    
+    if not atleta:
+        db.close()
+        return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
+    
+    registros = []
+    for d in atleta.desempenhos:
+        registros.append({
+            "id": d.id,
+            "treino": d.treino,
+            "tempo": d.tempo,
+            "distancia": d.distancia
+        })
+    
+    db.close()
+    return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
+
+
+
+
+
+
+# TREINADOR
 
 # Dashboard do treinador (simplificado)
 @app.get("/treinador/dashboard/{treinador_id}", response_class=HTMLResponse)
@@ -156,9 +186,57 @@ async def calendario(request: Request, treinador_id: int):
         {"request": request, "treinador": treinador}
     )
 
+# Criar atleta
+@app.post("/api/alunos", response_class=JSONResponse)
+async def criar_aluno(aluno: dict = Body(...)):
+    db = SessionLocal()
+    novo_aluno = models.User(
+        nome=aluno.get("nome"),
+        email=aluno.get("email"),
+        senha="123",
+        tipo=models.UserType.aluno
+    )
+    db.add(novo_aluno)
+    db.commit()
+    db.refresh(novo_aluno)
+    db.close()
+    return {
+        "id": novo_aluno.id,
+        "nome": novo_aluno.nome,
+        "email": novo_aluno.email,
+        "sport": aluno.get("sport"),
+        "age": aluno.get("age"),
+        "status": aluno.get("status"),
+        "phone": aluno.get("phone"),
+        "address": aluno.get("address")
+    }
 
-
-
+# Editar atleta
+@app.put("/api/alunos/{atleta_id}", response_class=JSONResponse)
+async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
+    db = SessionLocal()
+    atleta = db.query(models.User).filter(models.User.id == atleta_id, models.User.tipo == models.UserType.aluno).first()
+    if not atleta:
+        db.close()
+        return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
+    
+    atleta.nome = dados.get("nome", atleta.nome)
+    atleta.email = dados.get("email", atleta.email)
+    # Se quiser, pode salvar outras informações em campos adicionais
+    db.commit()
+    db.refresh(atleta)
+    db.close()
+    
+    return {
+        "id": atleta.id,
+        "nome": atleta.nome,
+        "email": atleta.email,
+        "sport": dados.get("sport"),
+        "age": dados.get("age"),
+        "status": dados.get("status"),
+        "phone": dados.get("phone"),
+        "address": dados.get("address")
+    }
 
 
 

@@ -1,653 +1,2101 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Área do Aluno | Instituto Franciscani</title>
     <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-        :root {
-            --primary-color: #00005e;
-            --secondary-color: #010146;
-            --accent-color: #08083a;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --success-color: #00b451;
-            --warning-color: #f72548;
-            --gray-color: #adb5bd;
-            --sidebar-width: 250px;
-            --header-height: 70px;
-            --transition: all 0.3s ease;
-            --info-color: #4895ef;
-        }
+      :root {
+        --primary-color: #00005e;
+        --secondary-color: #010146;
+        --accent-color: #08083a;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #00b451;
+        --warning-color: #f72548;
+        --gray-color: #adb5bd;
+        --sidebar-width: 250px;
+        --header-height: 70px;
+        --transition: all 0.3s ease;
+        --info-color: #4895ef;
+      }
 
-        body {
-            background-color: #f5f7fb;
-            color: var(--dark-color);
-            min-height: 100vh;
-        }
+      body {
+        background-color: #f5f7fb;
+        color: var(--dark-color);
+        min-height: 100vh;
+      }
 
-        /* Header simplificado apenas com logo */
-        .header-simple {
-            background: linear-gradient( to right, var(--primary-color), var(--secondary-color) );
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+      /* Header simplificado apenas com logo */
+      .header-simple {
+        background: linear-gradient(
+          to right,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
 
-            .header-simple img {
-                height: 40px;
-            }
+      .header-simple img {
+        height: 40px;
+      }
 
-        .logout-icon {
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
 
-        /* Main Content */
-        .main-content {
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
 
-        /* Perfil do Aluno */
-        .student-profile {
-            background-color: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+      .logout-icon {
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
 
-        .student-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient( to right, var(--accent-color), var(--primary-color) );
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 32px;
-            flex-shrink: 0;
-        }
+      /* Main Content */
+      .main-content {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-            .student-avatar img {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                object-fit: cover;
-            }
+      /* Perfil do Aluno */
+      .student-profile {
+        background-color: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
 
-        .student-details {
-            flex: 1;
-        }
+      .student-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(
+          to right,
+          var(--accent-color),
+          var(--primary-color)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 32px;
+        flex-shrink: 0;
+      }
 
-            .student-details h2 {
-                color: var(--primary-color);
-                margin-bottom: 5px;
-            }
+      .student-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
 
-        .student-category {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
+      .student-details {
+        flex: 1;
+      }
 
-        .student-sport {
-            display: inline-block;
-            background-color: var(--info-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
+      .student-details h2 {
+        color: var(--primary-color);
+        margin-bottom: 5px;
+      }
 
-        /* Dashboard Grid */
+      .student-category {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .student-sport {
+        display: inline-block;
+        background-color: var(--info-color);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      /* Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 25px;
+        margin-bottom: 25px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .card h3 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card h3 i {
+        color: var(--primary-color);
+      }
+
+      /* Feedback */
+      .feedback-content {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .feedback-coach {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .coach-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .coach-info h4 {
+        font-size: 14px;
+        margin-bottom: 2px;
+      }
+
+      .coach-info p {
+        color: var(--gray-color);
+        font-size: 12px;
+      }
+
+      /* Vídeos */
+      .videos-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .video-item {
+        background-color: #f5f7fb;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+
+      .video-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .video-thumbnail {
+        height: 120px;
+        background-color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 30px;
+      }
+
+      .video-info {
+        padding: 10px;
+      }
+
+      .video-info h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .video-info p {
+        color: var(--gray-color);
+        font-size: 12px;
+      }
+
+      .video-datetime {
+        color: #888;
+        font-size: 10px;
+        margin-top: 2px;
+        font-family: 'Courier New', monospace;
+      }
+
+      /* Competições */
+      .competition-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .competition-item:last-child {
+        border-bottom: none;
+      }
+
+      .competition-date {
+        background-color: #f5f7fb;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 60px;
+      }
+
+      .competition-date .day {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .competition-date .month {
+        font-size: 12px;
+        color: var(--gray-color);
+      }
+
+      .competition-details h4 {
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .competition-details p {
+        color: var(--gray-color);
+        font-size: 13px;
+      }
+
+      /* Dieta */
+      .diet-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          to right,
+          var(--primary-color),
+          var(--accent-color)
+        );
+        color: white;
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        height: 100%;
+      }
+
+      .diet-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 94, 0.3);
+      }
+
+      .diet-button i {
+        font-size: 42px;
+        margin-bottom: 15px;
+      }
+
+      .diet-button h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: white;
+        border: none;
+        padding: 0;
+        justify-content: center;
+      }
+
+      .diet-button p {
+        opacity: 0.9;
+        margin: 0;
+      }
+
+             /* Desempenho */
+       .chart-container {
+         height: 250px;
+         margin-top: 15px;
+       }
+
+      /* Atividades */
+      .activities-list {
+        list-style: none;
+      }
+      
+      /* Treinamentos Recentes */
+      .treinamentos-recentes {
+        margin-top: 15px;
+      }
+      
+      .treino-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .treino-item:last-child {
+        border-bottom: none;
+      }
+      
+      .treino-data {
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+      
+      .treino-tipo {
+        color: var(--dark-color);
+      }
+      
+      .treino-duracao {
+        color: var(--gray-color);
+        font-size: 12px;
+      }
+      
+      .treino-status.completado {
+        color: var(--success-color);
+      }
+      
+      .treino-status.pendente {
+        color: var(--warning-color);
+      }
+      
+      /* Eventos Próximos */
+      .eventos-proximos {
+        margin-top: 15px;
+      }
+      
+      .evento-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .evento-item:last-child {
+        border-bottom: none;
+      }
+      
+      .evento-data {
+        font-weight: bold;
+        color: var(--primary-color);
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+      
+      .evento-titulo {
+        font-weight: bold;
+        color: var(--dark-color);
+        margin-bottom: 3px;
+      }
+      
+      .evento-local {
+        color: var(--gray-color);
+        font-size: 12px;
+      }
+      
+             .evento-hora {
+         color: var(--gray-color);
+         font-size: 12px;
+         margin-top: 3px;
+       }
+       
+       /* Mensagens de "sem dados" */
+       .sem-dados {
+         text-align: center;
+         padding: 30px 20px;
+         color: var(--gray-color);
+       }
+       
+       .sem-dados i {
+         font-size: 48px;
+         margin-bottom: 15px;
+         opacity: 0.5;
+       }
+       
+       .sem-dados p {
+         font-size: 16px;
+         margin-bottom: 8px;
+         color: var(--dark-color);
+       }
+       
+       .sem-dados small {
+         font-size: 12px;
+         opacity: 0.7;
+       }
+ 
+       .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-item i {
+        color: var(--primary-color);
+        width: 20px;
+      }
+
+      .activity-date {
+        margin-left: auto;
+        color: var(--gray-color);
+        font-size: 12px;
+      }
+
+      /* Feedback do Treinador */
+      .feedback-content {
+        padding: 0;
+        margin-top: 15px;
+      }
+
+      .feedback-placeholder {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary-color);
+        margin-bottom: 15px;
+      }
+
+      .feedback-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+
+      .feedback-text h4 {
+        color: var(--dark-color);
+        margin-bottom: 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .feedback-text p {
+        color: var(--gray-color);
+        font-size: 14px;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .feedback-trainer {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+      }
+
+      .trainer-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .trainer-info h4 {
+        color: var(--dark-color);
+        margin-bottom: 5px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .trainer-info p {
+        color: var(--gray-color);
+        font-size: 14px;
+        line-height: 1.5;
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid var(--primary-color);
+        margin: 0;
+      }
+
+      /* Calendário */
+      .calendar {
+        margin-top: 15px;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .calendar-header h4 {
+        color: var(--primary-color);
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+      }
+
+      .calendar-day {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        border-radius: 50%;
+      }
+
+      .calendar-day.header {
+        font-weight: bold;
+        color: var(--primary-color);
+        border-radius: 0;
+      }
+
+      .calendar-day.today {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .calendar-day.has-activity {
+        position: relative;
+      }
+
+      .calendar-day.has-activity::after {
+        content: "";
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background-color: var(--warning-color);
+        border-radius: 50%;
+      }
+      
+      /* Estilos para navegação do calendário */
+      .calendar-navigation {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      
+      .nav-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+      
+      .nav-btn:hover {
+        background: var(--secondary-color);
+      }
+      
+      /* Estilos para loading */
+      .loading-activities,
+      .loading-calendar {
+        text-align: center;
+        padding: 20px;
+        color: var(--gray-color);
+      }
+      
+      .loading-activities i,
+      .loading-calendar i {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        width: 500px;
+        max-width: 90%;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-header h2 {
+        color: var(--primary-color);
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--gray-color);
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: var(--transition);
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+      }
+
+      .btn-outline:hover {
+        background-color: #f5f7fb;
+      }
+
+      /* Responsividade */
+      @media (max-width: 1200px) {
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 25px;
-            margin-bottom: 25px;
+          grid-template-columns: repeat(6, 1fr);
+        }
+
+        .card.feedback {
+          grid-column: span 6;
+        }
+
+        .card.videos {
+          grid-column: span 3;
+        }
+
+        .card.competitions {
+          grid-column: span 3;
+        }
+
+        .card.diet {
+          grid-column: span 2;
+        }
+
+        .card.performance {
+          grid-column: span 4;
+        }
+
+        .card.activities {
+          grid-column: span 3;
+        }
+
+        .card.calendar {
+          grid-column: span 3;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .dashboard-grid {
+          grid-template-columns: repeat(1, 1fr);
         }
 
         .card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          grid-column: span 1 !important;
         }
 
-            .card h3 {
-                color: var(--primary-color);
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-                .card h3 i {
-                    color: var(--primary-color);
-                }
-
-        /* Feedback */
-        .feedback-content {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .feedback-coach {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .coach-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background-color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .coach-info h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .coach-info p {
-            color: var(--gray-color);
-            font-size: 12px;
-        }
-
-        /* Vídeos */
         .videos-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+          grid-template-columns: 1fr;
         }
+      }
 
-        .video-item {
-            background-color: #f5f7fb;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: var(--transition);
-            cursor: pointer;
+      @media (max-width: 768px) {
+        .student-profile {
+          flex-direction: column;
+          text-align: center;
         }
-
-            .video-item:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-
-        .video-thumbnail {
-            height: 120px;
-            background-color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 30px;
-        }
-
-        .video-info {
-            padding: 10px;
-        }
-
-            .video-info h4 {
-                font-size: 14px;
-                margin-bottom: 5px;
-            }
-
-            .video-info p {
-                color: var(--gray-color);
-                font-size: 12px;
-            }
-
-        /* Competições */
-        .competition-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .competition-item:last-child {
-                border-bottom: none;
-            }
-
-        .competition-date {
-            background-color: #f5f7fb;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 60px;
-        }
-
-            .competition-date .day {
-                font-size: 20px;
-                font-weight: 700;
-                color: var(--primary-color);
-            }
-
-            .competition-date .month {
-                font-size: 12px;
-                color: var(--gray-color);
-            }
-
-        .competition-details h4 {
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-
-        .competition-details p {
-            color: var(--gray-color);
-            font-size: 13px;
-        }
-
-        /* Dieta */
-        .diet-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient( to right, var(--primary-color), var(--accent-color) );
-            color: white;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            height: 100%;
-        }
-
-            .diet-button:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(0, 0, 94, 0.3);
-            }
-
-            .diet-button i {
-                font-size: 42px;
-                margin-bottom: 15px;
-            }
-
-            .diet-button h3 {
-                font-size: 20px;
-                margin-bottom: 10px;
-                color: white;
-                border: none;
-                padding: 0;
-                justify-content: center;
-            }
-
-            .diet-button p {
-                opacity: 0.9;
-                margin: 0;
-            }
-
-        /* Desempenho */
-        .chart-container {
-            height: 250px;
-            margin-top: 15px;
-        }
-
-        /* Atividades */
-        .activities-list {
-            list-style: none;
-        }
-
-        .activity-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-            .activity-item:last-child {
-                border-bottom: none;
-            }
-
-            .activity-item i {
-                color: var(--primary-color);
-                width: 20px;
-            }
-
-        .activity-date {
-            margin-left: auto;
-            color: var(--gray-color);
-            font-size: 12px;
-        }
-
-        /* Calendário */
-        .calendar {
-            margin-top: 15px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-            .calendar-header h4 {
-                color: var(--primary-color);
-            }
 
         .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+          gap: 2px;
         }
 
         .calendar-day {
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            border-radius: 50%;
+          height: 25px;
+          font-size: 10px;
         }
+      }
 
-            .calendar-day.header {
-                font-weight: bold;
-                color: var(--primary-color);
-                border-radius: 0;
-            }
+      /* Estilos para mensagem de vídeos vazios */
+      .no-videos {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+        grid-column: 1 / -1;
+      }
 
-            .calendar-day.today {
-                background-color: var(--primary-color);
-                color: white;
-            }
+      .no-videos i {
+        font-size: 48px;
+        color: #ccc;
+        margin-bottom: 15px;
+        display: block;
+      }
 
-            .calendar-day.has-activity {
-                position: relative;
-            }
+      .no-videos p {
+        font-size: 16px;
+        margin-bottom: 8px;
+        color: #555;
+      }
 
-                .calendar-day.has-activity::after {
-                    content: "";
-                    position: absolute;
-                    bottom: 2px;
-                    width: 4px;
-                    height: 4px;
-                    background-color: var(--warning-color);
-                    border-radius: 50%;
-                }
+      .no-videos small {
+        font-size: 14px;
+        color: #888;
+      }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+      /* Estilos para o modal de visualização de vídeo */
+      .video-viewer .modal-content {
+        max-width: 900px;
+        width: 90%;
+      }
+
+      .video-container {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .video-container video {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .video-details {
+        padding: 20px 0;
+      }
+
+      .video-details h3 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        font-size: 1.4em;
+      }
+
+      .video-details p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+
+      .video-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .video-meta span {
+        background-color: #f0f0f0;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .video-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .video-actions .btn {
+        flex: 1;
+        min-width: 80px;
+      }
+
+      @media (max-width: 768px) {
+        .video-viewer .modal-content {
+          width: 95%;
+          margin: 10px;
         }
-
-        .modal-content {
-            background-color: white;
-            width: 500px;
-            max-width: 90%;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        
+        .video-container video {
+          height: 250px;
         }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        
+        .video-meta {
+          flex-direction: column;
+          gap: 10px;
         }
-
-            .modal-header h2 {
-                color: var(--primary-color);
-            }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray-color);
+        
+        .video-actions {
+          flex-direction: column;
         }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-            .btn-primary:hover {
-                background-color: var(--secondary-color);
-            }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #ddd;
-        }
-
-            .btn-outline:hover {
-                background-color: #f5f7fb;
-            }
-
-        /* Responsividade */
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-
-            .card.feedback {
-                grid-column: span 6;
-            }
-
-            .card.videos {
-                grid-column: span 3;
-            }
-
-            .card.competitions {
-                grid-column: span 3;
-            }
-
-            .card.diet {
-                grid-column: span 2;
-            }
-
-            .card.performance {
-                grid-column: span 4;
-            }
-
-            .card.activities {
-                grid-column: span 3;
-            }
-
-            .card.calendar {
-                grid-column: span 3;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(1, 1fr);
-            }
-
-            .card {
-                grid-column: span 1 !important;
-            }
-
-            .videos-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .student-profile {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .calendar-grid {
-                gap: 2px;
-            }
-
-            .calendar-day {
-                height: 25px;
-                font-size: 10px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-    <!-- Header -->
+  </head>
+  <body>
+    <!-- Header Simplificado -->
     <header class="header-simple">
-        <img src="/static/img/logo_if.png" alt="Instituto Franciscani" />
-        <a href="/logout"><div class="logout-icon"><i class="fas fa-sign-out-alt"></i></div></a>
+      <img src="/static/img/logo_if.png" alt="Instituto Franciscani" />
+      <div class="logout-icon" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Perfil -->
-        <div class="student-profile">
-            <div class="student-avatar"><img src="/static/img/logo_if_icon.png" alt="Carlos Silva" /></div>
-            <div class="student-details">
-                <h2>Carlos Silva</h2>
-                <span class="student-category">Sub-17</span>
-                <span class="student-sport">Natação</span>
-                <p>Atleta desde 2020 | Foco: 100m e 200m livre</p>
+      <!-- Perfil do Aluno -->
+      <div class="student-profile">
+        <div class="student-avatar">
+          <img src="/static/img/logo_if_icon.png" alt="Carlos Silva" style="height: 70px; width: 70px;"/>
+        </div>
+                 <div class="student-details">
+           <h2 class="nome-atleta">Carlos Silva</h2>
+           <span class="student-category">Carregando...</span>
+           <span class="student-sport modalidade-atleta">Natação</span>
+           <p class="data-ingresso">Atleta desde 2020 | Foco: Provas de 100m e 200m livre</p>
+         </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        
+
+        <!-- Feedback do Treinador -->
+        <div class="card feedback" style="grid-column: span 4">
+          <h3><i class="fas fa-comments"></i> Feedback do Treinador</h3>
+          
+          <!-- Feedback Content - Logo após o título -->
+          <div class="feedback-content" id="feedback-content">
+            <div class="feedback-placeholder" style="display: none;">
+              <div class="feedback-icon">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="feedback-text">
+                <h4>Nenhum feedback específico ainda</h4>
+                <p>Seu treinador ainda não deixou feedback personalizado. Continue treinando e ele aparecerá aqui!</p>
+              </div>
             </div>
+            <div class="feedback-trainer" id="feedback-trainer" style="display: none;">
+              <div class="trainer-avatar" id="trainer-avatar">RM</div>
+              <div class="trainer-info">
+                <h4 id="trainer-name">Seu Treinador</h4>
+                <p id="trainer-feedback">Feedback será atualizado aqui</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- Feedback -->
-            <div class="card feedback" style="grid-column: span 4">
-                <h3><i class="fas fa-comment"></i> Feedback do Treinador</h3>
-                <div class="feedback-content">
-                    <p>Seu desempenho melhorou nas últimas semanas. Continue focando na técnica de virada. Sua resistência está excelente!</p>
-                </div>
-                <div class="feedback-coach">
-                    <div class="coach-avatar">RM</div>
-                    <div class="coach-info">
-                        <h4>Ricardo Mendes</h4>
-                        <p>Treinador de Natação</p>
-                    </div>
-                </div>
+        <!-- Assistir Vídeos -->
+        <div class="card videos" style="grid-column: span 4">
+          <h3><i class="fas fa-video"></i> Meus Vídeos</h3>
+          <div class="videos-grid">
+            <div class="video-item">
+              <div class="video-thumbnail">
+                <i class="fas fa-play"></i>
+              </div>
+              <div class="video-info">
+                <h4>Treino 25/08 - 100m Livre</h4>
+                <p>Análise técnica</p>
+              </div>
             </div>
-
-            <!-- Vídeos -->
-            <div class="card videos" style="grid-column: span 4">
-                <h3><i class="fas fa-video"></i> Meus Vídeos</h3>
-                <div class="videos-grid">
-                    <div class="video-item">
-                        <div class="video-thumbnail"><i class="fas fa-play"></i></div>
-                        <div class="video-info"><h4>Treino 25/08 - 100m Livre</h4><p>Análise técnica</p></div>
-                    </div>
-                    <div class="video-item">
-                        <div class="video-thumbnail"><i class="fas fa-play"></i></div>
-                        <div class="video-info"><h4>Competição Estadual</h4><p>Julho 2023 - 200m Livre</p></div>
-                    </div>
-                </div>
+            <div class="video-item">
+              <div class="video-thumbnail">
+                <i class="fas fa-play"></i>
+              </div>
+              <div class="video-info">
+                <h4>Competição Estadual</h4>
+                <p>Julho 2023 - 200m Livre</p>
+              </div>
             </div>
-
-            <!-- Próximas Competições -->
-            <div class="card competitions" style="grid-column: span 4">
-                <h3><i class="fas fa-trophy"></i> Próximas Competições</h3>
-                <div class="competition-item">
-                    <div class="competition-date"><div class="day">15</div><div class="month">SET</div></div>
-                    <div class="competition-details"><h4>Campeonato Estadual</h4><p>Centro Aquático - 09:00h | 100m e 200m Livre</p></div>
-                </div>
+            <div class="video-item">
+              <div class="video-thumbnail">
+                <i class="fas fa-play"></i>
+              </div>
+              <div class="video-info">
+                <h4>Exercícios de Respiração</h4>
+                <p>Treinamento específico</p>
+              </div>
             </div>
-
-            <!-- Dieta -->
-            <div class="card diet" style="grid-column: span 3">
-                <div class="diet-button" id="openDietModal"><i class="fas fa-utensils"></i><h3>Visualizar Dieta</h3><p>Clique para abrir seu plano alimentar</p></div>
+            <div class="video-item">
+              <div class="video-thumbnail">
+                <i class="fas fa-play"></i>
+              </div>
+              <div class="video-info">
+                <h4>Virada Olímpica</h4>
+                <p>Técnica aprimorada</p>
+              </div>
             </div>
-
-            <!-- Desempenho -->
-            <div class="card performance" style="grid-column: span 9">
-                <h3><i class="fas fa-chart-line"></i> Desempenho</h3>
-                <div class="chart-container"><canvas id="performanceChart"></canvas></div>
-            </div>
+          </div>
         </div>
+
+        <!-- Próximas Competições -->
+        <div class="card competitions" style="grid-column: span 4">
+          <h3><i class="fas fa-trophy"></i> Próximas Competições</h3>
+          <div class="eventos-proximos">
+            <!-- Será preenchido dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Visualizar Dieta -->
+        <div class="card diet" style="grid-column: span 3">
+          <div class="diet-button" id="openDietModal">
+            <i class="fas fa-utensils"></i>
+            <h3>Visualizar Dieta</h3>
+            <p>Clique para abrir o arquivo com seu plano alimentar</p>
+          </div>
+        </div>
+
+        <!-- Desempenho Esperado x Atingido -->
+        <div class="card performance" style="grid-column: span 9">
+          <h3><i class="fas fa-chart-line"></i> Desempenho</h3>
+          <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+
+
+
+
+
+        <!-- Próximas Atividades no Calendário Diário -->
+        <div class="card calendar" style="grid-column: span 6">
+          <h3><i class="fas fa-calendar-day"></i> Calendário de Treinos</h3>
+          <div class="calendar">
+            <div class="calendar-header">
+              <h4 id="mes-calendario">--</h4>
+              <div class="calendar-navigation">
+                <button id="prev-month" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                <button id="next-month" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+              <!-- Será preenchido dinamicamente -->
+              <div class="loading-calendar">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando calendário...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atividades Realizadas no Mês -->
+        <div class="card activities" style="grid-column: span 6">
+          <h3>
+            <i class="fas fa-calendar-check"></i> Atividades Realizadas (<span id="mes-atual">--</span>)
+          </h3>
+          <div class="activities-list" id="atividades-container">
+            <!-- Será preenchido dinamicamente com dados do banco -->
+            <div class="loading-activities">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Carregando atividades...</p>
+            </div>
+          </div>
+        </div>
+
+
     </main>
 
-    <!-- Modal Dieta -->
+    <!-- Modal para Visualizar Dieta -->
     <div class="modal" id="dietModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Visualizar Dieta</h2><button class="close-modal">&times;</button></div>
-            <p>Escolha como deseja acessar sua dieta:</p>
-            <div class="modal-actions">
-                <button class="btn btn-outline">Visualizar Online</button>
-                <button class="btn btn-primary">Baixar PDF</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Visualizar Dieta</h2>
+          <button class="close-modal">&times;</button>
         </div>
+        <p>Selecione o formato em que deseja visualizar sua dieta:</p>
+        <div class="modal-actions">
+          <button class="btn btn-outline">Visualizar Online</button>
+          <button class="btn btn-primary">Baixar PDF</button>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // Gráfico de desempenho
-        const ctx = document.getElementById("performanceChart").getContext("2d");
-        new Chart(ctx, { type: "bar", data: { labels: ["100m Livre", "200m Livre", "Resistência", "Técnica", "Força"], datasets: [{ label: "Esperado", data: [90, 85, 80, 75, 70], backgroundColor: "rgba(0,0,94,0.3)", borderColor: "#00005E", borderWidth: 1 }, { label: "Atingido", data: [88, 82, 85, 70, 75], backgroundColor: "rgba(0,180,81,0.5)", borderColor: "#00b451", borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: "Pontuação" } } } } });
+    <!-- Modal de Visualização de Vídeo -->
+    <div id="videoViewModal" class="modal">
+      <div class="modal-content video-viewer">
+        <div class="modal-header">
+          <h2 id="videoViewTitle">Visualizar Vídeo</h2>
+          <button class="close-modal" onclick="closeVideoViewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="video-container">
+            <video id="videoPlayer" controls width="100%" height="400">
+              <source id="videoSource" src="" type="video/mp4">
+              Seu navegador não suporta o elemento de vídeo.
+            </video>
+          </div>
+          <div class="video-details">
+            <h3 id="videoViewDetailsTitle">Título do Vídeo</h3>
+            <p id="videoViewDescription">Descrição do vídeo...</p>
+            <div class="video-meta">
+              <span id="videoViewDate">Data de postagem</span>
+              <span id="videoViewAthlete">Atleta relacionado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Modal Dieta
-        document.getElementById("openDietModal").addEventListener("click", () => { document.getElementById("dietModal").style.display = "flex"; });
-        document.querySelector(".close-modal").addEventListener("click", () => { document.getElementById("dietModal").style.display = "none"; });
-        window.addEventListener("click", e => { if (e.target == document.getElementById("dietModal")) { document.getElementById("dietModal").style.display = "none"; } });
+
+    <script>
+      // Gráfico de desempenho
+      let performanceChart = null;
+      
+      function criarGraficoDesempenho() {
+        const ctx = document.getElementById("performanceChart").getContext("2d");
+        
+        // Destruir gráfico anterior se existir
+        if (performanceChart) {
+          performanceChart.destroy();
+        }
+        
+        // Tentar carregar dados salvos do localStorage
+        let dadosDesempenho = null;
+        try {
+          // Procurar por dados de desempenho salvos
+          const chaves = Object.keys(localStorage);
+          for (let chave of chaves) {
+            if (chave.startsWith('desempenho_')) {
+              const dados = JSON.parse(localStorage.getItem(chave));
+              if (dados && dados.categorias && dados.desempenhoEsperado && dados.desempenhoAtingido) {
+                dadosDesempenho = dados;
+                break;
+              }
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erro ao carregar dados de desempenho:', error);
+        }
+        
+        // Usar dados salvos ou dados zerados
+        const labels = dadosDesempenho ? dadosDesempenho.categorias : [
+          "100m Livre",
+          "200m Livre", 
+          "Resistência",
+          "Técnica",
+          "Força",
+        ];
+        
+        const esperado = dadosDesempenho ? dadosDesempenho.desempenhoEsperado : [0, 0, 0, 0, 0];
+        const atingido = dadosDesempenho ? dadosDesempenho.desempenhoAtingido : [0, 0, 0, 0, 0];
+        
+        const titulo = dadosDesempenho ? "Desempenho" : "Desempenho (Não Avaliado)";
+        
+        performanceChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Desempenho Esperado",
+                data: esperado,
+                backgroundColor: "rgba(0, 0, 94, 0.3)",
+                borderColor: "#00005E",
+                borderWidth: 1,
+              },
+              {
+                label: "Desempenho Atingido",
+                data: atingido,
+                backgroundColor: "rgba(0, 180, 81, 0.5)",
+                borderColor: "#00b451",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: titulo,
+                font: {
+                  size: 16,
+                  weight: 'bold'
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: "Pontuação",
+                },
+              },
+            },
+          },
+        });
+      }
+      
+      // Configurar sincronização
+      function configurarSincronizacaoDesempenho() {
+        // Escutar mudanças no localStorage
+        window.addEventListener('storage', function(e) {
+          if (e.key && e.key.startsWith('desempenho_') && e.newValue) {
+            console.log('🔄 Dados de desempenho atualizados pelo professor!');
+            
+            try {
+              const dados = JSON.parse(e.newValue);
+              console.log('📊 Novos dados recebidos:', dados);
+              
+              // Recriar gráfico com novos dados
+              criarGraficoDesempenho();
+              
+              // Mostrar notificação
+              const notification = document.createElement('div');
+              notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #00b451;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 9999;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+              `;
+              notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
+              
+              document.body.appendChild(notification);
+              
+              setTimeout(() => {
+                notification.remove();
+              }, 4000);
+              
+            } catch (error) {
+              console.error('❌ Erro ao processar dados sincronizados:', error);
+            }
+          }
+          
+          // Escutar mudanças no feedback
+          if (e.key && e.key.startsWith('avaliacao_') && e.newValue) {
+            console.log('🔄 Feedback atualizado pelo professor!');
+            
+            try {
+              const dados = JSON.parse(e.newValue);
+              console.log('📝 Novo feedback recebido:', dados);
+              
+              // Recarregar feedback
+              carregarFeedbackTreinador();
+              
+              // Mostrar notificação
+              const notification = document.createElement('div');
+              notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #2196f3;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 9999;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+              `;
+              notification.innerHTML = '<i class="fas fa-comments"></i> Novo feedback do treinador!';
+              
+              document.body.appendChild(notification);
+              
+              setTimeout(() => {
+                notification.remove();
+              }, 3000);
+            } catch (error) {
+              console.error('❌ Erro ao processar feedback:', error);
+            }
+          }
+        });
+      }
+      
+            // Inicializar gráfico e sincronização
+      criarGraficoDesempenho();
+      configurarSincronizacaoDesempenho();
+
+                   // Função para carregar feedback do treinador
+      async function carregarFeedbackTreinador() {
+        try {
+                  // Obter token de autenticação
+        const token = localStorage.getItem('jwt_token');
+          if (!token) {
+            console.log('❌ Token não encontrado');
+            mostrarPlaceholderFeedback();
+            return;
+          }
+           
+           // Buscar feedback do atleta logado
+           // Primeiro, vamos tentar obter o ID do atleta do usuário logado
+           let atletaId = null;
+           
+           // Verificar se temos dados do usuário no localStorage
+           const usuarioInfo = localStorage.getItem('usuario_info');
+           if (usuarioInfo) {
+             try {
+               const usuario = JSON.parse(usuarioInfo);
+               console.log('👤 Usuário logado:', usuario);
+               
+               // Para Ana Mendonça (usuário ID 6), o atleta ID é 1
+               // Em um sistema real, isso seria buscado via API
+               if (usuario.email === 'ana.mendonca@email.com') {
+                 atletaId = 1;
+               } else {
+                 // Para outros usuários, usar o ID do usuário como fallback
+                 atletaId = usuario.id;
+               }
+             } catch (error) {
+               console.error('❌ Erro ao parsear dados do usuário:', error);
+               atletaId = 1; // Fallback para Ana Mendonça
+             }
+           } else {
+             console.log('⚠️ Dados do usuário não encontrados, usando ID padrão');
+             atletaId = 1; // Fallback para Ana Mendonça
+           }
+           
+           console.log('🎯 ID do atleta a ser buscado:', atletaId);
+           
+           // Determinar URL base
+           const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+           const apiURL = `${baseURL}/api/atletas/${atletaId}/feedback`;
+           
+                     const response = await fetch(apiURL, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const resultado = await response.json();
+           
+           if (resultado.sucesso && resultado.feedback) {
+             console.log('✅ Feedback encontrado no banco:', resultado.feedback);
+             mostrarFeedbackTreinador(resultado.feedback);
+           } else {
+             console.log('⚠️ Nenhum feedback encontrado no banco');
+             mostrarPlaceholderFeedback();
+           }
+         } catch (error) {
+           console.error('❌ Erro ao carregar feedback do banco:', error);
+           mostrarPlaceholderFeedback();
+         }
+       }
+
+            // Função para mostrar feedback do treinador
+      function mostrarFeedbackTreinador(feedbackData) {
+        // Buscar elementos
+        const placeholder = document.querySelector('.feedback-placeholder');
+        const trainerSection = document.getElementById('feedback-trainer');
+        const trainerName = document.getElementById('trainer-name');
+        const trainerFeedback = document.getElementById('trainer-feedback');
+        const trainerAvatar = document.getElementById('trainer-avatar');
+        
+        // Verificar se os elementos existem no DOM
+        const feedbackContent = document.getElementById('feedback-content');
+        
+        // Se os elementos não existem, criar dinamicamente
+        if (!trainerSection || !trainerName || !trainerFeedback || !trainerAvatar) {
+          if (feedbackContent) {
+            // Limpar conteúdo atual
+            feedbackContent.innerHTML = '';
+            
+            // Criar seção do treinador
+            const trainerDiv = document.createElement('div');
+            trainerDiv.className = 'feedback-trainer';
+            trainerDiv.id = 'feedback-trainer';
+            trainerDiv.style.display = 'flex';
+            
+            // Usar dados reais do feedback
+            const iniciais = feedbackData.treinador_nome 
+              ? feedbackData.treinador_nome.split(' ').map(n => n[0]).join('').toUpperCase()
+              : 'T';
+            
+            trainerDiv.innerHTML = `
+              <div class="trainer-avatar" id="trainer-avatar">${iniciais}</div>
+              <div class="trainer-info">
+                <h4 id="trainer-name">${feedbackData.treinador_nome || 'Treinador'}</h4>
+                <p id="trainer-feedback">${feedbackData.feedback}</p>
+              </div>
+            `;
+            
+            // Adicionar ao DOM
+            feedbackContent.appendChild(trainerDiv);
+            return;
+          }
+        }
+        
+        // Se os elementos existem, atualizar normalmente
+        if (placeholder) {
+          placeholder.style.display = 'none';
+        }
+        
+        if (trainerSection) {
+          trainerSection.style.display = 'flex';
+        }
+        
+        if (trainerName) {
+          trainerName.textContent = feedbackData.treinador_nome || 'Treinador';
+        }
+        
+        if (trainerFeedback) {
+          trainerFeedback.textContent = feedbackData.feedback;
+        }
+        
+        if (trainerAvatar) {
+          const iniciais = feedbackData.treinador_nome 
+            ? feedbackData.treinador_nome.split(' ').map(n => n[0]).join('').toUpperCase()
+            : 'T';
+          trainerAvatar.textContent = iniciais;
+        }
+      }
+
+      // Função para mostrar placeholder
+      function mostrarPlaceholderFeedback() {
+        const placeholder = document.querySelector('.feedback-placeholder');
+        const trainerSection = document.getElementById('feedback-trainer');
+        
+        if (placeholder) placeholder.style.display = 'flex';
+        if (trainerSection) trainerSection.style.display = 'none';
+      }
+
+
+
+
+
+      // Abrir modal de dieta
+      document
+        .getElementById("openDietModal")
+        .addEventListener("click", function () {
+          document.getElementById("dietModal").style.display = "flex";
+        });
+
+      // Fechar modal
+      document
+        .querySelector(".close-modal")
+        .addEventListener("click", function () {
+          document.getElementById("dietModal").style.display = "none";
+        });
+
+      // Fechar modal clicando fora
+      window.addEventListener("click", function (event) {
+        if (event.target == document.getElementById("dietModal")) {
+          document.getElementById("dietModal").style.display = "none";
+        }
+      });
+
+      // Função de logout
+      function logout() {
+        if (confirm('Tem certeza que deseja sair?')) {
+          window.location.href = '/';
+        }
+      }
+
+      // Adicionar funcionalidade aos botões do modal de dieta
+      document.querySelector('.modal-actions .btn-outline').addEventListener('click', function() {
+        alert('Visualizando dieta online...');
+        document.getElementById('dietModal').style.display = 'none';
+      });
+
+      document.querySelector('.modal-actions .btn-primary').addEventListener('click', function() {
+        alert('Download do PDF iniciado...');
+        document.getElementById('dietModal').style.display = 'none';
+      });
+
+      // Remover event listeners antigos dos vídeos (agora são gerenciados dinamicamente)
     </script>
-</body>
+    
+    <!-- Scripts para dashboard personalizado -->
+    <script src="static/js/frontend-config.js"></script>
+    <script src="static/js/dashboard-aluno.js"></script>
+    <script src="static/js/notificacoes.js"></script>
+    
+    <script>
+      // =====================================================
+      // SISTEMA DE SINCRONIZAÇÃO DE DESEMPENHO
+      // =====================================================
+      
+      // Função para carregar dados de desempenho do servidor
+      async function carregarDesempenhoDoServidor() {
+        try {
+          const token = localStorage.getItem('jwt_token');
+          const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+          
+          // Determinar ID do atleta logado
+          const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+          // Para Ana Mendonça, usar ID 1 (que é o ID do atleta na tabela atletas)
+          const atletaId = 1; // Ana Mendonça tem atleta_id = 1
+          
+          console.log('📊 [SINCRONIZAÇÃO] Carregando desempenho do servidor para atleta:', atletaId);
+          
+          const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.sucesso && data.desempenho) {
+              console.log('✅ [SINCRONIZAÇÃO] Desempenho carregado do servidor:', data.desempenho);
+              
+              // Verificar se houve mudanças comparando com localStorage
+              const dadosAnteriores = localStorage.getItem(`desempenho_${atletaId}`);
+              let houveMudanca = true;
+              
+              if (dadosAnteriores) {
+                try {
+                  const dadosAnt = JSON.parse(dadosAnteriores);
+                  const ultimaAtualizacaoAnterior = dadosAnt.ultima_atualizacao;
+                  const ultimaAtualizacaoAtual = data.desempenho.ultima_atualizacao;
+                  
+                  if (ultimaAtualizacaoAnterior === ultimaAtualizacaoAtual) {
+                    houveMudanca = false;
+                    console.log('📊 [SINCRONIZAÇÃO] Nenhuma mudança detectada');
+                  } else {
+                    console.log('🔄 [SINCRONIZAÇÃO] Mudança detectada!');
+                    console.log('📊 [SINCRONIZAÇÃO] Anterior:', ultimaAtualizacaoAnterior);
+                    console.log('📊 [SINCRONIZAÇÃO] Atual:', ultimaAtualizacaoAtual);
+                  }
+                } catch (error) {
+                  console.log('⚠️ [SINCRONIZAÇÃO] Erro ao comparar dados anteriores:', error);
+                }
+              }
+              
+              // Atualizar gráfico apenas se houve mudança
+              if (houveMudanca) {
+                console.log('🔄 [SINCRONIZAÇÃO] Atualizando gráfico com novos dados...');
+                
+                // Atualizar gráfico de desempenho se existir
+                if (window.atualizarGraficoDesempenho) {
+                  window.atualizarGraficoDesempenho(data.desempenho.categorias);
+                }
+                
+                // Mostrar notificação de atualização
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                  position: fixed;
+                  top: 20px;
+                  right: 20px;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  padding: 15px 20px;
+                  border-radius: 8px;
+                  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                  z-index: 9999;
+                  font-weight: 500;
+                `;
+                notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                  notification.remove();
+                }, 3000);
+              }
+              
+              // Salvar no localStorage para cache
+              localStorage.setItem(`desempenho_${atletaId}`, JSON.stringify(data.desempenho));
+              
+              return data.desempenho;
+            }
+          } else {
+            console.error('❌ [SINCRONIZAÇÃO] Erro ao carregar desempenho:', response.status);
+          }
+        } catch (error) {
+          console.error('❌ [SINCRONIZAÇÃO] Erro na requisição:', error);
+        }
+        return null;
+      }
+      
+      // Função para atualizar gráfico de desempenho
+      function atualizarGraficoDesempenho(categorias) {
+        console.log('📊 [SINCRONIZAÇÃO] Atualizando gráfico com dados:', categorias);
+        
+        // Verificar se o gráfico existe
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) {
+          console.log('⚠️ [SINCRONIZAÇÃO] Canvas do gráfico não encontrado');
+          return;
+        }
+        
+        // Verificar se Chart.js está disponível
+        if (typeof Chart === 'undefined') {
+          console.log('⚠️ [SINCRONIZAÇÃO] Chart.js não está disponível');
+          return;
+        }
+        
+        // Destruir gráfico existente se houver
+        if (window.performanceChart) {
+          try {
+            window.performanceChart.destroy();
+          } catch (e) {
+            console.log('⚠️ [SINCRONIZAÇÃO] Erro ao destruir gráfico anterior:', e);
+          }
+          window.performanceChart = null;
+        }
+        
+        // Limpar canvas completamente e remover do Chart.js registry
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Remover canvas do Chart.js registry se existir
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+          const existingChart = Chart.getChart(canvas);
+          if (existingChart) {
+            try {
+              existingChart.destroy();
+            } catch (e) {
+              console.log('⚠️ [SINCRONIZAÇÃO] Erro ao destruir chart do registry:', e);
+            }
+          }
+        }
+        
+        // Forçar limpeza do canvas
+        canvas.width = canvas.width;
+        
+        // Preparar dados para o Chart.js
+        const labels = Object.keys(categorias).map(key => {
+          switch(key) {
+            case '100m_livre': return '100m Livre';
+            case '200m_livre': return '200m Livre';
+            case 'resistencia': return 'Resistência';
+            case 'tecnica': return 'Técnica';
+            case 'forca': return 'Força';
+            default: return key;
+          }
+        });
+        
+        const esperadoData = Object.values(categorias).map(cat => cat.esperado);
+        const atingidoData = Object.values(categorias).map(cat => cat.atingido);
+        
+        console.log('📊 [SINCRONIZAÇÃO] Dados preparados:', {
+          labels: labels,
+          esperado: esperadoData,
+          atingido: atingidoData
+        });
+        
+        // Criar novo gráfico
+        window.performanceChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Desempenho Esperado',
+                data: esperadoData,
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 1
+              },
+              {
+                label: 'Desempenho Atingido',
+                data: atingidoData,
+                backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                borderColor: 'rgba(46, 204, 113, 1)',
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  stepSize: 10
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Desempenho - Natação'
+              }
+            }
+          }
+        });
+        
+        console.log('✅ [SINCRONIZAÇÃO] Gráfico atualizado com sucesso');
+      }
+      
+      // Escutar eventos de atualização de desempenho
+      window.addEventListener('desempenhoAtualizado', (event) => {
+        console.log('🔄 [SINCRONIZAÇÃO] Evento de atualização recebido:', event.detail);
+        
+        const { atletaId, dados } = event.detail;
+        const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+        const meuAtletaId = 1; // Ana Mendonça tem atleta_id = 1
+        
+        // Verificar se a atualização é para o atleta logado
+        if (atletaId == meuAtletaId) {
+          console.log('✅ [SINCRONIZAÇÃO] Atualização é para este atleta, aplicando mudanças...');
+          
+          // Atualizar gráfico
+          if (dados.categorias) {
+            atualizarGraficoDesempenho(dados.categorias);
+          }
+          
+          // Mostrar notificação
+          const notification = document.createElement('div');
+          notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-weight: 500;
+          `;
+          notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
+          
+          document.body.appendChild(notification);
+          
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      });
+      
+      // Escutar mudanças no localStorage (para sincronização entre abas)
+      window.addEventListener('storage', (event) => {
+        if (event.key && event.key.startsWith('desempenho_')) {
+          console.log('🔄 [SINCRONIZAÇÃO] Mudança no localStorage detectada:', event.key);
+          
+          try {
+            const dados = JSON.parse(event.newValue);
+            if (dados && dados.categorias) {
+              atualizarGraficoDesempenho(dados.categorias);
+            }
+          } catch (error) {
+            console.error('❌ [SINCRONIZAÇÃO] Erro ao processar dados do localStorage:', error);
+          }
+        }
+      });
+      
+      // Sistema de polling para verificar atualizações
+      let pollingInterval = null;
+      
+      function iniciarPolling() {
+        // Verificar atualizações a cada 5 segundos para sincronização mais rápida
+        pollingInterval = setInterval(() => {
+          carregarDesempenhoDoServidor();
+        }, 5000);
+        
+        console.log('🔄 [SINCRONIZAÇÃO] Polling iniciado (5s)');
+      }
+      
+      function pararPolling() {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+          console.log('⏹️ [SINCRONIZAÇÃO] Polling parado');
+        }
+      }
+      
+             // Carregar dados iniciais quando a página carregar
+       document.addEventListener('DOMContentLoaded', () => {
+         console.log('🚀 [SINCRONIZAÇÃO] Inicializando sistema de sincronização...');
+         carregarDesempenhoDoServidor();
+         iniciarPolling();
+       });
+      
+      // Parar polling quando a página for fechada
+      window.addEventListener('beforeunload', () => {
+        pararPolling();
+      });
+      
+      // =====================================================
+      // SISTEMA DE VÍDEOS DO ATLETA
+      // =====================================================
+      
+      // Função para carregar vídeos do atleta
+      async function carregarVideosDoAtleta() {
+        try {
+          const token = localStorage.getItem('jwt_token');
+          const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+          
+          // Determinar ID do atleta logado
+          const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+          const atletaId = 1; // Ana Mendonça tem atleta_id = 1
+          
+          console.log('🎥 [VÍDEOS] Carregando vídeos para atleta:', atletaId);
+          
+          const response = await fetch(`${baseURL}/api/atletas/${atletaId}/videos`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log('🎥 [VÍDEOS] Resposta da API:', data);
+          
+          if (data.sucesso) {
+            atualizarListaVideos(data.videos);
+          } else {
+            console.error('❌ [VÍDEOS] Erro na API:', data.erro);
+          }
+          
+        } catch (error) {
+          console.error('❌ [VÍDEOS] Erro ao carregar vídeos:', error);
+        }
+      }
+      
+      // Função para atualizar a lista de vídeos na interface
+      function atualizarListaVideos(videos) {
+        const videosGrid = document.querySelector('.videos-grid');
+        if (!videosGrid) {
+          console.error('❌ [VÍDEOS] Container de vídeos não encontrado');
+          return;
+        }
+        
+        // Limpar vídeos existentes
+        videosGrid.innerHTML = '';
+        
+        if (videos.length === 0) {
+          // Mostrar mensagem quando não há vídeos
+          videosGrid.innerHTML = `
+            <div class="no-videos">
+              <i class="fas fa-video-slash"></i>
+              <p>Nenhum vídeo disponível</p>
+              <small>Seus vídeos de treino aparecerão aqui quando forem enviados</small>
+            </div>
+          `;
+          return;
+        }
+        
+        // Adicionar cada vídeo
+        videos.forEach(video => {
+          const videoElement = criarElementoVideo(video);
+          videosGrid.appendChild(videoElement);
+        });
+        
+        console.log(`✅ [VÍDEOS] ${videos.length} vídeos carregados na interface`);
+      }
+      
+      // Função para criar elemento de vídeo
+      function criarElementoVideo(video) {
+        const videoDiv = document.createElement('div');
+        videoDiv.className = 'video-item';
+        videoDiv.onclick = () => visualizarVideo(video);
+        
+        // Calcular tempo relativo e data completa
+        const dataUpload = new Date(video.data_upload);
+        const tempoRelativo = calcularTempoRelativo(dataUpload);
+        const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+        
+        videoDiv.innerHTML = `
+          <div class="video-thumbnail">
+            <i class="fas fa-play"></i>
+          </div>
+          <div class="video-info">
+            <h4>${video.titulo}</h4>
+            <p>${video.descricao || 'Vídeo de treinamento'}</p>
+            <small>Postado por ${video.treinador_nome} • ${tempoRelativo}</small>
+            <small class="video-datetime">${dataHoraCompleta}</small>
+          </div>
+        `;
+        
+        return videoDiv;
+      }
+      
+      // Função para calcular tempo relativo
+      function calcularTempoRelativo(data) {
+        const agora = new Date();
+        const dataUpload = new Date(data);
+        
+        // Converter para horário de Brasília (UTC-3)
+        const offsetBrasilia = -3 * 60; // -3 horas em minutos
+        const agoraBrasilia = new Date(agora.getTime() + (offsetBrasilia * 60000));
+        const dataUploadBrasilia = new Date(dataUpload.getTime() + (offsetBrasilia * 60000));
+        
+        // Normalizar para o início do dia (00:00:00) em Brasília
+        const hojeBrasilia = new Date(agoraBrasilia.getFullYear(), agoraBrasilia.getMonth(), agoraBrasilia.getDate());
+        const dataUploadNormalizada = new Date(dataUploadBrasilia.getFullYear(), dataUploadBrasilia.getMonth(), dataUploadBrasilia.getDate());
+        
+        const diffMs = hojeBrasilia - dataUploadNormalizada;
+        const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        
+        // Debug para verificar os valores
+        console.log('🕐 [DEBUG] Tempo relativo (Brasília):', {
+          agora: agora.toISOString(),
+          dataUpload: dataUpload.toISOString(),
+          agoraBrasilia: agoraBrasilia.toISOString(),
+          dataUploadBrasilia: dataUploadBrasilia.toISOString(),
+          hojeBrasilia: hojeBrasilia.toISOString(),
+          dataUploadNormalizada: dataUploadNormalizada.toISOString(),
+          diffMs: diffMs,
+          diffDias: diffDias
+        });
+        
+        if (diffDias === 0) {
+          return 'Hoje';
+        } else if (diffDias === 1) {
+          return 'Ontem';
+        } else if (diffDias < 7) {
+          return `${diffDias} dias atrás`;
+        } else if (diffDias < 30) {
+          const semanas = Math.floor(diffDias / 7);
+          return `${semanas} semana${semanas > 1 ? 's' : ''} atrás`;
+        } else {
+          const meses = Math.floor(diffDias / 30);
+          return `${meses} mês${meses > 1 ? 'es' : ''} atrás`;
+        }
+      }
+
+      // Função para formatar data e hora completa
+      function formatarDataHoraCompleta(data) {
+        const dataObj = new Date(data);
+        
+        // Converter para horário de Brasília (UTC-3)
+        const offsetBrasilia = -3 * 60; // -3 horas em minutos
+        const dataBrasilia = new Date(dataObj.getTime() + (offsetBrasilia * 60000));
+        
+        const opcoes = {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'America/Sao_Paulo'
+        };
+        return dataBrasilia.toLocaleString('pt-BR', opcoes);
+      }
+      
+      // Função para visualizar vídeo
+      function visualizarVideo(video) {
+        console.log('🎥 [VÍDEO] Iniciando visualização:', video);
+        
+        // Preencher o modal de visualização
+        const videoElement = document.getElementById('videoPlayer');
+        const videoSource = document.getElementById('videoSource');
+        const videoTitle = document.getElementById('videoViewDetailsTitle');
+        const videoDescription = document.getElementById('videoViewDescription');
+        const videoDate = document.getElementById('videoViewDate');
+        const videoAthlete = document.getElementById('videoViewAthlete');
+        
+        if (!videoElement || !videoSource) {
+          console.error('❌ [VÍDEO] Elementos do player não encontrados');
+          alert('Erro: Player de vídeo não encontrado');
+          return;
+        }
+        
+        // Verificar se a URL do vídeo é válida
+        if (!video.url_video || video.url_video.trim() === '') {
+          console.error('❌ [VÍDEO] URL do vídeo inválida:', video.url_video);
+          alert('Erro: URL do vídeo não disponível');
+          return;
+        }
+        
+        console.log('🎥 [VÍDEO] Configurando vídeo com URL:', video.url_video);
+        
+        // Construir URL correta para arquivos locais
+        let videoUrl = video.url_video;
+        if (video.url_video.startsWith('/uploads/')) {
+          // Para arquivos locais, usar a rota do Flask
+          videoUrl = `http://localhost:5000${video.url_video}`;
+        }
+        
+        console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
+        
+        // Configurar o vídeo
+        videoSource.src = videoUrl;
+        videoElement.load(); // Recarregar o vídeo com a nova fonte
+        
+        // Adicionar event listeners para debug
+        videoElement.addEventListener('loadstart', () => {
+          console.log('🎥 [VÍDEO] Iniciando carregamento...');
+        });
+        
+        videoElement.addEventListener('canplay', () => {
+          console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
+        });
+        
+        videoElement.addEventListener('error', (e) => {
+          console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
+          console.error('❌ [VÍDEO] Erro details:', videoElement.error);
+          alert('Erro ao carregar vídeo. Verifique a URL ou tente novamente.');
+        });
+        
+        videoElement.addEventListener('loadeddata', () => {
+          console.log('✅ [VÍDEO] Dados do vídeo carregados');
+        });
+        
+        // Calcular tempo relativo e data completa
+        const dataUpload = new Date(video.data_upload);
+        const tempoRelativo = calcularTempoRelativo(dataUpload);
+        const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+        
+        // Preencher informações
+        videoTitle.textContent = video.titulo;
+        videoDescription.textContent = video.descricao || 'Sem descrição disponível';
+        videoDate.textContent = `${tempoRelativo} (${dataHoraCompleta})`;
+        videoAthlete.textContent = `Postado por ${video.treinador_nome}`;
+        
+        console.log('🎥 [VÍDEO] Abrindo modal...');
+        
+        // Abrir o modal
+        document.getElementById('videoViewModal').style.display = 'block';
+      }
+
+      // Função para fechar o modal de visualização de vídeo
+      function closeVideoViewModal() {
+        document.getElementById('videoViewModal').style.display = 'none';
+        // Pausar o vídeo quando fechar o modal
+        const videoPlayer = document.getElementById('videoPlayer');
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
+      }
+
+      // Event listener para fechar modal ao clicar fora dele
+      window.addEventListener('click', function(event) {
+        const videoModal = document.getElementById('videoViewModal');
+        if (event.target === videoModal) {
+          closeVideoViewModal();
+        }
+      });
+      
+                   // Carregar dados quando a página carregar
+      document.addEventListener('DOMContentLoaded', () => {
+        // Carregar feedback do treinador automaticamente
+        carregarFeedbackTreinador();
+        
+        // Carregar vídeos do atleta
+        carregarVideosDoAtleta();
+      });
+      
+      // Fallback: se o DOM já estiver carregado, executar imediatamente
+      if (document.readyState === 'loading') {
+        // DOM ainda carregando, aguardar DOMContentLoaded
+      } else {
+        // DOM já carregado, executar imediatamente
+        console.log('🚀 DOM já carregado, carregando feedback automaticamente...');
+        carregarFeedbackTreinador();
+        carregarVideosDoAtleta();
+      }
+
+      // Sistema de calendário integrado com dashboard-aluno.js
+      
+      // Expor função globalmente para uso por outros scripts
+      window.atualizarGraficoDesempenho = atualizarGraficoDesempenho;
+      window.carregarVideosDoAtleta = carregarVideosDoAtleta;
+      
+      // Função de teste para feedback
+      window.testarFeedback = function() {
+        console.log('🧪 [TESTE] Testando sistema de feedback...');
+        console.log('🔑 Token atual:', localStorage.getItem('jwt_token'));
+        carregarFeedbackTreinador();
+      };
+      
+      // Função para definir token de teste
+      window.definirTokenTeste = function() {
+        const tokenTeste = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvX2lkIjo2LCJ0aXBvX3VzdWFyaW8iOiJhbHVubyIsImV4cCI6MTc1Njk1Njg1Mn0.ZxFI3E4-3CX1K7oZ0j5xVL2eH8gQtSCCBkYq9nGOnO';
+        localStorage.setItem('jwt_token', tokenTeste);
+        console.log('✅ Token de teste definido');
+        carregarFeedbackTreinador();
+      };
+      
+
+    </script>
+  </body>
 </html>
