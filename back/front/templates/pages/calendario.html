@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendário | Instituto Franciscani</title>
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      :root {
+        --primary-color: #00005e;
+        --secondary-color: #010146;
+        --accent-color: #08083a;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #00b451;
+        --warning-color: #f72548;
+        --gray-color: #adb5bd;
+        --sidebar-width: 250px;
+        --header-height: 70px;
+        --transition: all 0.3s ease;
+        --info-color: #4895ef;
+      }
+
+      body {
+        background-color: #f5f7fb;
+        color: var(--dark-color);
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: var(--sidebar-width);
+        background: linear-gradient(
+          to bottom,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        height: 100vh;
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px 0;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+
+      .sidebar-header {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 20px;
+      }
+
+      .sidebar-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sidebar-header h2 i {
+        background: white;
+        color: var(--primary-color);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-items {
+        list-style: none;
+        padding: 0 15px;
+      }
+
+      .menu-items li {
+        margin-bottom: 5px;
+      }
+
+      .menu-items a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .menu-items a:hover,
+      .menu-items a.active {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .menu-items a i {
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar-footer a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .sidebar-footer a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        padding: 20px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(
+          to right,
+          var(--accent-color),
+          var(--primary-color)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .user-details h4 {
+        margin-bottom: 3px;
+      }
+
+      .user-details p {
+        color: var(--gray-color);
+        font-size: 14px;
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 400px;
+        margin: 0 20px;
+        position: relative;
+      }
+
+      .search-bar input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border: none;
+        background-color: #f5f7fb;
+        border-radius: 25px;
+        font-size: 14px;
+      }
+
+      .search-bar i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-color);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f5f7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-color);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .action-icon:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      /* Calendário */
+      .calendar-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .calendar-nav button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .calendar-nav button:hover {
+        background: var(--secondary-color);
+      }
+
+      .calendar-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .view-options {
+        display: flex;
+        gap: 10px;
+      }
+
+      .view-options button {
+        padding: 8px 15px;
+        border: 1px solid var(--gray-color);
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .view-options button.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .view-options button:hover:not(.active) {
+        background: #f5f7fb;
+      }
+
+      /* Grid do Calendário */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+      }
+
+      .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
+
+      .calendar-day {
+        min-height: 100px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .calendar-day:hover {
+        background-color: #f9f9f9;
+      }
+
+      .day-number {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .day-events {
+        overflow-y: auto;
+        max-height: 70px;
+      }
+
+      .event-item {
+        font-size: 11px;
+        padding: 3px 5px;
+        margin-bottom: 3px;
+        border-radius: 4px;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .event-competition {
+        background-color: var(--primary-color);
+      }
+
+      .event-training {
+        background-color: var(--success-color);
+      }
+
+      .event-meeting {
+        background-color: var(--info-color);
+      }
+
+      .event-other {
+        background-color: var(--gray-color);
+      }
+
+      .other-month {
+        opacity: 0.4;
+      }
+
+      .today {
+        background-color: rgba(0, 0, 94, 0.1);
+        border: 2px solid var(--primary-color);
+      }
+
+      .has-events::after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 7px;
+        height: 7px;
+        background-color: var(--warning-color);
+        border-radius: 50%;
+      }
+
+      /* Lista de Eventos */
+      .events-list {
+        margin-top: 30px;
+      }
+
+      .events-list h3 {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .event-list-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: var(--transition);
+      }
+
+      .event-list-item:hover {
+        background-color: #f9f9f9;
+      }
+
+      .event-date {
+        min-width: 60px;
+        text-align: center;
+        margin-right: 15px;
+      }
+
+      .event-day {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .event-month {
+        font-size: 12px;
+        color: var(--gray-color);
+        text-transform: uppercase;
+      }
+
+      .event-details {
+        flex: 1;
+      }
+
+      .event-title {
+        font-size: 16px;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .event-info {
+        display: flex;
+        gap: 15px;
+        color: var(--gray-color);
+        font-size: 13px;
+      }
+
+      .event-time,
+      .event-location {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .event-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .event-action-btn {
+        background: none;
+        border: none;
+        color: var(--gray-color);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .event-action-btn:hover {
+        color: var(--primary-color);
+      }
+
+      /* Modal de Evento */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        width: 500px;
+        max-width: 90%;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-header h2 {
+        color: var(--primary-color);
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--gray-color);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark-color);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: var(--transition);
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+      }
+
+      .btn-outline:hover {
+        background-color: #f5f7fb;
+      }
+
+      .btn-danger {
+        background-color: var(--warning-color);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background-color: #d91e3a;
+      }
+
+      /* Responsividade */
+      @media (max-width: 992px) {
+        .sidebar {
+          width: 70px;
+          overflow: hidden;
+        }
+
+        .sidebar-header h2 span,
+        .menu-items a span,
+        .sidebar-footer a span {
+          display: none;
+        }
+
+        .main-content {
+          margin-left: 70px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          padding: 15px;
+        }
+
+        .search-bar {
+          max-width: 100%;
+          margin: 0;
+        }
+
+        .user-info {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .calendar-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+
+        .view-options {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .calendar-day {
+          min-height: 80px;
+        }
+
+        .event-list-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .event-date {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+
+        .event-actions {
+          margin-top: 10px;
+          align-self: flex-end;
+        }
+
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-header">
+          <img src="/static/img/logo_if.png" alt="" width="230px">
+        </div>
+        <ul class="menu-items">
+            <li>
+                <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+            </li>
+            <li>
+                <a href="/treinador/dados/{{ treinador.id }}"><i class="fas fa-chart-bar"></i> <span>Dados Gerais</span></a>
+            </li>
+            <li>
+                <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span>Treinamentos</span></a>
+            </li>
+            <li>
+                <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span>Calendário</span></a>
+            </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <a href="https://forms.office.com/"
+          ><i class="fas fa-question-circle"></i> <span>Ajuda</span></a
+        >
+        <a href="/logout"
+          ><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a
+        >
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="user-info">
+          <div class="user-avatar">JC</div>
+          <div class="user-details">
+            <h4>João Carvalho</h4>
+            <p>Coordenador Técnico</p>
+          </div>
+        </div>
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Pesquisar evento..." />
+        </div>
+        <div class="header-actions">
+          <div class="action-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="action-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div class="action-icon" id="addEventBtn">
+            <i class="fas fa-plus"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Calendário -->
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+            <h2 class="calendar-title">Setembro 2023</h2>
+            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="view-options">
+            <button class="active">Mês</button>
+            <button>Semana</button>
+            <button>Dia</button>
+            <button>Lista</button>
+          </div>
+        </div>
+
+        <div class="calendar-weekdays">
+          <div>Dom</div>
+          <div>Seg</div>
+          <div>Ter</div>
+          <div>Qua</div>
+          <div>Qui</div>
+          <div>Sex</div>
+          <div>Sáb</div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Os dias do calendário serão preenchidos via JavaScript -->
+        </div>
+      </div>
+
+      <!-- Próximos Eventos -->
+      <div class="calendar-container events-list">
+        <h3>Próximos Eventos</h3>
+        <div class="event-list-item">
+          <div class="event-date">
+            <div class="event-day">15</div>
+            <div class="event-month">SET</div>
+          </div>
+          <div class="event-details">
+            <div class="event-title">Campeonato Estadual de Atletismo</div>
+            <div class="event-info">
+              <span class="event-time"
+                ><i class="fas fa-clock"></i> 09:00h</span
+              >
+              <span class="event-location"
+                ><i class="fas fa-map-marker-alt"></i> Estádio Municipal</span
+              >
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="event-action-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="event-list-item">
+          <div class="event-date">
+            <div class="event-day">18</div>
+            <div class="event-month">SET</div>
+          </div>
+          <div class="event-details">
+            <div class="event-title">Reunião de Planejamento Técnico</div>
+            <div class="event-info">
+              <span class="event-time"
+                ><i class="fas fa-clock"></i> 14:00h</span
+              >
+              <span class="event-location"
+                ><i class="fas fa-map-marker-alt"></i> Sala de Reuniões</span
+              >
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="event-action-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="event-list-item">
+          <div class="event-date">
+            <div class="event-day">22</div>
+            <div class="event-month">SET</div>
+          </div>
+          <div class="event-details">
+            <div class="event-title">Torneio de Natação Interestadual</div>
+            <div class="event-info">
+              <span class="event-time"
+                ><i class="fas fa-clock"></i> 14:00h</span
+              >
+              <span class="event-location"
+                ><i class="fas fa-map-marker-alt"></i> Centro Aquático</span
+              >
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="event-action-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="event-list-item">
+          <div class="event-date">
+            <div class="event-day">25</div>
+            <div class="event-month">SET</div>
+          </div>
+          <div class="event-details">
+            <div class="event-title">Avaliação Física - Equipe de Vôlei</div>
+            <div class="event-info">
+              <span class="event-time"
+                ><i class="fas fa-clock"></i> 08:00h - 12:00h</span
+              >
+              <span class="event-location"
+                ><i class="fas fa-map-marker-alt"></i> Laboratório</span
+              >
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="event-action-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="event-list-item">
+          <div class="event-date">
+            <div class="event-day">05</div>
+            <div class="event-month">OUT</div>
+          </div>
+          <div class="event-details">
+            <div class="event-title">Campeonato Nacional de Ginástica</div>
+            <div class="event-info">
+              <span class="event-time"
+                ><i class="fas fa-clock"></i> 10:00h</span
+              >
+              <span class="event-location"
+                ><i class="fas fa-map-marker-alt"></i> Ginásio Olímpico</span
+              >
+            </div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="event-action-btn">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal de Evento -->
+    <div class="modal" id="eventModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Adicionar Evento</h2>
+          <button class="close-modal">&times;</button>
+        </div>
+        <form id="eventForm">
+          <div class="form-group">
+            <label for="eventTitle">Título do Evento</label>
+            <input
+              type="text"
+              id="eventTitle"
+              required
+              placeholder="Ex: Campeonato Estadual"
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="eventDate">Data</label>
+              <input type="date" id="eventDate" required />
+            </div>
+            <div class="form-group">
+              <label for="eventTime">Hora</label>
+              <input type="time" id="eventTime" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="eventLocation">Local</label>
+            <input
+              type="text"
+              id="eventLocation"
+              placeholder="Ex: Estádio Municipal"
+            />
+          </div>
+          <div class="form-group">
+            <label for="eventType">Tipo de Evento</label>
+            <select id="eventType">
+              <option value="competition">Competição</option>
+              <option value="training">Treinamento</option>
+              <option value="meeting">Reunião</option>
+              <option value="other">Outro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="eventDescription">Descrição</label>
+            <textarea
+              id="eventDescription"
+              placeholder="Detalhes do evento..."
+            ></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" id="cancelEvent">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              id="deleteEvent"
+              style="display: none"
+            >
+              Excluir
+            </button>
+            <button type="submit" class="btn btn-primary">Salvar Evento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Variáveis globais
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        const months = [
+          "Janeiro",
+          "Fevereiro",
+          "Março",
+          "Abril",
+          "Maio",
+          "Junho",
+          "Julho",
+          "Agosto",
+          "Setembro",
+          "Outubro",
+          "Novembro",
+          "Dezembro",
+        ];
+
+        // Dados de exemplo para eventos
+        const events = [
+          {
+            id: 1,
+            title: "Campeonato Estadual de Atletismo",
+            date: "2023-09-15",
+            time: "09:00",
+            location: "Estádio Municipal",
+            type: "competition",
+          },
+          {
+            id: 2,
+            title: "Reunião de Planejamento Técnico",
+            date: "2023-09-18",
+            time: "14:00",
+            location: "Sala de Reuniões",
+            type: "meeting",
+          },
+          {
+            id: 3,
+            title: "Torneio de Natação Interestadual",
+            date: "2023-09-22",
+            time: "14:00",
+            location: "Centro Aquático",
+            type: "competition",
+          },
+          {
+            id: 4,
+            title: "Avaliação Física - Equipe de Vôlei",
+            date: "2023-09-25",
+            time: "08:00",
+            location: "Laboratório",
+            type: "training",
+          },
+          {
+            id: 5,
+            title: "Campeonato Nacional de Ginástica",
+            date: "2023-10-05",
+            time: "10:00",
+            location: "Ginásio Olímpico",
+            type: "competition",
+          },
+          {
+            id: 6,
+            title: "Treinamento Especial - Atletismo",
+            date: "2023-09-12",
+            time: "15:00",
+            location: "Pista de Atletismo",
+            type: "training",
+          },
+          {
+            id: 7,
+            title: "Workshop de Nutrição Esportiva",
+            date: "2023-09-20",
+            time: "10:00",
+            location: "Auditório",
+            type: "other",
+          },
+        ];
+
+        // Elementos do DOM
+        const calendarTitle = document.querySelector(".calendar-title");
+        const calendarGrid = document.getElementById("calendarGrid");
+        const prevMonthBtn = document.getElementById("prevMonth");
+        const nextMonthBtn = document.getElementById("nextMonth");
+        const addEventBtn = document.getElementById("addEventBtn");
+        const eventModal = document.getElementById("eventModal");
+        const closeModalBtn = document.querySelector(".close-modal");
+        const cancelEventBtn = document.getElementById("cancelEvent");
+        const eventForm = document.getElementById("eventForm");
+
+        // Inicializar o calendário
+        function initCalendar() {
+          updateCalendarTitle();
+          renderCalendar();
+          setupEventListeners();
+        }
+
+        // Atualizar o título do calendário
+        function updateCalendarTitle() {
+          calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
+        }
+
+        // Renderizar o calendário
+        function renderCalendar() {
+          // Limpar o grid do calendário
+          calendarGrid.innerHTML = "";
+
+          // Obter o primeiro dia do mês e o número de dias no mês
+          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+          const daysInMonth = new Date(
+            currentYear,
+            currentMonth + 1,
+            0
+          ).getDate();
+
+          // Dias do mês anterior
+          const daysInPrevMonth = new Date(
+            currentYear,
+            currentMonth,
+            0
+          ).getDate();
+
+          // Preencher os dias do mês anterior
+          for (let i = firstDay - 1; i >= 0; i--) {
+            const day = daysInPrevMonth - i;
+            const dateStr = formatDate(currentYear, currentMonth - 1, day);
+            calendarGrid.appendChild(
+              createDayElement(day, "other-month", dateStr)
+            );
+          }
+
+          // Preencher os dias do mês atual
+          const today = new Date();
+          for (let i = 1; i <= daysInMonth; i++) {
+            const dateStr = formatDate(currentYear, currentMonth, i);
+            const isToday =
+              today.getDate() === i &&
+              today.getMonth() === currentMonth &&
+              today.getFullYear() === currentYear;
+            const dayClass = isToday ? "today" : "";
+            calendarGrid.appendChild(createDayElement(i, dayClass, dateStr));
+          }
+
+          // Preencher os dias do próximo mês
+          const totalCells = 42; // 6 semanas * 7 dias
+          const remainingCells = totalCells - (firstDay + daysInMonth);
+          for (let i = 1; i <= remainingCells; i++) {
+            const dateStr = formatDate(currentYear, currentMonth + 1, i);
+            calendarGrid.appendChild(
+              createDayElement(i, "other-month", dateStr)
+            );
+          }
+        }
+
+        // Criar elemento de dia
+        function createDayElement(day, className, dateStr) {
+          const dayElement = document.createElement("div");
+          dayElement.className = `calendar-day ${className}`;
+
+          const dayNumber = document.createElement("div");
+          dayNumber.className = "day-number";
+          dayNumber.textContent = day;
+          dayElement.appendChild(dayNumber);
+
+          const eventsContainer = document.createElement("div");
+          eventsContainer.className = "day-events";
+
+          // Adicionar eventos para este dia
+          const dayEvents = events.filter((event) => event.date === dateStr);
+          if (dayEvents.length > 0) {
+            dayElement.classList.add("has-events");
+            dayEvents.forEach((event) => {
+              const eventElement = document.createElement("div");
+              eventElement.className = `event-item event-${event.type}`;
+              eventElement.textContent = event.title;
+              eventElement.setAttribute("data-event-id", event.id);
+              eventsContainer.appendChild(eventElement);
+            });
+          }
+
+          dayElement.appendChild(eventsContainer);
+          dayElement.setAttribute("data-date", dateStr);
+
+          // Adicionar evento de clique para abrir o modal
+          dayElement.addEventListener("click", function () {
+            openAddEventModal(dateStr);
+          });
+
+          return dayElement;
+        }
+
+        // Formatar data como YYYY-MM-DD
+        function formatDate(year, month, day) {
+          // Ajustar o mês para ser baseado em 1
+          const adjustedMonth = month + 1;
+          return `${year}-${adjustedMonth.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+          prevMonthBtn.addEventListener("click", function () {
+            currentMonth--;
+            if (currentMonth < 0) {
+              currentMonth = 11;
+              currentYear--;
+            }
+            updateCalendarTitle();
+            renderCalendar();
+          });
+
+          nextMonthBtn.addEventListener("click", function () {
+            currentMonth++;
+            if (currentMonth > 11) {
+              currentMonth = 0;
+              currentYear++;
+            }
+            updateCalendarTitle();
+            renderCalendar();
+          });
+
+          addEventBtn.addEventListener("click", function () {
+            openAddEventModal();
+          });
+
+          closeModalBtn.addEventListener("click", closeEventModal);
+          cancelEventBtn.addEventListener("click", closeEventModal);
+
+          eventForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            saveEvent();
+          });
+
+          // Fechar modal ao clicar fora dele
+          window.addEventListener("click", function (e) {
+            if (e.target === eventModal) {
+              closeEventModal();
+            }
+          });
+        }
+
+        // Abrir modal para adicionar evento
+        function openAddEventModal(dateStr = "") {
+          const modalTitle = document.querySelector("#eventModal h2");
+          const deleteBtn = document.getElementById("deleteEvent");
+
+          modalTitle.textContent = "Adicionar Evento";
+          deleteBtn.style.display = "none";
+
+          if (dateStr) {
+            document.getElementById("eventDate").value = dateStr;
+          } else {
+            document.getElementById("eventDate").value = formatDate(
+              currentYear,
+              currentMonth,
+              currentDate.getDate()
+            );
+          }
+
+          // Limpar outros campos do formulário
+          document.getElementById("eventTitle").value = "";
+          document.getElementById("eventTime").value = "";
+          document.getElementById("eventLocation").value = "";
+          document.getElementById("eventType").value = "competition";
+          document.getElementById("eventDescription").value = "";
+          eventForm.setAttribute("data-editing-id", "");
+
+          eventModal.style.display = "flex";
+        }
+
+        // Abrir modal para editar evento
+        function openEditEventModal(eventId) {
+          const modalTitle = document.querySelector("#eventModal h2");
+          const deleteBtn = document.getElementById("deleteEvent");
+          const eventData = events.find((ev) => ev.id == eventId);
+
+          if (!eventData) return;
+
+          modalTitle.textContent = "Editar Evento";
+          deleteBtn.style.display = "inline-block";
+          eventForm.setAttribute("data-editing-id", eventData.id);
+
+          document.getElementById("eventTitle").value = eventData.title;
+          document.getElementById("eventDate").value = eventData.date;
+          document.getElementById("eventTime").value = eventData.time;
+          document.getElementById("eventLocation").value = eventData.location;
+          document.getElementById("eventType").value = eventData.type;
+          document.getElementById("eventDescription").value =
+            eventData.description || "";
+
+          deleteBtn.onclick = function () {
+            deleteEvent(eventData.id);
+          };
+
+          eventModal.style.display = "flex";
+        }
+
+        // Fechar modal
+        function closeEventModal() {
+          eventModal.style.display = "none";
+        }
+
+        // Salvar evento (novo ou edição)
+        function saveEvent() {
+          const editingId = eventForm.getAttribute("data-editing-id");
+          const newEvent = {
+            id: editingId ? parseInt(editingId) : Date.now(),
+            title: document.getElementById("eventTitle").value,
+            date: document.getElementById("eventDate").value,
+            time: document.getElementById("eventTime").value,
+            location: document.getElementById("eventLocation").value,
+            type: document.getElementById("eventType").value,
+            description: document.getElementById("eventDescription").value,
+          };
+
+          if (editingId) {
+            // Editar evento existente
+            const index = events.findIndex((ev) => ev.id == editingId);
+            if (index !== -1) {
+              events[index] = newEvent;
+            }
+          } else {
+            // Novo evento
+            events.push(newEvent);
+          }
+
+          renderCalendar();
+          renderUpcomingEvents();
+          closeEventModal();
+        }
+
+        // Excluir evento
+        function deleteEvent(eventId) {
+          const index = events.findIndex((ev) => ev.id == eventId);
+          if (index !== -1) {
+            events.splice(index, 1);
+          }
+          renderCalendar();
+          renderUpcomingEvents();
+          closeEventModal();
+        }
+
+        // Renderizar lista de próximos eventos
+        function renderUpcomingEvents() {
+          const eventsListContainer = document.querySelector(".events-list");
+          eventsListContainer.innerHTML = "<h3>Próximos Eventos</h3>";
+
+          const upcoming = events
+            .filter((ev) => new Date(ev.date) >= new Date())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          if (upcoming.length === 0) {
+            eventsListContainer.innerHTML += "<p>Sem eventos futuros.</p>";
+            return;
+          }
+
+          upcoming.forEach((ev) => {
+            const evDate = new Date(ev.date);
+            const month = evDate
+              .toLocaleString("pt-BR", { month: "short" })
+              .toUpperCase();
+            const html = `
+              <div class="event-list-item">
+                <div class="event-date">
+                  <div class="event-day">${evDate.getDate()}</div>
+                  <div class="event-month">${month}</div>
+                </div>
+                <div class="event-details">
+                  <div class="event-title">${ev.title}</div>
+                  <div class="event-info">
+                    <span class="event-time"><i class="fas fa-clock"></i> ${
+                      ev.time || "--:--"
+                    }</span>
+                    <span class="event-location"><i class="fas fa-map-marker-alt"></i> ${
+                      ev.location || ""
+                    }</span>
+                  </div>
+                </div>
+                <div class="event-actions">
+                  <button class="event-action-btn" onclick="openEditEventModal(${
+                    ev.id
+                  })"><i class="fas fa-edit"></i></button>
+                  <button class="event-action-btn" onclick="deleteEvent(${
+                    ev.id
+                  })"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+            `;
+            eventsListContainer.innerHTML += html;
+          });
+        }
+
+        // Inicializar
+        initCalendar();
+        renderUpcomingEvents();
+
+        // Expor funções globais para botões inline
+        window.openEditEventModal = openEditEventModal;
+        window.deleteEvent = deleteEvent;
+      });
+    </script>
+  </body>
+</html>

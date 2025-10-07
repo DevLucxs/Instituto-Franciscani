@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Área do Aluno | Instituto Franciscani</title>
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #00005e;
+            --secondary-color: #010146;
+            --accent-color: #08083a;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #00b451;
+            --warning-color: #f72548;
+            --gray-color: #adb5bd;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --transition: all 0.3s ease;
+            --info-color: #4895ef;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+
+        /* Header simplificado apenas com logo */
+        .header-simple {
+            background: linear-gradient( to right, var(--primary-color), var(--secondary-color) );
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+            .header-simple img {
+                height: 40px;
+            }
+
+        .logout-icon {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Perfil do Aluno */
+        .student-profile {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .student-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient( to right, var(--accent-color), var(--primary-color) );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+            .student-avatar img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+        .student-details {
+            flex: 1;
+        }
+
+            .student-details h2 {
+                color: var(--primary-color);
+                margin-bottom: 5px;
+            }
+
+        .student-category {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .student-sport {
+            display: inline-block;
+            background-color: var(--info-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+            .card h3 {
+                color: var(--primary-color);
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+                .card h3 i {
+                    color: var(--primary-color);
+                }
+
+        /* Feedback */
+        .feedback-content {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .feedback-coach {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .coach-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .coach-info h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .coach-info p {
+            color: var(--gray-color);
+            font-size: 12px;
+        }
+
+        /* Vídeos */
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .video-item {
+            background-color: #f5f7fb;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+            .video-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .video-thumbnail {
+            height: 120px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+        }
+
+        .video-info {
+            padding: 10px;
+        }
+
+            .video-info h4 {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .video-info p {
+                color: var(--gray-color);
+                font-size: 12px;
+            }
+
+        /* Competições */
+        .competition-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+            .competition-item:last-child {
+                border-bottom: none;
+            }
+
+        .competition-date {
+            background-color: #f5f7fb;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+            .competition-date .day {
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--primary-color);
+            }
+
+            .competition-date .month {
+                font-size: 12px;
+                color: var(--gray-color);
+            }
+
+        .competition-details h4 {
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .competition-details p {
+            color: var(--gray-color);
+            font-size: 13px;
+        }
+
+        /* Dieta */
+        .diet-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient( to right, var(--primary-color), var(--accent-color) );
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            height: 100%;
+        }
+
+            .diet-button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 94, 0.3);
+            }
+
+            .diet-button i {
+                font-size: 42px;
+                margin-bottom: 15px;
+            }
+
+            .diet-button h3 {
+                font-size: 20px;
+                margin-bottom: 10px;
+                color: white;
+                border: none;
+                padding: 0;
+                justify-content: center;
+            }
+
+            .diet-button p {
+                opacity: 0.9;
+                margin: 0;
+            }
+
+        /* Desempenho */
+        .chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+
+        /* Atividades */
+        .activities-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+
+            .activity-item i {
+                color: var(--primary-color);
+                width: 20px;
+            }
+
+        .activity-date {
+            margin-left: auto;
+            color: var(--gray-color);
+            font-size: 12px;
+        }
+
+        /* Calendário */
+        .calendar {
+            margin-top: 15px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+            .calendar-header h4 {
+                color: var(--primary-color);
+            }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 50%;
+        }
+
+            .calendar-day.header {
+                font-weight: bold;
+                color: var(--primary-color);
+                border-radius: 0;
+            }
+
+            .calendar-day.today {
+                background-color: var(--primary-color);
+                color: white;
+            }
+
+            .calendar-day.has-activity {
+                position: relative;
+            }
+
+                .calendar-day.has-activity::after {
+                    content: "";
+                    position: absolute;
+                    bottom: 2px;
+                    width: 4px;
+                    height: 4px;
+                    background-color: var(--warning-color);
+                    border-radius: 50%;
+                }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .modal-header h2 {
+                color: var(--primary-color);
+            }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--secondary-color);
+            }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+        }
+
+            .btn-outline:hover {
+                background-color: #f5f7fb;
+            }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .card.feedback {
+                grid-column: span 6;
+            }
+
+            .card.videos {
+                grid-column: span 3;
+            }
+
+            .card.competitions {
+                grid-column: span 3;
+            }
+
+            .card.diet {
+                grid-column: span 2;
+            }
+
+            .card.performance {
+                grid-column: span 4;
+            }
+
+            .card.activities {
+                grid-column: span 3;
+            }
+
+            .card.calendar {
+                grid-column: span 3;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .card {
+                grid-column: span 1 !important;
+            }
+
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .student-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .calendar-grid {
+                gap: 2px;
+            }
+
+            .calendar-day {
+                height: 25px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header-simple">
+        <img src="/static/img/logo_if.png" alt="Instituto Franciscani" />
+        <a href="/logout"><div class="logout-icon"><i class="fas fa-sign-out-alt"></i></div></a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Perfil -->
+        <div class="student-profile">
+            <div class="student-avatar"><img src="/static/img/logo_if_icon.png" alt="Carlos Silva" /></div>
+            <div class="student-details">
+                <h2>Carlos Silva</h2>
+                <span class="student-category">Sub-17</span>
+                <span class="student-sport">Natação</span>
+                <p>Atleta desde 2020 | Foco: 100m e 200m livre</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Feedback -->
+            <div class="card feedback" style="grid-column: span 4">
+                <h3><i class="fas fa-comment"></i> Feedback do Treinador</h3>
+                <div class="feedback-content">
+                    <p>Seu desempenho melhorou nas últimas semanas. Continue focando na técnica de virada. Sua resistência está excelente!</p>
+                </div>
+                <div class="feedback-coach">
+                    <div class="coach-avatar">RM</div>
+                    <div class="coach-info">
+                        <h4>Ricardo Mendes</h4>
+                        <p>Treinador de Natação</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vídeos -->
+            <div class="card videos" style="grid-column: span 4">
+                <h3><i class="fas fa-video"></i> Meus Vídeos</h3>
+                <div class="videos-grid">
+                    <div class="video-item">
+                        <div class="video-thumbnail"><i class="fas fa-play"></i></div>
+                        <div class="video-info"><h4>Treino 25/08 - 100m Livre</h4><p>Análise técnica</p></div>
+                    </div>
+                    <div class="video-item">
+                        <div class="video-thumbnail"><i class="fas fa-play"></i></div>
+                        <div class="video-info"><h4>Competição Estadual</h4><p>Julho 2023 - 200m Livre</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Próximas Competições -->
+            <div class="card competitions" style="grid-column: span 4">
+                <h3><i class="fas fa-trophy"></i> Próximas Competições</h3>
+                <div class="competition-item">
+                    <div class="competition-date"><div class="day">15</div><div class="month">SET</div></div>
+                    <div class="competition-details"><h4>Campeonato Estadual</h4><p>Centro Aquático - 09:00h | 100m e 200m Livre</p></div>
+                </div>
+            </div>
+
+            <!-- Dieta -->
+            <div class="card diet" style="grid-column: span 3">
+                <div class="diet-button" id="openDietModal"><i class="fas fa-utensils"></i><h3>Visualizar Dieta</h3><p>Clique para abrir seu plano alimentar</p></div>
+            </div>
+
+            <!-- Desempenho -->
+            <div class="card performance" style="grid-column: span 9">
+                <h3><i class="fas fa-chart-line"></i> Desempenho</h3>
+                <div class="chart-container"><canvas id="performanceChart"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Dieta -->
+    <div class="modal" id="dietModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Visualizar Dieta</h2><button class="close-modal">&times;</button></div>
+            <p>Escolha como deseja acessar sua dieta:</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline">Visualizar Online</button>
+                <button class="btn btn-primary">Baixar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico de desempenho
+        const ctx = document.getElementById("performanceChart").getContext("2d");
+        new Chart(ctx, { type: "bar", data: { labels: ["100m Livre", "200m Livre", "Resistência", "Técnica", "Força"], datasets: [{ label: "Esperado", data: [90, 85, 80, 75, 70], backgroundColor: "rgba(0,0,94,0.3)", borderColor: "#00005E", borderWidth: 1 }, { label: "Atingido", data: [88, 82, 85, 70, 75], backgroundColor: "rgba(0,180,81,0.5)", borderColor: "#00b451", borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: "Pontuação" } } } } });
+
+        // Modal Dieta
+        document.getElementById("openDietModal").addEventListener("click", () => { document.getElementById("dietModal").style.display = "flex"; });
+        document.querySelector(".close-modal").addEventListener("click", () => { document.getElementById("dietModal").style.display = "none"; });
+        window.addEventListener("click", e => { if (e.target == document.getElementById("dietModal")) { document.getElementById("dietModal").style.display = "none"; } });
+    </script>
+</body>
+</html>

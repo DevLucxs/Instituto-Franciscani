@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Instituto Franciscani</title>
+    <link rel="shortcut icon" href="static/img/logo_if_icon.png" type="">
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="left"></div>
+        <div class="right">
+            <form class="form-container" id="loginForm" method="POST" action="/login">
+                <div class="logo"><img src="/static/img/logo_if.png" alt="" width="300px"></div>
+
+                <input type="email" name="email" id="email" placeholder="Email" required />
+                <div class="password-container">
+                    <input type="password" name="senha" id="senha" placeholder="Senha" required />
+                    <button type="button" class="toggle-password" onclick="toggleSenha('senha')">Mostrar</button>
+                </div>
+
+                <button type="submit">Entrar</button>
+                <button type="button" class="forgot-password">Esqueceu a senha?</button>
+
+                {% if error %}
+                <p style="color:red; margin-top:10px;">{{ error }}</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Função para mostrar/ocultar a senha
+        function toggleSenha(idCampo) {
+            const senha = document.getElementById(idCampo);
+            senha.type = senha.type === 'password' ? 'text' : 'password';
+        }
+
+        // Intercepta o submit para validar antes do envio
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("loginForm");
+
+            form.addEventListener("submit", (event) => {
+                const email = document.getElementById("email").value.trim();
+                const senha = document.getElementById("senha").value.trim();
+
+                if (!email || !senha) {
+                    event.preventDefault(); // impede o envio
+                    alert("Por favor, preencha todos os campos.");
+                }
+                // Se estiver preenchido, deixa o formulário enviar para /login
+            });
+        });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,120 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body,
+html {
+    height: 100%;
+    background-color: #00005E;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.left {
+    flex: 1;
+    background: url(../img/piscina.jpg) center/cover no-repeat;
+    clip-path: polygon(0 0, 85% 0, 100% 100%, 0% 100%);
+    filter: blur(3px);
+}
+
+.right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.logo {
+    margin-bottom: 20px;
+}
+
+input[type="email"] {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.password-container input {
+    padding: 12px;
+    padding-right: 60px;
+    /* espaço para o botão Mostrar */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+}
+
+
+.password-container {
+    position: relative;
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
+    padding-right: 60px;
+    /* Espaço para o botão Mostrar */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #00005E;
+    padding: 4px 8px;
+}
+
+button[type="submit"] {
+    padding: 12px;
+    width: 150px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #F8C705;
+    color: #00005E;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.forgot-password {
+    font-size: 12px;
+    font-weight: 500;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: end;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left {
+        clip-path: none;
+        height: 200px;
+    }
+}
