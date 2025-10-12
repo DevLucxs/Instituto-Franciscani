@@ -1,17 +1,23 @@
+#  Núcleo FastAPI + servidor 
 fastapi==0.115.0
 uvicorn[standard]==0.31.1
 
+#  Banco de dados (MySQL) 
 SQLAlchemy==2.0.36
 PyMySQL==1.1.1
 
+#  Variáveis de ambiente e segurança 
 python-dotenv==1.0.1
 cryptography==43.0.3
 
+#  Templates e arquivos estáticos 
 Jinja2==3.1.4
 aiofiles==23.2.1
+
+#  Utilitários de autenticação e validação 
 itsdangerous==2.2.0
 email-validator==2.2.0
+passlib[bcrypt]==1.7.4    # Criptografia de senhas segura
 
-# Extras úteis e seguros:
-passlib[bcrypt]==1.7.4    # (para hash de senhas)
-python-multipart==0.0.9   # (para formulários e uploads)
+#  Para formulários e upload de arquivos 
+python-multipart==0.0.9

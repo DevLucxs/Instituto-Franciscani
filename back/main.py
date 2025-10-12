@@ -238,7 +238,24 @@ async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
         "address": dados.get("address")
     }
 
-
+@app.get("/api/alunos", response_class=JSONResponse)
+async def listar_alunos():
+    db = SessionLocal()
+    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
+    db.close()
+    result = []
+    for a in alunos:
+        result.append({
+            "id": a.id,
+            "nome": a.nome,
+            "email": a.email,
+            "sport": getattr(a, "sport", "N/A"),
+            "age": getattr(a, "age", "N/A"),
+            "status": getattr(a, "status", "N/A"),
+            "phone": getattr(a, "phone", ""),
+            "address": getattr(a, "address", "")
+        })
+    return result
 
 
 
