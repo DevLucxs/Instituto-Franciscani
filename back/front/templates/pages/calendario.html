@@ -702,30 +702,27 @@
     <!-- Main Content -->
     <main class="main-content">
       <!-- Header -->
-      <header class="header">
-        <div class="user-info">
-          <div class="user-avatar">JC</div>
-          <div class="user-details">
-            <h4>João Carvalho</h4>
-            <p>Coordenador Técnico</p>
-          </div>
-        </div>
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Pesquisar evento..." />
-        </div>
-        <div class="header-actions">
-          <div class="action-icon">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="action-icon">
-            <i class="fas fa-cog"></i>
-          </div>
-          <div class="action-icon" id="addEventBtn">
-            <i class="fas fa-plus"></i>
-          </div>
-        </div>
-      </header>
+        <header class="header">
+            <div class="user-info">
+                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
+                <div class="user-details">
+                    <h4>{{ treinador.nome }}</h4>
+                    <p>{{ treinador.cargos}}</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAthlete" name="searchAthlete" placeholder="Pesquisar atleta..." />
+            </div>
+            <div class="header-actions">
+                <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </header>
 
       <!-- Calendário -->
       <div class="calendar-container">

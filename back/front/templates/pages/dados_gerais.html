@@ -1544,11 +1544,14 @@
     <main class="main-content">
         <!-- Header -->
         <header class="header">
-            <div class="user-avatar">{{ treinador.nome[:2] | upper }}</div>
-            <div class="user-details">
-                <h4>{{ treinador.nome }}</h4>
-                <p>{{ treinador.tipo.value }}</p>
+            <div class="user-info">
+                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper()  }}</div>
+                <div class="user-details">
+                    <h4>{{ treinador.nome }}</h4>
+                    <p>{{ treinador.cargos }}</p>
+                </div>
             </div>
+
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchAthlete" name="searchAthlete" placeholder="Pesquisar atleta..." />
@@ -1569,7 +1572,7 @@
             <p data-translate="dados_gerais.subtitulo">Visualize e gerencie todos os atletas do instituto</p>
         </div>
 
-        <!-- Athletes Table -->
+        <!-- Tabela de Atletas -->
         <div class="athletes-table-container">
             <div class="table-header">
                 <div class="header-left">
@@ -1577,22 +1580,22 @@
                     <span class="results-count" id="resultsCount"></span>
                 </div>
                 <div class="table-actions">
-                    <button class="btn btn-outline" onclick="showFilters()" id="filterBtn" title="Filtrar atletas" aria-label="Abrir filtros">
+                    <button class="btn btn-outline" onclick="showFilters()" id="filterBtn">
                         <i class="fas fa-filter"></i> <span data-translate="lista_atletas.filtrar">Filtrar</span>
                         <span class="filter-indicator" id="filterIndicator" style="display: none;">
                             <span class="filter-count">0</span>
                         </span>
                     </button>
-                    <button class="btn btn-primary" onclick="openCompareModal()" title="Comparar atletas" aria-label="Abrir comparação de atletas">
+                    <button class="btn btn-primary" onclick="openCompareModal()">
                         <i class="fas fa-area-chart"></i> <span data-translate="lista_atletas.comparar_atletas">Comparar Atletas</span>
                     </button>
-                    <button class="btn btn-primary" onclick="addNewAthlete()" title="Adicionar novo atleta" aria-label="Criar novo atleta">
-                        <i class="fas fa-plus"></i> <span data-translate="lista_atletas.novo_atleta"> Novo Atleta</span>
+                    <button class="btn btn-primary" onclick="addNewAthlete()">
+                        <i class="fas fa-plus"></i> <span data-translate="lista_atletas.novo_atleta">Novo Atleta</span>
                     </button>
                 </div>
             </div>
 
-            <table>
+            <table id="athletesTable">
                 <thead>
                     <tr>
                         <th data-translate="lista_atletas.coluna_atleta">Atleta</th>
@@ -1602,43 +1605,7 @@
                         <th data-translate="lista_atletas.coluna_acoes">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for aluno in alunos %}
-                    <tr onclick="openAthleteModal({{ loop.index0 }})">
-                        <td>
-                            <div class="athlete-info">
-                                <div class="athlete-avatar">
-                                    {{ aluno.nome.split(' ')[0][0] }}{{ aluno.nome.split(' ')[1][0] if aluno.nome.split(' ')|length > 1 else '' }}
-                                </div>
-                                <div class="athlete-details">
-                                    <h4>{{ aluno.nome }}</h4>
-                                    <p>{{ aluno.email }}</p>
-                                </div>
-                            </div>
-                        </td>
-
-                        <!-- Modalidade, idade e status (pode ser fixo ou depois vir do banco) -->
-                        <td data-translate="modalidade.natacao">Natação</td>
-                        <td>22 <span data-translate="lista_atletas.anos">anos</span></td>
-                        <td><span class="status-badge status-active" data-translate="lista_atletas.status_ativo">Ativo</span></td>
-
-                        <td>
-                            <div class="action-buttons">
-                                <div class="action-btn edit-btn" onclick="openAthleteModal({{ loop.index0 }}); event.stopPropagation();" title="Editar atleta" aria-label="Editar atleta">
-                                    <i class="fas fa-edit"></i>
-                                </div>
-                                <div class="action-btn evaluate-btn" onclick="avaliarAtleta(athletes[{{ loop.index0 }}]); event.stopPropagation();" title="Avaliar atleta" aria-label="Avaliar atleta">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div class="action-btn delete-btn" onclick="deleteAthlete({{ loop.index0 }}); event.stopPropagation();" title="Excluir atleta" aria-label="Excluir atleta">
-                                    <i class="fas fa-trash"></i>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
+                <tbody></tbody>
             </table>
         </div>
     </main>
@@ -2145,72 +2112,76 @@
 
         // Função para carregar atletas via API
 
+        let athletes = [];
+
+        document.addEventListener('DOMContentLoaded', carregarAtletas);
+
         async function carregarAtletas() {
             try {
                 const response = await fetch('/api/alunos');
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar atletas');
-                }
-
-                const athletes = await response.json();
+                if (!response.ok) throw new Error('Erro ao buscar atletas');
+                athletes = await response.json();
                 renderAthletes(athletes);
             } catch (error) {
                 console.error('Erro:', error);
             }
         }
 
-        // Função que insere os atletas na página
         function renderAthletes(athletes) {
-            const tableBody = document.querySelector('#athletesTable tbody'); // ajuste o seletor se o ID for outro
-            tableBody.innerHTML = ''; // limpa antes de renderizar
+            const tableBody = document.querySelector('#athletesTable tbody');
+            tableBody.innerHTML = '';
 
-            athletes.forEach(atleta => {
+            athletes.forEach((atleta, index) => {
                 const row = document.createElement('tr');
+                row.setAttribute('onclick', `openAthleteModal(${index})`);
                 row.innerHTML = `
-                  <td>
-                    <div class="athlete-info">
-                      <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
-                      <div class="athlete-details">
-                        <h4>${atleta.nome}</h4>
-                        <p>${atleta.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td>${atleta.esporte || 'N/A'}</td>
-                  <td>${atleta.status || 'Ativo'}</td>
+                    <td>
+                        <div class="athlete-info">
+                            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
+                            <div class="athlete-details">
+                                <h4>${atleta.nome}</h4>
+                                <p>${atleta.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${atleta.modalidade || 'Não informado'}</td>
+                    <td>${atleta.idade || 'Não informado'}</td>
+                    <td><span class="status-badge status-active">${atleta.status || 'Não informado'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <div class="action-btn edit-btn" onclick="openAthleteModal(${index}); event.stopPropagation();" title="Editar atleta">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="action-btn evaluate-btn" onclick="avaliarAtleta(athletes[${index}]); event.stopPropagation();" title="Avaliar atleta">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="action-btn delete-btn" onclick="deleteAthlete(${index}); event.stopPropagation();" title="Excluir atleta">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
+            document.getElementById("resultsCount").textContent = `${athletes.length} atletas`;
         }
 
-        // Chama automaticamente ao carregar a página
-        document.addEventListener('DOMContentLoaded', carregarAtletas);
-
-        // Log para debug
-        console.log("Array de atletas carregado:", athletes.length, "atletas");
-
-        // Função para abrir o modal com os dados do atleta
         function openAthleteModal(index) {
             const athlete = athletes[index];
             document.getElementById("athleteModalTitle").textContent = "Editar Atleta";
-            document.getElementById("athleteName").value = athlete.name;
+            document.getElementById("athleteName").value = athlete.nome;
             document.getElementById("athleteEmail").value = athlete.email;
-            document.getElementById("athleteSport").value = athlete.sport;
-            document.getElementById("athleteAge").value = athlete.age.replace(" anos", "");
+            document.getElementById("athleteSport").value = athlete.modalidade;
+            document.getElementById("athleteAge").value = athlete.idade.replace(" anos", "");
             document.getElementById("athleteStatus").value = athlete.status;
-            document.getElementById("athletePhone").value = athlete.phone || "";
-            document.getElementById("athleteAddress").value = athlete.address || "";
-            document.getElementById("athleteNotes").value = ""; // Limpar observações
+            document.getElementById("athletePhone").value = athlete.telefone || "";
+            document.getElementById("athleteAddress").value = athlete.endereco || "";
+            document.getElementById("athleteNotes").value = "";
             document.getElementById("deleteAthleteBtn").style.display = "block";
-
-            // Armazenar o índice do atleta sendo editado
             document.getElementById("athleteModal").dataset.index = index;
-
-            // Exibir modal
             document.getElementById("athleteModal").style.display = "flex";
         }
 
-        // Abrir modal para criar novo atleta
         function addNewAthlete() {
             document.getElementById("athleteForm").reset();
             document.getElementById("athleteModalTitle").textContent = "Novo Atleta";
@@ -2219,16 +2190,14 @@
             document.getElementById("athleteModal").style.display = "flex";
         }
 
-        // Fechar modal
         function closeAthleteModal() {
             document.getElementById("athleteModal").style.display = "none";
             document.getElementById("athleteForm").reset();
             document.getElementById("athleteModal").dataset.index = "";
         }
 
-        // Salvar ou atualizar atleta
-        function saveAthlete(event) {
-            event.preventDefault(); // Evitar reload do form
+        async function saveAthlete(event) {
+            event.preventDefault();
 
             const name = document.getElementById("athleteName").value;
             const email = document.getElementById("athleteEmail").value;
@@ -2237,7 +2206,6 @@
             const status = document.getElementById("athleteStatus").value;
             const phone = document.getElementById("athletePhone").value;
             const address = document.getElementById("athleteAddress").value;
-            const notes = document.getElementById("athleteNotes").value;
 
             if (!name || !email || !sport || !age || !status) {
                 alert("Por favor, preencha todos os campos obrigatórios.");
@@ -2245,56 +2213,59 @@
             }
 
             const index = document.getElementById("athleteModal").dataset.index;
-            if (index !== undefined && index !== "") {
-                // Editar atleta existente
-                athletes[index] = {
-                    ...athletes[index],
-                    name, email, sport,
-                    age: `${age} anos`,
-                    status, phone, address
-                };
-                alert("Atleta atualizado com sucesso!");
-            } else {
-                // Criar novo atleta
-                const newAvatar = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-                const newAthlete = {
-                    id: Date.now(), // id temporário
-                    name, avatar: newAvatar, sport,
-                    age: `${age} anos`, status, phone, email, address,
-                    birthdate: "01/01/2000",
-                    gender: "Masculino",
-                    position: "Desconhecido",
-                    joinDate: "01/01/2023",
-                    coach: "Não atribuído",
-                    height: "1.70m",
-                    weight: "65kg",
-                    imc: "22.0"
-                };
-                athletes.push(newAthlete);
-                alert("Atleta adicionado com sucesso!");
-            }
 
-            closeAthleteModal();
-            updateTable(); // Atualiza tabela de atletas
-        }
+            const dados = {
+                nome: name,
+                email: email,
+                modalidade: sport,
+                idade: `${age} anos`,
+                status: status,
+                telefone: phone,
+                endereco: address
+            };
 
-        // Excluir atleta
-        function confirmDeleteAthlete() {
-            const index = document.getElementById("athleteModal").dataset.index;
-            if (index !== undefined && index !== "") {
-                const athlete = athletes[index];
-                if (confirm(`Tem certeza que deseja excluir ${athlete.name}?`)) {
-                    athletes.splice(index, 1);
-                    alert(`${athlete.name} foi removido do sistema`);
-                    closeAthleteModal();
-                    updateTable();
+            try {
+                if (index !== "") {
+                    // Edição de atleta existente
+                    const atleta = athletes[index];
+                    const response = await fetch(`/api/alunos/${atleta.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(dados)
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao atualizar atleta");
+                    alert("Atleta atualizado com sucesso!");
+                } else {
+                    // Criação de novo atleta
+                    const response = await fetch("/api/alunos", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(dados)
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao criar atleta");
+                    alert("Atleta adicionado com sucesso!");
                 }
+
+                closeAthleteModal();
+                await carregarAtletas(); // recarrega do banco
+            } catch (error) {
+                console.error("Erro ao salvar atleta:", error);
+                alert("Não foi possível salvar o atleta.");
             }
         }
 
+        function deleteAthlete(index) {
+            const athlete = athletes[index];
+            if (confirm(`Tem certeza que deseja excluir ${athlete.name}?`)) {
+                athletes.splice(index, 1);
+                alert(`${athlete.name} foi removido do sistema`);
+                closeAthleteModal();
+                renderAthletes(athletes);
+            }
+        }
 
-
-        // Fechar modal clicando fora
         window.addEventListener("click", function (event) {
             if (event.target == document.getElementById("athleteModal")) {
                 closeAthleteModal();
@@ -2304,14 +2275,7 @@
             }
         });
 
-        // Event listener para o formulário de atleta
-        document.getElementById("athleteForm").addEventListener("submit", saveAthlete);
-
-
-        // Inicializar a página
-        document.addEventListener("DOMContentLoaded", function () {
-            updateTable();
-        });
+        document.addEventListener('DOMContentLoaded', carregarAtletas);
 
         // Funções para o modal de comparação
         async function openCompareModal() {
@@ -2406,10 +2370,10 @@
             } else {
                 const athlete = athletes[selectedIndex];
                 preview.innerHTML = `
-                        <div class="athlete-preview-avatar">${athlete.avatar}</div>
-                        <div class="athlete-preview-name">${athlete.name}</div>
-                        <div class="athlete-preview-sport">${athlete.sport}</div>
-                      `;
+                                <div class="athlete-preview-avatar">${athlete.avatar}</div>
+                                <div class="athlete-preview-name">${athlete.name}</div>
+                                <div class="athlete-preview-sport">${athlete.sport}</div>
+                              `;
                 preview.className = "athlete-preview has-athlete";
             }
 
@@ -2642,23 +2606,23 @@
         ) {
             const container = document.getElementById("trainingsChartContainer");
             container.innerHTML = `
-                <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
-                  <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                        <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
+                          <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                    <span>${athlete1Trainings}</span>
-                  </div>
-                  <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                            <span>${athlete1Trainings}</span>
+                          </div>
+                          <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                    <span>${athlete2Trainings}</span>
-                  </div>
-                </div>
-                <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                  <span style="color: var(--primary-color);">${athlete1Name}</span>
-                  <span style="color: var(--info-color);">${athlete2Name}</span>
-                </div>
-              `;
+                            <span>${athlete2Trainings}</span>
+                          </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                          <span style="color: var(--primary-color);">${athlete1Name}</span>
+                          <span style="color: var(--info-color);">${athlete2Name}</span>
+                        </div>
+                      `;
         }
 
         function renderGoalsChart(
@@ -2674,29 +2638,29 @@
 
             const container = document.getElementById("goalsChartContainer");
             container.innerHTML = `
-                <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
-                  <div style="width: 45%;">
-                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                      <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
-                    </div>
-                    <div style="text-align: center; margin-top: 5px;">${athlete1Percentage.toFixed(
+                        <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
+                          <div style="width: 45%;">
+                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                              <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 5px;">${athlete1Percentage.toFixed(
                 1
             )}%</div>
-                  </div>
-                  <div style="width: 45%;">
-                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                      <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
-                    </div>
-                    <div style="text-align: center; margin-top: 5px;">${athlete2Percentage.toFixed(
+                          </div>
+                          <div style="width: 45%;">
+                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                              <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 5px;">${athlete2Percentage.toFixed(
                 1
             )}%</div>
-                  </div>
-                </div>
-                <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                  <span style="color: var(--primary-color);">${athlete1Name}</span>
-                  <span style="color: var(--info-color);">${athlete2Name}</span>
-                </div>
-              `;
+                          </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                          <span style="color: var(--primary-color);">${athlete1Name}</span>
+                          <span style="color: var(--info-color);">${athlete2Name}</span>
+                        </div>
+                      `;
         }
 
         // Fechar modal de comparação clicando fora
@@ -2728,43 +2692,43 @@
             modal.className = 'modal';
             modal.style.display = 'flex';
             modal.innerHTML = `
-                      <div class="modal-content" style="max-width: 600px;">
-                        <div class="modal-header">
-                          <h2>Configurações do Sistema</h2>
-                          <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" title="Fechar notificações" aria-label="Fechar modal de notificações">&times;</button>
-                        </div>
-                        <div class="settings-content">
-                          <div class="form-group">
-                            <label>Notificações por Email</label>
-                            <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-                          </div>
-                          <div class="form-group">
-                            <label>Notificações Push</label>
-                            <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
-                          </div>
-                          <div class="form-group">
-                            <label>Idioma</label>
-                            <select>
-                              <option>Português</option>
-                              <option>English</option>
-                              <option>Español</option>
-                            </select>
-                          </div>
-                          <div class="form-group">
-                            <label>Tema</label>
-                            <select>
-                              <option>Claro</option>
-                              <option>Escuro</option>
-                              <option>Automático</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="modal-actions">
-                          <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
-                          <button class="btn btn-primary" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
-                        </div>
-                      </div>
-                    `;
+                              <div class="modal-content" style="max-width: 600px;">
+                                <div class="modal-header">
+                                  <h2>Configurações do Sistema</h2>
+                                  <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" title="Fechar notificações" aria-label="Fechar modal de notificações">&times;</button>
+                                </div>
+                                <div class="settings-content">
+                                  <div class="form-group">
+                                    <label>Notificações por Email</label>
+                                    <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Notificações Push</label>
+                                    <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Idioma</label>
+                                    <select>
+                                      <option>Português</option>
+                                      <option>English</option>
+                                      <option>Español</option>
+                                    </select>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>Tema</label>
+                                    <select>
+                                      <option>Claro</option>
+                                      <option>Escuro</option>
+                                      <option>Automático</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="modal-actions">
+                                  <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
+                                  <button class="btn btn-primary" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
+                                </div>
+                              </div>
+                            `;
 
             document.body.appendChild(modal);
 
@@ -2922,7 +2886,8 @@
         }
 
         // Função para salvar ou atualizar atleta
-        function saveAthlete() {
+        async function saveAthlete() {
+            const index = document.getElementById("athleteModal").dataset.index;
             const name = document.getElementById("athleteName").value;
             const email = document.getElementById("athleteEmail").value;
             const sport = document.getElementById("athleteSport").value;
@@ -2932,69 +2897,82 @@
             const address = document.getElementById("athleteAddress").value;
             const notes = document.getElementById("athleteNotes").value;
 
-            if (!name || !email || !sport || !age || !status) {
-                alert("Por favor, preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            const index = document.getElementById("athleteModal").dataset.index; // Pegar o índice do atleta sendo editado
-            if (index !== undefined) {
-                athletes[index] = {
-                    name: name,
-                    avatar: athletes[index].avatar, // Manter o avatar original
-                    sport: sport,
-                    age: `${age} anos`,
-                    status: status,
-                    birthdate: athletes[index].birthdate, // Manter a data de nascimento original
-                    gender: athletes[index].gender, // Manter o gênero original
-                    phone: phone,
-                    email: email,
-                    address: address,
-                    position: athletes[index].position, // Manter a posição original
-                    joinDate: athletes[index].joinDate, // Manter a data de ingresso original
-                    coach: athletes[index].coach, // Manter o treinador original
-                    height: athletes[index].height, // Manter a altura original
-                    weight: athletes[index].weight, // Manter o peso original
-                    imc: athletes[index].imc, // Manter o IMC original
+            if (index !== "") {
+                const atleta = athletes[index];
+                const dadosAtualizados = {
+                    nome: name,
+                    email,
+                    modalidade: sport,
+                    idade: `${age} anos`,
+                    status,
+                    telefone: phone,
+                    endereco: address
                 };
-                alert("Atleta atualizado com sucesso!");
+
+                try {
+                    const response = await fetch(`/api/alunos/${atleta.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(dadosAtualizados)
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao atualizar atleta");
+                    alert("Atleta atualizado com sucesso!");
+                    closeAthleteModal();
+                    await carregarAtletas(); // recarrega do banco
+                } catch (error) {
+                    console.error("Erro ao salvar atleta:", error);
+                    alert("Não foi possível salvar o atleta.");
+                }
+
             } else {
-                // Adicionar novo atleta
-                const newAvatar = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Gerar avatar aleatório
-                athletes.push({
-                    name: name,
-                    avatar: newAvatar,
-                    sport: sport,
-                    age: `${age} anos`,
-                    status: status,
-                    birthdate: "01/01/2000", // Data padrão para novos atletas
-                    gender: "Masculino", // Gênero padrão
-                    phone: phone,
-                    email: email,
-                    address: address,
-                    position: "Desconhecido", // Posição padrão
-                    joinDate: "01/01/2023", // Data padrão para novos atletas
-                    coach: "Não atribuído", // Treinador padrão
-                    height: "1.70m", // Altura padrão
-                    weight: "65kg", // Peso padrão
-                    imc: "22.0", // IMC padrão
-                });
-                alert("Atleta adicionado com sucesso!");
+                const novoAtleta = {
+                    nome: name,
+                    email,
+                    modalidade: sport,
+                    idade: `${age} anos`,
+                    status,
+                    telefone: phone,
+                    endereco: address
+                };
+
+                try {
+                    const response = await fetch("/api/alunos", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(novoAtleta)
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao criar atleta");
+                    alert("Atleta adicionado com sucesso!");
+                    closeAthleteModal();
+                    await carregarAtletas(); // recarrega do banco
+                } catch (error) {
+                    console.error("Erro ao criar atleta:", error);
+                    alert("Não foi possível adicionar o atleta.");
+                }
             }
             closeAthleteModal();
             updateTable(); // Atualizar a tabela após salvar/editar
         }
 
         // Função para excluir atleta
-        function confirmDeleteAthlete() {
-            if (confirm("Tem certeza que deseja excluir este atleta?")) {
-                const index = document.getElementById("athleteModal").dataset.index;
-                if (index !== undefined) {
-                    athletes.splice(index, 1);
-                    alert("Atleta excluído com sucesso!");
+        async function deleteAthlete(index) {
+            const athlete = athletes[index];
+            if (confirm(`Tem certeza que deseja excluir ${athlete.nome}?`)) {
+                try {
+                    const response = await fetch(`/api/alunos/${athlete.id}`, {
+                        method: "DELETE"
+                    });
+
+                    if (!response.ok) throw new Error("Erro ao excluir atleta");
+                    alert(`${athlete.nome} foi removido do sistema`);
+                    closeAthleteModal();
+                    await carregarAtletas(); // recarrega do banco
+                } catch (error) {
+                    console.error("Erro ao excluir atleta:", error);
+                    alert("Não foi possível excluir o atleta.");
                 }
-                closeAthleteModal();
-                updateTable(); // Atualizar a tabela após excluir
             }
         }
 
@@ -3026,12 +3004,12 @@
             if (filteredAthletes.length === 0) {
                 const noResultsRow = document.createElement("tr");
                 noResultsRow.innerHTML = `
-                        <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                          <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-                          <h3>Nenhum atleta encontrado</h3>
-                          <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
-                        </td>
-                      `;
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                                  <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+                                  <h3>Nenhum atleta encontrado</h3>
+                                  <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
+                                </td>
+                              `;
                 tbody.appendChild(noResultsRow);
                 return;
             }
@@ -3043,12 +3021,12 @@
                 const athleteCell = document.createElement("td");
                 athleteCell.className = "athlete-info";
                 athleteCell.innerHTML = `
-                        <div class="athlete-avatar">${athlete.avatar}</div>
-                        <div class="athlete-details">
-                          <h4>${athlete.name}</h4>
-                          <p>${athlete.email}</p>
-                        </div>
-                      `;
+                                <div class="athlete-avatar">${athlete.avatar}</div>
+                                <div class="athlete-details">
+                                  <h4>${athlete.name}</h4>
+                                  <p>${athlete.email}</p>
+                                </div>
+                              `;
 
                 const sportCell = document.createElement("td");
                 // Mapear modalidades para traduções
@@ -3197,7 +3175,7 @@
 
             // Carregar arquivo de personalização global
             const script = document.createElement('script');
-            script.src = 'static/js/personalizar-usuario.js';
+            script.src = '/static/js/personalizar-usuario.js';
             script.onload = function () {
                 // Carregar script de traduções
                 const traducaoScript = document.createElement('script');

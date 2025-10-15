@@ -1192,27 +1192,27 @@
     <!-- Main Content -->
     <main class="main-content">
       <!-- Header -->
-      <header class="header">
-        <div class="user-info">
-          <div class="user-avatar">JC</div>
-          <div class="user-details">
-                            <h4>...</h4>
-                          <p>...</p>
-          </div>
-        </div>
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Pesquisar..." />
-        </div>
-        <div class="header-actions">
-          <div class="action-icon" onclick="showNotifications()">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="action-icon" onclick="showSettings()">
-            <i class="fas fa-cog"></i>
-          </div>
-        </div>
-      </header>
+        <header class="header">
+            <div class="user-info">
+                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
+                <div class="user-details">
+                    <h4>{{ treinador.nome }}</h4>
+                    <p>{{ treinador.cargos }}</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAthlete" name="searchAthlete" placeholder="Pesquisar atleta..." />
+            </div>
+            <div class="header-actions">
+                <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </header>
 
       <!-- Dashboard Grid -->
       <div class="dashboard-grid">
@@ -1482,11 +1482,11 @@
     </div>
 
     <!-- Scripts da API -->
-    <script src="../../frontend-config.js"></script>
-    <script src="../../dashboard-treinador.js"></script>
-    <script src="../../personalizar-usuario.js"></script>
-    <script src="../../notificacoes.js"></script>
-    <script src="../../traducoes.js"></script>
+    <script src="/static/js/frontend-config.js"></script>
+    <script src="/static/js/dashboard-treinador.js"></script>
+    <script src="/static/js/personalizar-usuario.js"></script>
+    <script src="/static/js/notificacoes.js"></script>
+    <script src="/static/js/traducoes.js"></script>
 
     <script>
       // Abrir modal

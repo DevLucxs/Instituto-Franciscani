@@ -6,7 +6,7 @@
     <title>Treinamentos | Instituto Franciscani</title>
     <link
       rel="shortcut icon"
-      href="static/img/logo_if_icon.png"
+      href="/static/img/logo_if_icon.png"
       type="image/x-icon"
     />
     <link
@@ -628,27 +628,27 @@
     <!-- Main Content -->
     <main class="main-content">
       <!-- Header -->
-      <header class="header">
-        <div class="user-info">
-          <div class="user-avatar">JC</div>
-          <div class="user-details">
-                            <h4>...</h4>
-                          <p>...</p>
-          </div>
-        </div>
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Pesquisar treinamentos..." />
-        </div>
-        <div class="header-actions">
-          <div class="action-icon" onclick="showNotifications()">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="action-icon" onclick="showSettings()">
-            <i class="fas fa-cog"></i>
-          </div>
-        </div>
-      </header>
+        <header class="header">
+            <div class="user-info">
+                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
+                <div class="user-details">
+                    <h4>{{ treinador.nome }}</h4>
+                    <p>{{ treinador.cargos }}</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAthlete" name="searchAthlete" placeholder="Pesquisar atleta..." />
+            </div>
+            <div class="header-actions">
+                <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </header>
 
       <!-- Treinamentos Section -->
       <div class="training-container">
@@ -1140,9 +1140,9 @@
           console.log('🚀 Abrindo dashboard...');
           
           // Abrir dashboard em nova aba
-          const dashboardUrl = '/treinador/dashboard';
+          const dashboardUrl = `/treinador/dashboard/{{ treinador.id }}`;
           const dashboardWindow = window.open(dashboardUrl, '_blank');
-          
+          cd 
           if (dashboardWindow) {
             console.log('✅ Dashboard aberto em nova aba');
             
@@ -1169,7 +1169,7 @@
             console.log(`🔍 Checkbox clicado - ID extraído: ${trainingId}`);
             toggleTrainingCompleted(trainingId, this.checked);
           });
-        });
+        });""
 
         // Event listeners para botões de exclusão
         const deleteButtons = document.querySelectorAll(".training-delete");
@@ -1824,11 +1824,11 @@
       
       // Carregar arquivo de personalização global
       const script = document.createElement('script');
-      script.src = 'static/js/personalizar-usuario.js';
+      script.src = '/static/js/personalizar-usuario.js';
       script.onload = function() {
         // Carregar script de traduções
         const traducaoScript = document.createElement('script');
-        traducaoScript.src = 'static/js/traducoes.js';
+        traducaoScript.src = '/static/js/traducoes.js';
         traducaoScript.onload = function() {
           // Inicializar sistema de idiomas
           if (typeof SistemaIdiomas !== 'undefined') {
@@ -1842,7 +1842,7 @@
         
         // Carregar script de notificações
         const notifScript = document.createElement('script');
-        notifScript.src = 'static/js/notificacoes.js';
+        notifScript.src = '/static/js/notificacoes.js';
         notifScript.onload = function() {
           // Inicializar sistema de notificações
           if (typeof SistemaNotificacoes !== 'undefined') {

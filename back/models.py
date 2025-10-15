@@ -15,6 +15,12 @@ class User(Base):
     senha = Column(String(255), nullable=False)
     tipo = Column(Enum(UserType, native_enum=False), nullable=False)
     nome = Column(String(255), nullable=False)
+    cargos = Column(String(255), nullable=True)
+    modalidade = Column(String(50), nullable=True)
+    idade = Column(String(10), nullable=True)
+    status = Column(String(20), nullable=True)
+    telefone = Column(String(20), nullable=True)
+    endereco = Column(String(100), nullable=True)
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"

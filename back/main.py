@@ -194,7 +194,13 @@ async def criar_aluno(aluno: dict = Body(...)):
         nome=aluno.get("nome"),
         email=aluno.get("email"),
         senha="123",
-        tipo=models.UserType.aluno
+        tipo=models.UserType.aluno,
+        modalidade=aluno.get("modalidade"),
+        idade=aluno.get("idade"),
+        status=aluno.get("status"),
+        telefone=aluno.get("telefone"),
+        endereco=aluno.get("endereco"),
+        
     )
     db.add(novo_aluno)
     db.commit()
@@ -204,11 +210,12 @@ async def criar_aluno(aluno: dict = Body(...)):
         "id": novo_aluno.id,
         "nome": novo_aluno.nome,
         "email": novo_aluno.email,
-        "sport": aluno.get("sport"),
-        "age": aluno.get("age"),
-        "status": aluno.get("status"),
-        "phone": aluno.get("phone"),
-        "address": aluno.get("address")
+        "modalidade": novo_aluno.modalidade,
+        "idade": novo_aluno.idade,
+        "status": novo_aluno.status,
+        "telefone": novo_aluno.telefone,
+        "endereco": novo_aluno.endereco,
+        
     }
 
 # Editar atleta
@@ -219,23 +226,30 @@ async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
     if not atleta:
         db.close()
         return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
-    
+
     atleta.nome = dados.get("nome", atleta.nome)
     atleta.email = dados.get("email", atleta.email)
-    # Se quiser, pode salvar outras informações em campos adicionais
+    atleta.modalidade = dados.get("modalidade", atleta.modalidade)
+    atleta.idade = dados.get("idade", atleta.idade)
+    atleta.status = dados.get("status", atleta.status)
+    atleta.telefone = dados.get("telefone", atleta.telefone)
+    atleta.endereco = dados.get("endereco", atleta.endereco)
+    
+
     db.commit()
     db.refresh(atleta)
     db.close()
-    
+
     return {
         "id": atleta.id,
         "nome": atleta.nome,
         "email": atleta.email,
-        "sport": dados.get("sport"),
-        "age": dados.get("age"),
-        "status": dados.get("status"),
-        "phone": dados.get("phone"),
-        "address": dados.get("address")
+        "modalidade": atleta.modalidade,
+        "idade": atleta.idade,
+        "status": atleta.status,
+        "telefone": atleta.telefone,
+        "endereco": atleta.endereco,
+        
     }
 
 @app.get("/api/alunos", response_class=JSONResponse)
@@ -246,18 +260,57 @@ async def listar_alunos():
     result = []
     for a in alunos:
         result.append({
-            "id": a.id,
-            "nome": a.nome,
-            "email": a.email,
-            "sport": getattr(a, "sport", "N/A"),
-            "age": getattr(a, "age", "N/A"),
-            "status": getattr(a, "status", "N/A"),
-            "phone": getattr(a, "phone", ""),
-            "address": getattr(a, "address", "")
-        })
+        "id": a.id,
+        "nome": a.nome,
+        "email": a.email,
+        "modalidade": a.modalidade,
+        "idade": a.idade,
+        "status": a.status,
+        "telefone": a.telefone,
+        "endereco": a.endereco,
+})
     return result
 
+@app.delete("/api/alunos/{atleta_id}", response_class=JSONResponse)
+async def deletar_aluno(atleta_id: int = Path(...)):
+    db = SessionLocal()
+    atleta = db.query(models.User).filter(models.User.id == atleta_id, models.User.tipo == models.UserType.aluno).first()
+    
+    if not atleta:
+        db.close()
+        return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
 
+    db.delete(atleta)
+    db.commit()
+    db.close()
+
+    return JSONResponse(status_code=200, content={"message": "Atleta excluído com sucesso"})
+
+
+@app.post("/api/desempenho", response_class=JSONResponse)
+async def adicionar_desempenho(desempenho: dict = Body(...)):
+    db = SessionLocal()
+    
+    # ⚠️ Certifique-se de que o atleta_id seja enviado no body do request!
+    novo_desempenho = models.Desempenho(
+        atleta_id=desempenho.get("atleta_id"),
+        treino=desempenho.get("treino"),
+        tempo=desempenho.get("tempo"),
+        distancia=desempenho.get("distancia"),
+    )
+    
+    db.add(novo_desempenho)
+    db.commit()
+    db.refresh(novo_desempenho)
+    db.close()
+    
+    return {
+        "id": novo_desempenho.id,
+        "atleta_id": novo_desempenho.atleta_id,
+        "treino": novo_desempenho.treino,
+        "tempo": novo_desempenho.tempo,
+        "distancia": novo_desempenho.distancia,
+    }
 
 # Logout
 @app.get("/logout")
@@ -265,3 +318,4 @@ async def logout():
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie("session_id")
     return response
+
