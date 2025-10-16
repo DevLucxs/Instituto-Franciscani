@@ -134,18 +134,54 @@ async def api_desempenho(atleta_id: int):
 @app.get("/treinador/dashboard/{treinador_id}", response_class=HTMLResponse)
 async def treinador_dashboard(request: Request, treinador_id: int):
     db = SessionLocal()
-    treinador = db.query(models.User).filter(models.User.id == treinador_id).first()
-    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
-    db.close()
+    try:
+        treinador = db.query(models.User).filter(models.User.id == treinador_id).first()
 
-    return templates.TemplateResponse(
-        "pages/dashboard.html",
-        {
-            "request": request,
-            "treinador": treinador,
-            "alunos": alunos
-        }
-    )
+        if not treinador:
+            return templates.TemplateResponse(
+                "pages/404_error.html", # Exemplo de página de erro
+                {"request": request},
+                status_code=404
+            )
+
+        alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
+
+        return templates.TemplateResponse(
+            "pages/dashboard.html",
+            {
+                "request": request,
+                "treinador": treinador,
+                "alunos": alunos
+            }
+        )
+    finally:
+        db.close()
+
+# Motor de pesquisa da página de Dashboard 
+@app.get("/api/search/alunos/{treinador_id}")
+async def search_alunos(treinador_id: int, q: str | None = None):
+
+    if not q:
+        return []
+
+    db = SessionLocal()
+    try:
+        search_term = f"%{q.lower()}%"
+        
+        alunos_encontrados = db.query(models.User).filter(
+            models.User.tipo == "aluno",
+            func.lower(models.User.nome).like(search_term)
+        ).limit(10).all()
+
+        sugestoes = [
+            {"id": aluno.id, "nome": aluno.nome}
+            for aluno in alunos_encontrados
+        ]
+        
+        return sugestoes
+    finally:
+        db.close()
+        #Pesquisa não está retornando para nenhuma página de aluno, verificar com Alex.
 
 # Página de Dados Gerais
 @app.get("/treinador/dados/{treinador_id}", response_class=HTMLResponse)
