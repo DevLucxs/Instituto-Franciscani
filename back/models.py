@@ -22,6 +22,7 @@ class User(Base):
     telefone = Column(String(20), nullable=True)
     endereco = Column(String(100), nullable=True)
     data_cadastro = Column(DateTime(timezone=True), server_default=func.now())
+    dieta_filepath = Column(String(255), nullable=True)
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"

@@ -1506,22 +1506,26 @@
         </div>
         <div class="form-group">
           <label for="athlete">Selecionar Atleta</label>
-          <select id="athlete">
-            <option value="">Selecione um atleta</option>
-            <option value="1">Ana Mendonça - Natação</option>
-            <option value="2">Pedro Silva - Atletismo</option>
-            <option value="3">Carolina Rodrigues - Ginástica</option>
-            <option value="4">Lucas Santos - Vôlei</option>
-            <option value="5">Mariana Ferreira - Natação</option>
-          </select>
+          
+        <select id="athleteSelect">
+          <option value="">Selecione um atleta</option> <!--Puxar a lista de alunos do banco de dados-->
+      
+          {% for aluno in alunos %}
+            <option value="{{ aluno.id }}">{{ aluno.nome }} - {{ aluno.modalidade or 'Sem modalidade' }}</option>
+          {% endfor %}
+
+       </select>
         </div>
+
         <div class="form-group">
           <label for="dietFile">Enviar Arquivo de Dieta</label>
           <input type="file" id="dietFile" accept=".pdf,.doc,.docx" />
         </div>
         <div class="modal-actions">
-          <button class="btn btn-outline" onclick="closeDietModal()">Cancelar</button>
-          <button class="btn btn-primary" onclick="sendDiet()">Enviar Dieta</button>
+          <div class="modal-actions">
+              <button class="btn btn-outline" id="cancelDietBtn">Cancelar</button> 
+              <button class="btn btn-primary" id="submitDietBtn">Enviar Dieta</button> 
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,7 @@
 ﻿from fastapi import FastAPI, Request, Form, Body, Path
+import shutil
+from fastapi import File, UploadFile
+import os
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -8,6 +11,9 @@ import models
 from sqlalchemy import func
 from datetime import datetime, timedelta
 
+
+UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 # Cria tabelas se não existirem
 Base.metadata.create_all(bind=engine)
@@ -400,6 +406,31 @@ async def adicionar_desempenho(desempenho: dict = Body(...)):
         "tempo": novo_desempenho.tempo,
         "distancia": novo_desempenho.distancia,
     }
+
+# Diretório para salvar as dietas enviadas aos atletas
+@app.post("/api/dieta/{atleta_id}")
+async def upload_dieta(atleta_id: int, file: UploadFile = File(...)):
+    db = SessionLocal()
+    atleta = db.query(models.User).filter(models.User.id == atleta_id).first()
+    
+    if not atleta:
+        db.close()
+        return JSONResponse(status_code=404, content={"message": "Atleta não encontrado"})
+
+    # Define um caminho único para o arquivo
+    file_path = os.path.join(UPLOAD_DIRECTORY, f"dieta_{atleta_id}_{file.filename}")
+    
+    # Salva o arquivo no servidor
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Atualiza o caminho do arquivo no banco de dados do atleta
+    atleta.dieta_filepath = file_path
+    db.commit()
+    
+    return JSONResponse(status_code=200, content={"message": f"Dieta enviada para {atleta.nome} com sucesso!", "filepath": file_path})
+    # Não está sendo enviado ao aluno ainda..
+    db.close()
 
 # Logout
 @app.get("/logout")

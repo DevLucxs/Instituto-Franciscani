@@ -1,72 +1,133 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Chama a função que configura a barra de pesquisa.
-    setupSearchFeature();
-});
+// dashboard.js (ou o nome do seu arquivo principal)
 
-function setupSearchFeature() {
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsBox = document.getElementById('suggestionsBox');
-    const searchBar = document.querySelector('.search-bar');
-    
-    // Se algum dos elementos essenciais não for encontrado, a função para.
-    if (!searchInput || !suggestionsBox) {
-        console.error("Elementos da barra de pesquisa não encontrados.");
-        return;
-    }
+document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PARA TUDO
 
-    let debounceTimer;
-
-    const fetchSuggestions = async (query) => {
-        if (query.length < 2) {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.style.display = 'none';
+    // ================================================================
+    // SEÇÃO 1: LÓGICA DO MOTOR DE PESQUISA
+    // ================================================================
+    function setupSearchFeature() {
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+        
+        if (!searchInput || !suggestionsBox) {
+            console.error("Elementos da barra de pesquisa não encontrados.");
             return;
         }
 
-        try {            
-            const response = await fetch(`/api/search/alunos/?q=${query}`);
-            
-            if (!response.ok) {
-                throw new Error(`A resposta da rede não foi bem-sucedida. Status: ${response.status}`);
-            }
+        let debounceTimer;
 
-            const suggestions = await response.json();
-            
-            suggestionsBox.innerHTML = '';
-            if (suggestions.length > 0) {
-                suggestions.forEach(aluno => {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item'; 
-                    item.textContent = aluno.nome;
-                    item.addEventListener('click', () => {
-                        searchInput.value = aluno.nome;
-                        suggestionsBox.style.display = 'none';
+        const fetchSuggestions = async (query) => {
+            if (query.length < 2) {
+                suggestionsBox.innerHTML = '';
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+            try {
+                const response = await fetch(`/api/search/alunos/?q=${query}`);
+                if (!response.ok) throw new Error(`Erro na rede: ${response.status}`);
+                
+                const suggestions = await response.json();
+                suggestionsBox.innerHTML = '';
+
+                if (suggestions.length > 0) {
+                    suggestions.forEach(aluno => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.textContent = aluno.nome;
+                        item.addEventListener('click', () => {
+                            searchInput.value = aluno.nome;
+                            suggestionsBox.style.display = 'none';
+                        });
+                        suggestionsBox.appendChild(item);
                     });
-                    suggestionsBox.appendChild(item);
-                });
-                suggestionsBox.style.display = 'block';
-            } else {
+                    suggestionsBox.style.display = 'block';
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao buscar sugestões:', error);
                 suggestionsBox.style.display = 'none';
             }
+        };
 
-        } catch (error) {
-            console.error('Erro ao buscar sugestões:', error);
-            suggestionsBox.style.display = 'none';
+        searchInput.addEventListener('input', (event) => {
+            clearTimeout(debounceTimer);
+            const query = event.target.value;
+            debounceTimer = setTimeout(() => fetchSuggestions(query), 300);
+        });
+
+        document.addEventListener('click', (event) => {
+            const searchBar = document.querySelector('.search-bar');
+            if (searchBar && !searchBar.contains(event.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+    }
+
+
+    // ================================================================
+    // SEÇÃO 2: LÓGICA DO MODAL DE DIETA
+    // ================================================================
+    function setupDietModal() {
+        const modal = document.getElementById('dietModal');
+        const openModalBtn = document.getElementById('openModal');
+        const closeModalBtn = modal.querySelector('.close-modal');
+        const cancelDietBtn = document.getElementById('cancelDietBtn');
+        const submitDietBtn = document.getElementById('submitDietBtn');
+
+        if (!modal || !openModalBtn || !closeModalBtn || !cancelDietBtn || !submitDietBtn) {
+            console.error("Elementos do modal de dieta não encontrados.");
+            return;
         }
-    };
-    
-    searchInput.addEventListener('input', (event) => {
-        clearTimeout(debounceTimer);
-        const query = event.target.value;
-        debounceTimer = setTimeout(() => {
-            fetchSuggestions(query);
-        }, 300); // 300ms de espera
-    });
 
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.search-bar')) {
-            suggestionsBox.style.display = 'none';
-        }
-    });
-}
+        const openModal = () => { modal.style.display = 'flex'; };
+        const closeModal = () => { modal.style.display = 'none'; };
 
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelDietBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        submitDietBtn.addEventListener('click', async () => {
+            const athleteSelect = document.getElementById('athleteSelect');
+            const dietFile = document.getElementById('dietFile').files[0];
+            const atletaId = athleteSelect.value;
+
+            if (!atletaId || !dietFile) {
+                alert('Por favor, selecione um atleta e um arquivo.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', dietFile);
+
+            try {
+                const response = await fetch(`/api/dieta/${atletaId}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    closeModal();
+                } else {
+                    throw new Error(result.message || 'Erro ao enviar a dieta.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert(error.message);
+            }
+        });
+    }
+
+    // ================================================================
+    // INICIALIZAÇÃO
+    // ================================================================
+    setupSearchFeature();
+    setupDietModal();
+
+}); // <-- FIM DO ÚNICO BLOCO DOMContentLoaded
