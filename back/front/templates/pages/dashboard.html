@@ -1329,45 +1329,26 @@
           </div>
         </div>
 
-        <div class="card">
-          <div class="athletes-scroll">
-            <h3 data-translate="dashboard.atletas_cadastrados_lista">Atletas Cadastrados</h3>
-            <div class="athlete-item">
-              <div class="athlete-avatar">AM</div>
-              <div class="athlete-details">
-                <h4>Ana Mendonça</h4>
-                <p data-translate="modalidade.natacao">Natação</p>
-              </div>
+       <div class="card">
+    <div class="athletes-scroll">
+        <h3 data-translate="dashboard.atletas_cadastrados_lista">Atletas Cadastrados</h3>
+
+        <!--Puxando usuarios reais do banco-->
+        {% for aluno in alunos %}
+        <div class="athlete-item">
+            <div class="athlete-avatar">
+                {% if aluno.nome.split()|length >= 2 %}
+                    {{ (aluno.nome.split()[0][0] + aluno.nome.split()[1][0]).upper() }}
+                {% else %}
+                    {{ aluno.nome[0:2].upper() }}
+                {% endif %}
             </div>
-            <div class="athlete-item">
-              <div class="athlete-avatar">PS</div>
-              <div class="athlete-details">
-                <h4>Pedro Silva</h4>
-                <p data-translate="modalidade.atletismo">Atletismo</p>
-              </div>
+            <div class="athlete-details">
+                <h4>{{ aluno.nome }}</h4>
+                <p>{{ aluno.modalidade or 'Sem modalidade' }}</p>
             </div>
-            <div class="athlete-item">
-              <div class="athlete-avatar">CR</div>
-              <div class="athlete-details">
-                <h4>Carolina Rodrigues</h4>
-                <p data-translate="modalidade.ginastica">Ginástica</p>
-              </div>
-            </div>
-            <div class="athlete-item">
-              <div class="athlete-avatar">LS</div>
-              <div class="athlete-details">
-                <h4>Lucas Santos</h4>
-                <p data-translate="modalidade.volei">Vôlei</p>
-              </div>
-            </div>
-            <div class="athlete-item">
-              <div class="athlete-avatar">MF</div>
-              <div class="athlete-details">
-                <h4>Mariana Ferreira</h4>
-                <p data-translate="modalidade.natacao">Natação</p>
-              </div>
-            </div>
-          </div>
+        </div>
+        {% endfor %}
         </div>
       </div>
 

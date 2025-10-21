@@ -169,8 +169,7 @@ async def treinador_dashboard(request: Request, treinador_id: int):
         )
     finally:
         db.close()
-    
-    db = SessionLocal()        
+     
 @app.get("/api/comparativo")
 async def comparar_periodos():
     db = SessionLocal()
