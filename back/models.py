@@ -35,6 +35,23 @@ class Desempenho(Base):
     
     atleta = relationship("User", back_populates="desempenhos")
 
+class Video(Base):
+    __tablename__ = "videos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String(255), nullable=False)
+    descricao = Column(String(1024), nullable=True) # Usando String com tamanho maior para descrição
+    filepath = Column(String(255), nullable=False)
+    data_upload = Column(DateTime(timezone=True), server_default=func.now())
+    
+    aluno_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Relacionamento opcional com o User
+    aluno = relationship("User")
+
+User.videos = relationship("Video", back_populates="aluno")
+
+Video.aluno = relationship("User", back_populates="videos")
 
 # Adicionar no User o relacionamento inverso
 User.desempenhos = relationship("Desempenho", back_populates="atleta")

@@ -125,9 +125,58 @@ document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PAR
     }
 
     // ================================================================
-    // INICIALIZAÇÃO
+    // SEÇÃO 3: LÓGICA DO MODAL DOS VÍDEOS  
     // ================================================================
+
+function setupVideoModal() {
+    const videoModal = document.getElementById('videoModal'); // Assumindo que o modal tem este ID
+    const postVideoBtn = document.getElementById('postVideoBtn'); // Assumindo que o botão "Postar Vídeo" tem este ID
+
+    if (!videoModal || !postVideoBtn) {
+        console.error("Elementos do modal de vídeo não encontrados.");
+        return;
+    }
+
+    postVideoBtn.addEventListener('click', async () => {
+        const titulo = document.getElementById('videoTitle').value;
+        const descricao = document.getElementById('videoDescription').value;
+        const file = document.getElementById('videoFile').files[0];
+        const alunoId = document.getElementById('videoAthleteSelect').value;
+
+        if (!titulo || !file) {
+            alert('Por favor, preencha o título e selecione um arquivo de vídeo.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('titulo', titulo);
+        formData.append('descricao', descricao);
+        formData.append('file', file);
+        if (alunoId) { // Só anexa o aluno_id se um for selecionado
+            formData.append('aluno_id', alunoId);
+        }
+
+        try {
+            const response = await fetch('/api/videos', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+                videoModal.style.display = 'none'; // Fecha o modal
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            alert('Erro: ' + error.message);
+        }
+    });
+}
+
     setupSearchFeature();
     setupDietModal();
+    setupVideoModal();
 
-}); // <-- FIM DO ÚNICO BLOCO DOMContentLoaded
+}); 

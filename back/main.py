@@ -15,6 +15,9 @@ from datetime import datetime, timedelta
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
+VIDEO_UPLOAD_DIRECTORY = "./uploads/videos" #Variável referente aos vídeos
+os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
+
 # Cria tabelas se não existirem
 Base.metadata.create_all(bind=engine)
 
@@ -430,6 +433,45 @@ async def upload_dieta(atleta_id: int, file: UploadFile = File(...)):
     return JSONResponse(status_code=200, content={"message": f"Dieta enviada para {atleta.nome} com sucesso!", "filepath": file_path})
     # Não está sendo enviado ao aluno ainda..
     db.close()
+
+
+@app.post("/api/videos")
+async def upload_video(
+    titulo: str = Form(...),
+    descricao: str = Form(None),
+    aluno_id: int = Form(None),
+    file: UploadFile = File(...)
+):
+
+    db = SessionLocal()
+    try:
+        # Define um caminho para o arquivo de vídeo
+        video_path = os.path.join(VIDEO_UPLOAD_DIRECTORY, file.filename)
+
+        # Salva o arquivo no servidor
+        with open(video_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Cria a nova entrada de vídeo no banco de dados
+        novo_video = models.Video(
+            titulo=titulo,
+            descricao=descricao,
+            filepath=video_path,
+            aluno_id=aluno_id
+        )
+        db.add(novo_video)
+        db.commit()
+        db.refresh(novo_video)
+
+        return JSONResponse(status_code=200, content={"message": "Vídeo postado com sucesso!"})
+
+    except Exception as e:
+        print(f"Erro ao postar vídeo: {e}")
+        db.rollback()
+        return JSONResponse(status_code=500, content={"message": "Erro interno ao processar o vídeo."})
+    
+    finally:
+        db.close()
 
 # Logout
 @app.get("/logout")
