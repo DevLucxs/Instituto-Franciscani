@@ -5,6 +5,8 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base
 import models
+from sqlalchemy import func
+from datetime import datetime, timedelta
 
 
 # Cria tabelas se não existirem
@@ -134,6 +136,7 @@ async def api_desempenho(atleta_id: int):
 @app.get("/treinador/dashboard/{treinador_id}", response_class=HTMLResponse)
 async def treinador_dashboard(request: Request, treinador_id: int):
     db = SessionLocal()
+    
     try:
         treinador = db.query(models.User).filter(models.User.id == treinador_id).first()
 
@@ -145,15 +148,64 @@ async def treinador_dashboard(request: Request, treinador_id: int):
             )
 
         alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
+        total_alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).count()
 
         return templates.TemplateResponse(
             "pages/dashboard.html",
             {
                 "request": request,
                 "treinador": treinador,
-                "alunos": alunos
+                "alunos": alunos,
+                "total_alunos": total_alunos
             }
         )
+    finally:
+        db.close()
+    
+    db = SessionLocal()        
+@app.get("/api/comparativo")
+async def comparar_periodos():
+    db = SessionLocal()
+    try:
+        hoje = datetime.now()
+        # Definição dos intervalos
+        inicio_30 = hoje - timedelta(days=30)
+        inicio_60 = hoje - timedelta(days=60)
+
+        # Contagem de cadastros nos últimos 30 dias
+        bloco_A = db.query(models.User).filter(models.User.data_cadastro >= inicio_30).count()
+
+        # Contagem de cadastros entre 30 e 60 dias atrás
+        bloco_B = db.query(models.User).filter(
+            models.User.data_cadastro >= inicio_60,
+            models.User.data_cadastro < inicio_30
+        ).count()
+
+        # Evita divisão por zero
+        if bloco_B == 0:
+            if bloco_A == 0:
+                return {"mensagem": "Sem dados suficientes para comparação."}
+            else:
+                return {"mensagem": "Aumento de 100% (nenhum dado no mês anterior)."}
+
+        # Calcula a variação percentual
+        variacao = ((bloco_A - bloco_B) / bloco_B) * 100
+
+        # Monta a mensagem adequada
+        if variacao > 0:
+            mensagem = f"{variacao:.1f}% a mais do que no mês passado."
+        elif variacao < 0:
+            mensagem = f"{abs(variacao):.1f}% a menos do que no mês passado."
+        else:
+            mensagem = "Mesma quantidade do mês passado."
+
+        return {
+            "mensagem": mensagem,
+            "periodo_atual": bloco_A,
+            "periodo_anterior": bloco_B,
+            "variacao_percentual": round(variacao, 1)
+        }
+
     finally:
         db.close()
 

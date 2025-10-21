@@ -1218,10 +1218,10 @@
       <div class="dashboard-grid">
         <div class="card stat-card">
           <h3 data-translate="dashboard.atletas_cadastrados">ATLETAS CADASTRADOS</h3>
-          <div class="number">42</div>
+          <div class="number">{{total_alunos}}</div>
           <div class="trend">
-            <i class="fas fa-arrow-up"></i>
-            <span data-translate="dashboard.tendencia_positiva">+5 desde o último mês</span>
+            <i id="icon-trend" class="fas fa-arrow-up"></i>
+            <span id="trend-text" data-translate="dashboard.tendencia_positiva">Carregando dados...</span>
           </div>
         </div>
 
@@ -2970,6 +2970,75 @@
           console.log('⚠️ Classe SistemaNotificacoes não encontrada');
         }
       });
+      
+    </script>
+    
+    <script>
+      async function atualizarComparativo() {
+    const trendText = document.getElementById("trend-text");
+    const trendIcon = document.getElementById("icon-trend");
+
+    // mensagem de carregando
+    if (trendText) {
+        trendText.textContent = "Carregando dados...";
+        trendText.style.color = ""; // reset
+        trendIcon && (trendIcon.className = "fas fa-spinner fa-spin");
+    }
+
+    const url = window.location.origin + "/api/comparativo";
+
+    try {
+        const response = await fetch(url, { credentials: "same-origin" });
+        // Log completo para debugging
+        console.log("[comparativo] request to", url, "status:", response.status);
+
+        // Se não for 2xx — mostrar info detalhada
+        if (!response.ok) {
+            const bodyText = await response.text().catch(() => "<no body>");
+            console.error("[comparativo] resposta não-ok:", response.status, bodyText);
+            if (trendText) {
+                trendText.textContent = `Erro: ${response.status} - see console`;
+                trendText.style.color = "#f72548";
+                trendIcon && (trendIcon.className = "fas fa-exclamation-triangle");
+            }
+            return;
+        }
+
+        const data = await response.json();
+        console.log("[comparativo] data:", data);
+
+        if (!data || !data.mensagem) {
+            trendText && (trendText.textContent = "Resposta inválida da API.");
+            trendIcon && (trendIcon.className = "fas fa-question");
+            return;
+        }
+
+        // Atualiza UI conforme o payload
+        trendText.textContent = data.mensagem || "Sem mensagem.";
+        const variacao = Number(data.variacao_percentual ?? 0);
+
+        if (variacao > 0) {
+            trendIcon.className = "fas fa-arrow-up";
+            trendText.style.color = "#00b451"; // verde
+        } else if (variacao < 0) {
+            trendIcon.className = "fas fa-arrow-down";
+            trendText.style.color = "#f72548"; // vermelho
+        } else {
+            trendIcon.className = "fas fa-minus";
+            trendText.style.color = "#6c757d"; // cinza
+        }
+    } catch (err) {
+        // Erro de rede, CORS, JSON parse, etc
+        console.error("[comparativo] erro no fetch:", err);
+        if (trendText) {
+            trendText.textContent = "Erro ao carregar dados (veja console).";
+            trendText.style.color = "#f72548";
+        }
+        trendIcon && (trendIcon.className = "fas fa-exclamation-triangle");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", atualizarComparativo);
     </script>
   </body>
 </html>

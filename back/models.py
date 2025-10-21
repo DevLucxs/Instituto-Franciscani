@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
@@ -21,6 +21,7 @@ class User(Base):
     status = Column(String(20), nullable=True)
     telefone = Column(String(20), nullable=True)
     endereco = Column(String(100), nullable=True)
+    data_cadastro = Column(DateTime(timezone=True), server_default=func.now())
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"
@@ -29,7 +30,7 @@ class Desempenho(Base):
     atleta_id = Column(Integer, ForeignKey("users.id"))
     treino = Column(String(255), nullable=False)
     tempo = Column(Float)      # tempo em segundos
-    distancia = Column(Float)  # distância em metros
+    distancia = Column(Float)  # distï¿½ncia em metros
     
     atleta = relationship("User", back_populates="desempenhos")
 
