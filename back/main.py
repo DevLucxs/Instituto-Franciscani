@@ -210,16 +210,16 @@ async def comparar_periodos():
         db.close()
 
 # Motor de pesquisa da página de Dashboard 
-@app.get("/api/search/alunos/{treinador_id}")
-async def search_alunos(treinador_id: int, q: str | None = None):
+@app.get("/api/search/alunos/") 
+async def search_alunos(q: str | None = None):
 
-    if not q:
+    if not q or len(q) < 2:
         return []
 
     db = SessionLocal()
     try:
         search_term = f"%{q.lower()}%"
-        
+
         alunos_encontrados = db.query(models.User).filter(
             models.User.tipo == "aluno",
             func.lower(models.User.nome).like(search_term)
@@ -233,8 +233,7 @@ async def search_alunos(treinador_id: int, q: str | None = None):
         return sugestoes
     finally:
         db.close()
-        #Pesquisa não está retornando para nenhuma página de aluno, verificar com Alex.
-
+        
 # Página de Dados Gerais
 @app.get("/treinador/dados/{treinador_id}", response_class=HTMLResponse)
 async def dados_gerais(request: Request, treinador_id: int):

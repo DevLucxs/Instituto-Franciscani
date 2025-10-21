@@ -9,12 +9,11 @@ function setupSearchFeature() {
     const searchBar = document.querySelector('.search-bar');
     
     // Se algum dos elementos essenciais não for encontrado, a função para.
-    if (!searchInput || !suggestionsBox || !searchBar) {
+    if (!searchInput || !suggestionsBox) {
         console.error("Elementos da barra de pesquisa não encontrados.");
         return;
     }
 
-    const treinadorId = searchBar.dataset.treinadorId;
     let debounceTimer;
 
     const fetchSuggestions = async (query) => {
@@ -24,13 +23,8 @@ function setupSearchFeature() {
             return;
         }
 
-        if (!treinadorId) {
-            console.error('ID do treinador não encontrado no HTML para a busca!');
-            return;
-        }
-
         try {            
-            const response = await fetch(`/treinador/pesquisa/${treinadorId}?q=${query}`);
+            const response = await fetch(`/api/search/alunos/?q=${query}`);
             
             if (!response.ok) {
                 throw new Error(`A resposta da rede não foi bem-sucedida. Status: ${response.status}`);
