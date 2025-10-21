@@ -21,36 +21,38 @@ app.mount("/static", StaticFiles(directory="front/static"), name="static")
 templates = Jinja2Templates(directory="front/templates")
 
 # Função para popular usuários
-def seed_users():
+@app.on_event("startup")
+def startup_event():
+    """
+    Função executada apenas uma vez na inicialização do servidor.
+    """
     db = SessionLocal()
-    users_exist = db.query(models.User).count() > 0
-    if not users_exist:
-        users = [
-            models.User(nome="Ana Mendonça", email="ana.mendonca@if.com", senha="123", tipo=models.UserType.aluno),
-            models.User(nome="Pedro Silva", email="pedro.silva@if.com", senha="123", tipo=models.UserType.aluno),
-            models.User(nome="Carolina Rodrigues", email="carolina.rodrigues@if.com", senha="123", tipo=models.UserType.aluno),
-            models.User(nome="Treinador Master", email="treinador@if.com", senha="123", tipo=models.UserType.treinador),
-        ]
-        db.add_all(users)
-        db.commit()
-    db.close()
+    try:
+        # Lógica da seed_users
+        users_exist = db.query(models.User).count() > 0
+        if not users_exist:
+            print("--- BANCO DE DADOS VAZIO: Populando usuários iniciais... ---")
+            users = [
+                models.User(nome="Ana Mendonça", email="ana.mendonca@if.com", senha="123", tipo=models.UserType.aluno),
+                models.User(nome="Pedro Silva", email="pedro.silva@if.com", senha="123", tipo=models.UserType.aluno),
+                models.User(nome="Carolina Rodrigues", email="carolina.rodrigues@if.com", senha="123", tipo=models.UserType.aluno),
+                models.User(nome="Treinador Master", email="treinador@if.com", senha="123", tipo=models.UserType.treinador),
+            ]
+            db.add_all(users)
+            db.commit()
 
-# Popula usuários
-seed_users()
-
-def seed_desempenhos():
-    db = SessionLocal()
-    if db.query(models.Desempenho).count() == 0:
-        alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
-        for aluno in alunos:
-            db.add_all([
-                models.Desempenho(atleta_id=aluno.id, treino="Natação 50m", tempo=35.2, distancia=50),
-                models.Desempenho(atleta_id=aluno.id, treino="Natação 100m", tempo=80.5, distancia=100),
-            ])
-        db.commit()
-    db.close()
-
-seed_desempenhos()
+        # Lógica da seed_desempenhos
+        if db.query(models.Desempenho).count() == 0:
+            print("--- BANCO DE DADOS VAZIO: Populando desempenhos iniciais... ---")
+            alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
+            for aluno in alunos:
+                db.add_all([
+                    models.Desempenho(atleta_id=aluno.id, treino="Natação 50m", tempo=35.2, distancia=50),
+                    models.Desempenho(atleta_id=aluno.id, treino="Natação 100m", tempo=80.5, distancia=100),
+                ])
+            db.commit()
+    finally:
+        db.close()
 
 
 # Função auxiliar para buscar usuário por email
