@@ -10,6 +10,9 @@ from database import SessionLocal, engine, Base
 import models
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from fastapi import HTTPException
+from pydantic import BaseModel
+
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -28,6 +31,22 @@ app.mount("/static", StaticFiles(directory="front/static"), name="static")
 
 # Templates (HTML com Jinja2)
 templates = Jinja2Templates(directory="front/templates")
+
+
+
+
+
+class AlunoCreate(BaseModel):
+    nome: str
+    email: str
+    modalidade: str
+    idade: int
+    status: str
+    telefone: str
+    endereco: str
+
+
+
 
 # Função para popular usuários
 @app.on_event("startup")
@@ -283,37 +302,81 @@ async def calendario(request: Request, treinador_id: int):
         {"request": request, "treinador": treinador}
     )
 
+
+@app.get("/treinador/avaliar-atleta/{treinador_id}", response_class=HTMLResponse)
+async def avaliar_atleta(request: Request, treinador_id: int):
+    db = SessionLocal()
+    treinador = db.query(models.User).filter(models.User.id == treinador_id).first()
+    db.close()
+    return templates.TemplateResponse(
+        "pages/avaliar-atleta.html",
+        {"request": request, "treinador": treinador}
+    )
+
+
+
+
+
+
+
+
+
 # Criar atleta
 @app.post("/api/alunos", response_class=JSONResponse)
-async def criar_aluno(aluno: dict = Body(...)):
+async def criar_aluno(aluno: AlunoCreate):
+    try:
+        db = SessionLocal()
+        novo_aluno = models.User(
+            nome=aluno.nome,
+            email=aluno.email,
+            senha="123",
+            tipo=models.UserType.aluno,
+            modalidade=aluno.modalidade,
+            idade=aluno.idade,
+            status=aluno.status,
+            telefone=aluno.telefone,
+            endereco=aluno.endereco,
+        )
+        db.add(novo_aluno)
+        db.commit()
+        db.refresh(novo_aluno)
+        db.close()
+        return {
+            "id": novo_aluno.id,
+            "nome": novo_aluno.nome,
+            "email": novo_aluno.email,
+            "modalidade": novo_aluno.modalidade,
+            "idade": novo_aluno.idade,
+            "status": novo_aluno.status,
+            "telefone": novo_aluno.telefone,
+            "endereco": novo_aluno.endereco,
+        }
+    except Exception as e:
+        db.rollback()
+        db.close()
+        print("Erro ao criar aluno:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+@app.get("/api/alunos", response_class=JSONResponse)
+async def listar_alunos(): 
     db = SessionLocal()
-    novo_aluno = models.User(
-        nome=aluno.get("nome"),
-        email=aluno.get("email"),
-        senha="123",
-        tipo=models.UserType.aluno,
-        modalidade=aluno.get("modalidade"),
-        idade=aluno.get("idade"),
-        status=aluno.get("status"),
-        telefone=aluno.get("telefone"),
-        endereco=aluno.get("endereco"),
-        
-    )
-    db.add(novo_aluno)
-    db.commit()
-    db.refresh(novo_aluno)
+    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
     db.close()
-    return {
-        "id": novo_aluno.id,
-        "nome": novo_aluno.nome,
-        "email": novo_aluno.email,
-        "modalidade": novo_aluno.modalidade,
-        "idade": novo_aluno.idade,
-        "status": novo_aluno.status,
-        "telefone": novo_aluno.telefone,
-        "endereco": novo_aluno.endereco,
-        
-    }
+    return [
+        {
+        "id": aluno.id,
+        "nome": aluno.nome,
+        "email": aluno.email,
+        "modalidade": aluno.modalidade,
+        "idade": aluno.idade,
+        "status": aluno.status,
+        "telefone": aluno.telefone,
+        "endereco": aluno.endereco,
+        }
+    for aluno in alunos
+]
+
 
 # Editar atleta
 @app.put("/api/alunos/{atleta_id}", response_class=JSONResponse)
@@ -349,30 +412,10 @@ async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
         
     }
 
-@app.get("/api/alunos", response_class=JSONResponse)
-async def listar_alunos():
-    db = SessionLocal()
-    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
-    db.close()
-    result = []
-    for a in alunos:
-        result.append({
-        "id": a.id,
-        "nome": a.nome,
-        "email": a.email,
-        "modalidade": a.modalidade,
-        "idade": a.idade,
-        "status": a.status,
-        "telefone": a.telefone,
-        "endereco": a.endereco,
-})
-    return result
-
 @app.delete("/api/alunos/{atleta_id}", response_class=JSONResponse)
 async def deletar_aluno(atleta_id: int = Path(...)):
     db = SessionLocal()
     atleta = db.query(models.User).filter(models.User.id == atleta_id, models.User.tipo == models.UserType.aluno).first()
-    
     if not atleta:
         db.close()
         return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
@@ -380,8 +423,7 @@ async def deletar_aluno(atleta_id: int = Path(...)):
     db.delete(atleta)
     db.commit()
     db.close()
-
-    return JSONResponse(status_code=200, content={"message": "Atleta excluído com sucesso"})
+    return {"message": "Atleta excluído com sucesso"}
 
 
 @app.post("/api/desempenho", response_class=JSONResponse)
