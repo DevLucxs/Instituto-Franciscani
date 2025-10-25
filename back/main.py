@@ -156,6 +156,37 @@ async def api_desempenho(atleta_id: int):
     return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
 
 
+# Buscar atleta por email
+
+@app.get("/api/alunos/email/{email}", response_class=JSONResponse)
+async def buscar_aluno_por_email(email: str):
+    db = SessionLocal()
+    atleta = db.query(models.User).filter(
+        models.User.email == email,
+        models.User.tipo == models.UserType.aluno
+    ).first()
+    db.close()
+
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta não encontrado")
+
+    return {
+        "id": atleta.id,
+        "nome": atleta.nome,
+        "email": atleta.email,
+        "modalidade": atleta.modalidade,
+        "idade": atleta.idade,
+        "status": atleta.status,
+        "telefone": atleta.telefone,
+        "endereco": atleta.endereco,
+        "ano_ingresso": atleta.ano_ingresso if hasattr(atleta, "ano_ingresso") else "2020",
+        "foco": atleta.foco if hasattr(atleta, "foco") else "Provas de 100m e 200m livre"
+    }
+
+
+
+
+
 
 
 
@@ -302,21 +333,19 @@ async def calendario(request: Request, treinador_id: int):
         {"request": request, "treinador": treinador}
     )
 
-
-@app.get("/treinador/avaliar-atleta/{treinador_id}", response_class=HTMLResponse)
-async def avaliar_atleta(request: Request, treinador_id: int):
+@app.get("/treinador/avaliaratleta", response_class=HTMLResponse)
+async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str):
     db = SessionLocal()
-    treinador = db.query(models.User).filter(models.User.id == treinador_id).first()
+    treinador = db.query(models.User).filter(models.User.tipo == models.UserType.treinador).first()
     db.close()
-    return templates.TemplateResponse(
-        "pages/avaliar-atleta.html",
-        {"request": request, "treinador": treinador}
-    )
 
-
-
-
-
+    return templates.TemplateResponse("pages/avaliar-atleta.html", {
+        "request": request,
+        "id": id,
+        "nome": nome,
+        "modalidade": modalidade,
+        "treinador": treinador
+    })
 
 
 
@@ -412,6 +441,8 @@ async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
         
     }
 
+# Deletar atleta
+
 @app.delete("/api/alunos/{atleta_id}", response_class=JSONResponse)
 async def deletar_aluno(atleta_id: int = Path(...)):
     db = SessionLocal()
@@ -424,6 +455,8 @@ async def deletar_aluno(atleta_id: int = Path(...)):
     db.commit()
     db.close()
     return {"message": "Atleta excluído com sucesso"}
+
+
 
 
 @app.post("/api/desempenho", response_class=JSONResponse)

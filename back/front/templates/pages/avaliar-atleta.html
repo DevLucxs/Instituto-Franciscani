@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Avaliar Atleta | Instituto Franciscani</title>
-    <link rel="shortcut icon" href="static/img/logo_if_icon.png" type="" />
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -40,105 +40,96 @@
       }
 
       /* Sidebar */
-      .sidebar {
-        width: var(--sidebar-width);
-        background: linear-gradient(
-          to bottom,
-          var(--primary-color),
-          var(--secondary-color)
-        );
-        color: white;
-        height: 100vh;
-        position: fixed;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 20px 0;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-      }
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient( to bottom, var(--primary-color), var(--secondary-color) );
+            color: white;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
 
-      .sidebar-header {
-        padding: 0 20px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        margin-bottom: 20px;
-      }
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
 
-      .sidebar-header h2 {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+            .sidebar-header h2 {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
 
-      .sidebar-header h2 i {
-        background: white;
-        color: var(--primary-color);
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+                .sidebar-header h2 i {
+                    background: white;
+                    color: var(--primary-color);
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
 
-      .menu-items {
-        list-style: none;
-        padding: 0 15px;
-      }
+            
 
-      .menu-items li {
-        margin-bottom: 5px;
-      }
+        .menu-items {
+            list-style: none;
+            padding: 0 15px;
+            margin-top: -470px;
+            padding-top: 0;
+        }
 
-      .menu-items a {
-        color: white;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 12px 15px;
-        border-radius: 8px;
-        transition: var(--transition);
-        position: relative;
-      }
+            .menu-items li {
+                margin-bottom: 5px;
+            }
 
-      .menu-items a:hover,
-      .menu-items a.active {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateX(5px);
-      }
+            .menu-items a {
+                color: white;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 12px 15px;
+                border-radius: 8px;
+                transition: var(--transition);
+            }
 
-      .menu-items a.active::before {
-        content: "";
-        position: absolute;
-        left: -15px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 20px;
-        background: white;
-        border-radius: 2px;
-      }
+                .menu-items a:hover,
+                .menu-items a.active {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
 
-      .sidebar-footer {
-        padding: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-      }
+                .menu-items a i {
+                    width: 20px;
+                    text-align: center;
+                }
 
-      .sidebar-footer a {
-        color: white;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 12px 15px;
-        border-radius: 8px;
-        transition: var(--transition);
-      }
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-      .sidebar-footer a:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
+            .sidebar-footer a {
+                color: white;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 10px 15px;
+                border-radius: 8px;
+                transition: var(--transition);
+            }
+
+                .sidebar-footer a:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
 
       /* Main Content */
       .main-content {
@@ -922,34 +913,25 @@
     <!-- Sidebar -->
     <nav class="sidebar">
       <div class="sidebar-header">
-        <img src="static/img/logo_if.png" alt="logo" width="230px" />
+        <img src="/static/img/logo_if.png" alt="logo" width="230px" />
       </div>
       
       <ul class="menu-items">
-        <li>
-          <a href="dashboard.html">
-            <i class="fas fa-th-large"></i>
-            <span data-translate="nav.dashboard">Dashboard</span>
-          </a>
-        </li>
-        <li>
-          <a href="dados_gerais.html" class="active">
-            <i class="fas fa-list"></i>
-            <span data-translate="nav.dados_gerais">Dados Gerais</span>
-          </a>
-        </li>
-        <li>
-          <a href="treinamentos.html">
-            <i class="fas fa-running"></i>
-            <span data-translate="nav.treinamentos">Treinamentos</span>
-          </a>
-        </li>
-        <li>
-          <a href="calendario.html">
-            <i class="fas fa-calendar-alt"></i>
-            <span data-translate="nav.calendario">Calendário</span>
-          </a>
-        </li>
+          <li>
+              <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span data-translate="nav.dashboard">Dashboard</span></a>
+          </li>
+          <li>
+              <a href="#" class="active">
+                  <i class="fas fa-list"></i>
+                  <span data-translate="nav.dados_gerais">Dados Gerais</span>
+              </a>
+          </li>
+          <li>
+              <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span data-translate="nav.treinamentos">Treinamentos</span></a>
+          </li>
+          <li>
+              <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span data-translate="nav.calendario">Calendário</span></a>
+          </li>
       </ul>
       
       <div class="sidebar-footer">
@@ -969,13 +951,13 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <div class="user-info">
-            <div class="user-avatar">CO</div>
-            <div class="user-details">
-              <h4>Carlos Oliveira</h4>
-              <p>Treinador</p>
+            <div class="user-info">
+                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper()  }}</div>
+                <div class="user-details">
+                    <h4>{{ treinador.nome }}</h4>
+                    <p>{{ treinador.cargos }}</p>
+                </div>
             </div>
-          </div>
         </div>
         
         <div class="header-actions">
@@ -998,26 +980,28 @@
 
         <!-- Atleta Header -->
         <div class="atleta-header">
-          <div class="atleta-avatar" id="atletaAvatar">AM</div>
-          <div class="atleta-info">
-            <h2 id="atletaNome">Ana Mendonça</h2>
-            <p id="atletaModalidade">Natação</p>
-            <p id="atletaEmail">ana.mendonca@email.com</p>
-            <div class="atleta-stats">
-              <div class="stat-item">
-                <span class="stat-value" id="totalTreinos">12</span>
-                <span class="stat-label">Treinos</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value" id="treinosConcluidos">8</span>
-                <span class="stat-label">Concluídos</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value" id="horasTreinamento">24h</span>
-                <span class="stat-label">Horas</span>
-              </div>
+            <div class="atleta-avatar">
+                {{ nome.split(' ')[0][0] }}{{ nome.split(' ')[1][0] }}
             </div>
-          </div>
+            <div class="atleta-info">
+                <h2>Avaliação de {{ nome }}</h2>
+                <p>ID: {{ id }}</p>
+                <p>Modalidade: {{ modalidade }}</p>
+                <div class="atleta-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalTreinos">12</span>
+                        <span class="stat-label">Treinos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="treinosConcluidos">8</span>
+                        <span class="stat-label">Concluídos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="horasTreinamento">24h</span>
+                        <span class="stat-label">Horas</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
                  <!-- Gráfico de Desempenho -->
@@ -1093,11 +1077,14 @@
       </div>
     </main>
 
-         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-         <script src="static/js/frontend-config.js"></script>
-    <script src="static/js/personalizar-usuario.js"></script>
-    <script src="static/js/traducoes.js"></script>
-    <script src="static/js/notificacoes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+         
+    <script src="/static/js/settings.js"></script>  
+
+    <script src="/static/js/frontend-config.js"></script>
+    <script src="/static/js/personalizar-usuario.js"></script>
+    <script src="/static/js/traducoes.js"></script>
+    <script src="/static/js/notificacoes.js"></script>
     <script>
       // Variáveis globais
       let atletaId = null;
@@ -1174,9 +1161,9 @@
         atletaModalidade = decodeURIComponent(urlParams.get('modalidade') || '');
 
         console.log('📋 Dados do atleta carregados:', {
-          id: atletaId,
-          nome: atletaNome,
-          modalidade: atletaModalidade
+          id: atleta.id,
+          nome: atleta.nome,
+          modalidade: atleta.modalidade
         });
 
         // Verificar se o ID foi encontrado
@@ -1187,8 +1174,8 @@
         }
 
         // Atualizar interface
-        document.getElementById('atletaNome').textContent = atletaNome;
-        document.getElementById('atletaModalidade').textContent = atletaModalidade;
+        document.getElementById('atletaNome').textContent = atleta.nome;
+        document.getElementById('atletaModalidade').textContent = atleta.modalidade;
         
         // Gerar avatar
         const avatar = atletaNome.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -1835,50 +1822,6 @@
         }
       }
 
-      function showSettings() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-          <div class="modal-content settings-modal">
-            <div class="modal-header">
-              <h2>Configurações do Sistema</h2>
-              <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" title="Fechar configurações" aria-label="Fechar modal de configurações">&times;</button>
-            </div>
-            <div class="settings-content">
-              <div class="form-group">
-                <label>Notificações por Email</label>
-                <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-              </div>
-              <div class="form-group">
-                <label>Notificações Push</label>
-                <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
-              </div>
-              <div class="form-group">
-                <label>Idioma</label>
-                <select>
-                  <option>Português</option>
-                  <option>English</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Tema</label>
-                <select>
-                  <option>Claro</option>
-                  <option>Escuro</option>
-                  <option>Automático</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-actions">
-              <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
-              <button class="btn btn-primary" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
-            </div>
-          </div>
-        `;
-        
-        document.body.appendChild(modal);
-      }
-
       function showHelp() {
         alert('Sistema de ajuda em desenvolvimento');
       }
@@ -1887,7 +1830,7 @@
         if (confirm('Tem certeza que deseja sair?')) {
           localStorage.removeItem('token');
           localStorage.removeItem('jwt_token');
-          window.location.href = '../index.html';
+          window.location.href = '/static/index.html';
         }
       }
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
@@ -75,12 +75,7 @@
                     justify-content: center;
                 }
 
-            .sidebar-header img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-            }
+
 
         .menu-items {
             list-style: none;
@@ -733,34 +728,76 @@
 
         /* Estilos para configurações */
         .settings-content {
+            padding: 25px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-            .settings-content .form-group {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid #eee;
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: var(--dark-color);
             }
 
-                .settings-content .form-group:last-child {
-                    border-bottom: none;
+            .form-group input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                margin-right: 10px;
+            }
+
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                transition: var(--transition);
+            }
+
+                .form-group select:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
                 }
 
-            .settings-content label {
-                margin: 0;
-                font-weight: 500;
+        .modal-actions {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary-color);
+                color: white;
             }
 
-            .settings-content input[type="checkbox"] {
-                width: auto;
-                margin: 0;
-            }
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
 
-            .settings-content select {
-                width: 150px;
-                margin: 0;
+            .btn-primary:hover {
+                background: var(--secondary-color);
             }
 
         /* Estilos Modernos para o Modal de Atleta */
@@ -1521,6 +1558,49 @@
             justify-content: center;
             gap: 12px;
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+            .modal-header h2 {
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: white;
+            }
+
     </style>
 </head>
 <body>
@@ -2119,1104 +2199,1123 @@
 
 
 
+
+    <script src="/static/js/settings.js"></script>
+
     <script>
 
-        // Função para carregar atletas via API
+    // Função para carregar atletas via API
 
-        const API_BASE_URL = "http://127.0.0.1:8000/api"
+    const API_BASE_URL = "http://127.0.0.1:8000/api"
 
-        let athletes = [];
+    let athletes = [];
 
-        document.addEventListener('DOMContentLoaded', carregarAtletas);
+    document.addEventListener('DOMContentLoaded', carregarAtletas);
 
-        async function carregarAtletas() {
-            try {
-                const response = await fetch('/api/alunos');
-                if (!response.ok) throw new Error('Erro ao buscar atletas');
-                athletes = await response.json(); // ✅ atualiza array global
-                updateTable();                    // ✅ renderiza com base no array global
-            } catch (error) {
-                console.error('Erro:', error);
-                athletes = [];
-            }
+    async function carregarAtletas() {
+    try {
+    const response = await fetch('/api/alunos');
+    if (!response.ok) throw new Error('Erro ao buscar atletas');
+    athletes = await response.json(); // ✅ atualiza array global
+    updateTable();                    // ✅ renderiza com base no array global
+    } catch (error) {
+    console.error('Erro:', error);
+    athletes = [];
+    }
+    }
+
+    function renderAthletes(athletes) {
+    const tableBody = document.querySelector('#athletesTable tbody');
+    tableBody.innerHTML = '';
+
+    athletes.forEach((atleta, index) => {
+    const row = document.createElement('tr');
+    row.onclick = () => openAthleteModal(index);
+
+    const avatar = document.createElement('td');
+    avatar.innerHTML = `
+    <div class="athlete-info">
+        <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
+        <div class="athlete-details">
+            <h4>${atleta.nome}</h4>
+            <p>${atleta.email}</p>
+        </div>
+    </div>
+    `;
+
+    const modalidade = document.createElement('td');
+    modalidade.textContent = atleta.modalidade || 'Não informado';
+
+    const idade = document.createElement('td');
+    idade.textContent = atleta.idade || 'Não informado';
+
+    const status = document.createElement('td');
+    status.innerHTML = `<span class="status-badge status-active">${atleta.status || 'Não informado'}</span>`;
+
+    const actions = document.createElement('td');
+    actions.style.textAlign = "center";
+    actions.style.verticalAlign = "middle";
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = "action-buttons";
+    actionsDiv.style.display = "flex";
+    actionsDiv.style.justifyContent = "center";
+    actionsDiv.style.gap = "12px";
+
+    const editBtn = document.createElement('div');
+    editBtn.className = "action-btn edit-btn";
+    editBtn.title = "Editar atleta";
+    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+    editBtn.onclick = (event) => {
+    event.stopPropagation();
+    openAthleteModal(index);
+    };
+
+    const evaluateBtn = document.createElement('div');
+    evaluateBtn.className = "action-btn evaluate-btn";
+    evaluateBtn.title = "Avaliar atleta";
+    evaluateBtn.innerHTML = '<i class="fas fa-star"></i>';
+    evaluateBtn.onclick = (event) => {
+    event.stopPropagation();
+    avaliarAtleta(atleta); // ✅ aqui o objeto está seguro
+    };
+
+    const deleteBtn = document.createElement('div');
+    deleteBtn.className = "action-btn delete-btn";
+    deleteBtn.title = "Excluir atleta";
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteBtn.onclick = (event) => {
+    event.stopPropagation();
+    deleteAthlete(index);
+    };
+
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(evaluateBtn);
+    actionsDiv.appendChild(deleteBtn);
+    actions.appendChild(actionsDiv);
+
+    row.appendChild(avatar);
+    row.appendChild(modalidade);
+    row.appendChild(idade);
+    row.appendChild(status);
+    row.appendChild(actions);
+
+    tableBody.appendChild(row);
+    });
+
+    document.getElementById("resultsCount").textContent = `${athletes.length} atletas`;
+    }
+
+    function openAthleteModal(index) {
+    // A variável global 'athletes' deve conter um array de objetos de atletas.
+    // Certifique-se de que a variável 'athletes' está no escopo ou é global.
+    const athlete = athletes[index];
+
+    // 🛑 TRATAMENTO DE ERRO na ABERTURA: Verifica se o atleta existe no array
+    if (!athlete) {
+    console.error(`Erro: Tentativa de abrir modal para índice inválido: ${index}`);
+    alert("Erro: Atleta não encontrado para edição. Recarregue a página.");
+    return;
+    }
+
+    // 1. OBTÉM a referência ao elemento modal
+    const athleteModal = document.getElementById("athleteModal");
+
+    // 2. 💡 CORREÇÃO PRINCIPAL: Salva o ID do atleta no atributo data-id do modal.
+    // O ID é necessário para a função deleteAthlete() e para futuras edições.
+    // Assumimos que o objeto 'athlete' possui uma propriedade chamada 'id'.
+    if (athleteModal) {
+    athleteModal.dataset.id = athlete.id;
+    } else {
+    console.error("Erro: Elemento 'athleteModal' não encontrado no DOM.");
+    }
+
+    document.getElementById("athleteForm").reset(); // Limpa o formulário antes de preencher
+
+    document.getElementById("athleteModalTitle").textContent = "Editar Atleta";
+    document.getElementById("athleteName").value = athlete.nome;
+    document.getElementById("athleteEmail").value = athlete.email;
+    document.getElementById("athleteSport").value = athlete.modalidade;
+
+    // Remove " anos" com segurança
+    document.getElementById("athleteAge").value = typeof athlete.idade === "string"
+    ? athlete.idade.replace(" anos", "")
+    : athlete.idade;
+
+    document.getElementById("athleteStatus").value = athlete.status;
+    document.getElementById("athletePhone").value = athlete.telefone || "";
+    document.getElementById("athleteAddress").value = athlete.endereco || "";
+    document.getElementById("athleteNotes").value = ""; // Se houver campo de notas
+
+    document.getElementById("deleteAthleteBtn").style.display = "block";
+    document.getElementById("athleteModal").dataset.id = athlete.id; // Define o índice para o SAVE
+    document.getElementById("athleteModal").style.display = "flex";
+    }
+
+    function addNewAthlete() {
+    document.getElementById("athleteForm").reset();
+    document.getElementById("athleteModalTitle").textContent = "Novo Atleta";
+    document.getElementById("deleteAthleteBtn").style.display = "none";
+
+    // 🛑 LIMPEZA CRÍTICA: Define o índice como string vazia para forçar o POST em saveAthlete
+    document.getElementById("athleteModal").dataset.id = "";
+
+    document.getElementById("athleteModal").style.display = "flex";
+    }
+
+    function closeAthleteModal() {
+    document.getElementById("athleteModal").style.display = "none";
+    document.getElementById("athleteForm").reset();
+    document.getElementById("athleteModal").dataset.id = "";
+    document.getElementById("deleteAthleteBtn").style.display = "none";
+    }
+
+
+
+    // Função para Salvar e Editar Atleta
+
+    async function criarAtleta(dados) {
+    try {
+    const response = await fetch("http://127.0.0.1:8000/api/alunos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
+    });
+
+    if (!response.ok) throw new Error("Erro ao criar atleta");
+    alert("Atleta criado com sucesso! ✅");
+    } catch (error) {
+    console.error("Erro ao criar atleta:", error);
+    alert("Não foi possível criar o atleta.");
+    }
+    await carregarAtletas();
+    updateTable();
+    }
+
+    async function editarAtleta(id, dados) {
+    try {
+    const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
+    });
+
+    if (!response.ok) throw new Error("Erro ao atualizar atleta");
+    alert("Atleta atualizado com sucesso! ✅");
+    } catch (error) {
+    console.error("Erro ao atualizar atleta:", error);
+    alert("Não foi possível atualizar o atleta.");
+    }
+    await carregarAtletas();
+    renderAthletes(athletes);
+    }
+
+
+    async function saveAthlete(event) {
+    event.preventDefault();
+
+    const dados = {
+    nome: document.getElementById("athleteName").value,
+    email: document.getElementById("athleteEmail").value,
+    modalidade: document.getElementById("athleteSport").value,
+    idade: parseInt(document.getElementById("athleteAge").value), // 👈 aqui!
+    status: document.getElementById("athleteStatus").value,
+    telefone: document.getElementById("athletePhone").value,
+    endereco: document.getElementById("athleteAddress").value
+    };
+
+    const id = document.getElementById("athleteModal").dataset.id;
+
+    if (!id) {
+    await criarAtleta(dados);
+    } else {
+    await editarAtleta(id, dados);
+    }
+
+    closeAthleteModal();
+    await carregarAtletas();
+    renderAthletes(athletes);
+    updateTable();
+    }
+
+
+    window.addEventListener("click", function (event) {
+    if (event.target == document.getElementById("athleteModal")) {
+    closeAthleteModal();
+    }
+    if (event.target == document.getElementById("filterModal")) {
+    closeFilterModal();
+    }
+    });
+
+    document.addEventListener('DOMContentLoaded', carregarAtletas);
+
+    // Funções para o modal de comparação
+    async function openCompareModal() {
+    console.log("Abrindo modal de comparação...");
+
+    // Preencher os selects com os atletas vindos do backend
+    const athlete1Select = document.getElementById("athlete1");
+    const athlete2Select = document.getElementById("athlete2");
+
+    // Limpar selects
+    const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
+    const traducoes = {
+    pt: { primeiro: 'Selecione o primeiro atleta', segundo: 'Selecione o segundo atleta' },
+    en: { primeiro: 'Select the first athlete', segundo: 'Select the second athlete' },
+    es: { primeiro: 'Selecciona el primer atleta', segundo: 'Selecciona el segundo atleta' }
+    };
+    const traducao = traducoes[idiomaAtual] || traducoes.pt;
+
+    athlete1Select.innerHTML = `<option value="">${traducao.primeiro}</option>`;
+    athlete2Select.innerHTML = `<option value="">${traducao.segundo}</option>`;
+
+    try {
+    // 🔹 Buscar atletas do banco via API
+    const response = await fetch('/api/alunos');
+    if (!response.ok) throw new Error("Erro ao buscar atletas");
+
+    const atletas = await response.json(); // lista real do backend
+    window.atletasGlobais = atletas; // guarda globalmente pra usar depois
+
+    // Adicionar atletas reais aos selects
+    atletas.forEach((atleta) => {
+    const option1 = document.createElement("option");
+    option1.value = atleta.id;
+    option1.textContent = atleta.nome;
+    athlete1Select.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = atleta.id;
+    option2.textContent = atleta.nome;
+    athlete2Select.appendChild(option2);
+    });
+
+    // Esconder resultados e limpar previews
+    document.getElementById("comparisonResults").style.display = "none";
+    document.getElementById("athlete1Preview").innerHTML = "Selecione um atleta";
+    document.getElementById("athlete2Preview").innerHTML = "Selecione um atleta";
+
+    // Desabilitar botão de comparação
+    document.getElementById("compareBtn").disabled = true;
+
+    // Exibir o modal
+    const modal = document.getElementById("compareModal");
+    if (modal) {
+    modal.style.display = "flex";
+    console.log("Modal de comparação exibido com sucesso");
+    } else {
+    console.error("Modal de comparação não encontrado");
+    }
+
+    } catch (error) {
+    console.error("Erro ao abrir modal de comparação:", error);
+    alert("Não foi possível carregar a lista de atletas.");
+    }
+    }
+
+    function updateResultsCount() {
+    const count = athletes.length; // ou use o array filtrado, se estiver aplicando filtros
+    const span = document.getElementById("resultsCount");
+    span.textContent = `${count} atleta${count !== 1 ? "s" : ""}`;
+    }
+
+    function closeCompareModal() {
+    console.log("Fechando modal de comparação...");
+    const modal = document.getElementById("compareModal");
+    if (modal) {
+    modal.style.display = "none";
+    console.log("Modal de comparação fechado com sucesso");
+    } else {
+    console.error("Modal de comparação não encontrado para fechar");
+    }
+    }
+
+    // Função para atualizar o preview do atleta
+    function updateAthletePreview(athleteNum) {
+    const select = document.getElementById(`athlete${athleteNum}`);
+    const preview = document.getElementById(`athlete${athleteNum}Preview`);
+    const selectedIndex = select.value;
+
+    if (selectedIndex === "") {
+    preview.innerHTML = "Selecione um atleta";
+    preview.className = "athlete-preview";
+    } else {
+    const athlete = athletes[selectedIndex];
+    preview.innerHTML = `
+    <div class="athlete-preview-avatar">${athlete.avatar}</div>
+    <div class="athlete-preview-name">${athlete.nome}</div>
+    <div class="athlete-preview-sport">${athlete.modalidade}</div>
+    `;
+    preview.className = "athlete-preview has-athlete";
+    }
+
+    // Verificar se ambos os atletas foram selecionados
+    checkComparisonReady();
+    }
+
+    // Função para verificar se a comparação está pronta
+    function checkComparisonReady() {
+    const athlete1 = document.getElementById("athlete1").value;
+    const athlete2 = document.getElementById("athlete2").value;
+    const compareBtn = document.getElementById("compareBtn");
+
+    console.log("Verificando se comparação está pronta:", athlete1, athlete2);
+
+    if (athlete1 !== "" && athlete2 !== "" && athlete1 !== athlete2) {
+    compareBtn.disabled = false;
+    console.log("Botão de comparação habilitado");
+    } else {
+    compareBtn.disabled = true;
+    console.log("Botão de comparação desabilitado");
+    }
+    }
+
+    function compareAthletes() {
+    console.log("Função compareAthletes chamada");
+
+    const athlete1Index = document.getElementById("athlete1").value;
+    const athlete2Index = document.getElementById("athlete2").value;
+
+    console.log("Índices selecionados:", athlete1Index, athlete2Index);
+
+    if (!athlete1Index || !athlete2Index) {
+    alert("Por favor, selecione dois atletas para comparar.");
+    return;
+    }
+
+    if (athlete1Index === athlete2Index) {
+    alert("Por favor, selecione atletas diferentes para comparar.");
+    return;
+    }
+
+    const athlete1 = athletes[athlete1Index];
+    const athlete2 = athletes[athlete2Index];
+
+    console.log("Atletas selecionados:", athlete1, athlete2);
+
+    // Preencher estatísticas de performance
+    document.getElementById("freq1").textContent = `${athlete1.performance.frequencia}%`;
+    document.getElementById("freq2").textContent = `${athlete2.performance.frequencia}%`;
+
+    document.getElementById("treinos1").textContent = athlete1.performance.treinosCompletos;
+    document.getElementById("treinos2").textContent = athlete2.performance.treinosCompletos;
+
+    document.getElementById("medalhas1").textContent = athlete1.performance.medalhas;
+    document.getElementById("medalhas2").textContent = athlete2.performance.medalhas;
+
+    // Preencher tabela de comparação de performance
+    document.getElementById("name1").textContent = athlete1.name;
+    document.getElementById("name2").textContent = athlete2.name;
+
+    document.getElementById("sport1").textContent = athlete1.sport;
+    document.getElementById("sport2").textContent = athlete2.sport;
+
+    document.getElementById("freq1-detail").textContent = `${athlete1.performance.frequencia}%`;
+    document.getElementById("freq2-detail").textContent = `${athlete2.performance.frequencia}%`;
+    document.getElementById("freq-diff").textContent = calculateDifferential(athlete1.performance.frequencia, athlete2.performance.frequencia, '%');
+
+    document.getElementById("resistencia1").textContent = athlete1.performance.resistencia;
+    document.getElementById("resistencia2").textContent = athlete2.performance.resistencia;
+    document.getElementById("resistencia-diff").textContent = calculateDifferential(athlete1.performance.resistencia, athlete2.performance.resistencia, '');
+
+    document.getElementById("tecnica1").textContent = athlete1.performance.tecnica;
+    document.getElementById("tecnica2").textContent = athlete2.performance.tecnica;
+    document.getElementById("tecnica-diff").textContent = calculateDifferential(athlete1.performance.tecnica, athlete2.performance.tecnica, '');
+
+    document.getElementById("forca1").textContent = athlete1.performance.forca;
+    document.getElementById("forca2").textContent = athlete2.performance.forca;
+    document.getElementById("forca-diff").textContent = calculateDifferential(athlete1.performance.forca, athlete2.performance.forca, '');
+
+    document.getElementById("velocidade1").textContent = athlete1.performance.velocidade;
+    document.getElementById("velocidade2").textContent = athlete2.performance.velocidade;
+    document.getElementById("velocidade-diff").textContent = calculateDifferential(athlete1.performance.velocidade, athlete2.performance.velocidade, '');
+
+    document.getElementById("ultima1").textContent = athlete1.performance.ultimaCompeticao;
+    document.getElementById("ultima2").textContent = athlete2.performance.ultimaCompeticao;
+
+    // Gerar análise comparativa
+    generateAnalysis(athlete1, athlete2);
+
+    // Mostrar resultados
+    console.log("Tentando mostrar resultados da comparação");
+    const resultsElement = document.getElementById("comparisonResults");
+    if (resultsElement) {
+    resultsElement.style.display = "block";
+    console.log("Resultados da comparação exibidos com sucesso");
+    } else {
+    console.error("Elemento 'comparisonResults' não encontrado");
+    }
+    }
+
+    // Função para calcular anos de experiência
+    function calculateExperience(joinDate) {
+    const join = new Date(joinDate.split('/').reverse().join('-'));
+    const now = new Date();
+    const diffTime = Math.abs(now - join);
+    const diffYears = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 365));
+    return diffYears;
+    }
+
+    // Função para extrair número de altura/peso
+    function extractNumber(value) {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+    return parseFloat(value.replace(/[^\d.]/g, ''));
+    }
+    return 0;
+    }
+
+    // Função para calcular diferencial
+    function calculateDifferential(value1, value2, unit = '') {
+    try {
+    const num1 = extractNumber(value1);
+    const num2 = extractNumber(value2);
+    const diff = num1 - num2;
+
+    if (isNaN(diff)) return '-';
+
+    if (diff > 0) {
+    return `+${diff.toFixed(1)}${unit}`;
+    } else if (diff < 0) {
+    return `${diff.toFixed(1)}${unit}`;
+    } else {
+    return '0' + unit;
+    }
+    } catch (error) {
+    console.error("Erro ao calcular diferencial:", error);
+    return '-';
+    }
+    }
+
+    // Função para gerar análise comparativa baseada em performance
+    function generateAnalysis(athlete1, athlete2) {
+    console.log("Gerando análise para:", athlete1.name, "vs", athlete2.name);
+
+    const analysisContent = document.getElementById("analysisContent");
+    if (!analysisContent) {
+    console.error("Elemento 'analysisContent' não encontrado");
+    return;
+    }
+
+    let analysis = "";
+
+    // Análise de frequência nos treinos
+    const freq1 = athlete1.performance.frequencia;
+    const freq2 = athlete2.performance.frequencia;
+    if (Math.abs(freq1 - freq2) > 10) {
+    analysis += `<p>
+        <span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
+        } else {
+        analysis += `
+    <p>
+        Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
         }
 
-        function renderAthletes(athletes) {
-            const tableBody = document.querySelector('#athletesTable tbody');
-            tableBody.innerHTML = '';
-
-            athletes.forEach((atleta, index) => {
-                const row = document.createElement('tr');
-                row.setAttribute('onclick', `openAthleteModal(${index})`);
-                row.innerHTML = `
-                                    <td>
-                                        <div class="athlete-info">
-                                            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
-                                            <div class="athlete-details">
-                                                <h4>${atleta.nome}</h4>
-                                                <p>${atleta.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>${atleta.modalidade || 'Não informado'}</td>
-                                    <td>${atleta.idade || 'Não informado'}</td>
-                                    <td><span class="status-badge status-active">${atleta.status || 'Não informado'}</span></td>
-                                    <td style="text-align: center; vertical-align: middle;">
-                                         <div class="action-buttons" style="display: flex; justify-content: center; gap: 12px;">
-                                            <div class="action-btn edit-btn" onclick="openAthleteModal(${index}); event.stopPropagation();" title="Editar atleta">
-                                                <i class="fas fa-edit"></i>
-                                            </div>
-                                            <div class="action-btn evaluate-btn" onclick="avaliarAtleta(athletes[${index}]); event.stopPropagation();" title="Avaliar atleta">
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                            <div class="action-btn delete-btn" onclick="deleteAthlete(${index}); event.stopPropagation();" title="Excluir atleta">
-                                                <i class="fas fa-trash"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                `;
-                tableBody.appendChild(row);
-            });
-            document.getElementById("resultsCount").textContent = `${athletes.length} atletas`;
+        // Análise de treinos completos
+        const treinos1 = athlete1.performance.treinosCompletos;
+        const treinos2 = athlete2.performance.treinosCompletos;
+        if (Math.abs(treinos1 - treinos2) > 20) {
+        analysis += `
+    </p><p>
+        Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
         }
 
-        function openAthleteModal(index) {
-            // A variável global 'athletes' deve conter um array de objetos de atletas.
-            // Certifique-se de que a variável 'athletes' está no escopo ou é global.
-            const athlete = athletes[index];
-
-            // 🛑 TRATAMENTO DE ERRO na ABERTURA: Verifica se o atleta existe no array
-            if (!athlete) {
-                console.error(`Erro: Tentativa de abrir modal para índice inválido: ${index}`);
-                alert("Erro: Atleta não encontrado para edição. Recarregue a página.");
-                return;
-            }
-
-            // 1. OBTÉM a referência ao elemento modal
-            const athleteModal = document.getElementById("athleteModal");
-
-            // 2. 💡 CORREÇÃO PRINCIPAL: Salva o ID do atleta no atributo data-id do modal.
-            // O ID é necessário para a função deleteAthlete() e para futuras edições.
-            // Assumimos que o objeto 'athlete' possui uma propriedade chamada 'id'.
-            if (athleteModal) {
-                athleteModal.dataset.id = athlete.id;
-            } else {
-                console.error("Erro: Elemento 'athleteModal' não encontrado no DOM.");
-            }
-
-            document.getElementById("athleteForm").reset(); // Limpa o formulário antes de preencher
-
-            document.getElementById("athleteModalTitle").textContent = "Editar Atleta";
-            document.getElementById("athleteName").value = athlete.nome;
-            document.getElementById("athleteEmail").value = athlete.email;
-            document.getElementById("athleteSport").value = athlete.modalidade;
-
-            // Remove " anos" com segurança
-            document.getElementById("athleteAge").value = typeof athlete.idade === "string"
-                ? athlete.idade.replace(" anos", "")
-                : athlete.idade;
-
-            document.getElementById("athleteStatus").value = athlete.status;
-            document.getElementById("athletePhone").value = athlete.telefone || "";
-            document.getElementById("athleteAddress").value = athlete.endereco || "";
-            document.getElementById("athleteNotes").value = ""; // Se houver campo de notas
-
-            document.getElementById("deleteAthleteBtn").style.display = "block";
-            document.getElementById("athleteModal").dataset.id = athlete.id; // Define o índice para o SAVE
-            document.getElementById("athleteModal").style.display = "flex";
+        // Análise de habilidades técnicas
+        const tecnica1 = athlete1.performance.tecnica;
+        const tecnica2 = athlete2.performance.tecnica;
+        if (Math.abs(tecnica1 - tecnica2) > 1) {
+        analysis += `
+    </p><p>
+        Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
         }
 
-        function addNewAthlete() {
-            document.getElementById("athleteForm").reset();
-            document.getElementById("athleteModalTitle").textContent = "Novo Atleta";
-            document.getElementById("deleteAthleteBtn").style.display = "none";
+        // Análise de força vs velocidade
+        const forca1 = athlete1.performance.forca;
+        const forca2 = athlete2.performance.forca;
+        const vel1 = athlete1.performance.velocidade;
+        const vel2 = athlete2.performance.velocidade;
 
-            // 🛑 LIMPEZA CRÍTICA: Define o índice como string vazia para forçar o POST em saveAthlete
-            document.getElementById("athleteModal").dataset.id = "";
-
-            document.getElementById("athleteModal").style.display = "flex";
+        if (forca1 > forca2 && vel1 > vel2) {
+        analysis += `
+    </p><p>
+        <span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
+        } else if (forca2 > forca1 && vel2 > vel1) {
+        analysis += `
+    </p><p>
+        <span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
+        } else {
+        analysis += `
+    </p><p>
+        Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
         }
 
-        function closeAthleteModal() {
-            document.getElementById("athleteModal").style.display = "none";
-            document.getElementById("athleteForm").reset();
-            document.getElementById("athleteModal").dataset.id = "";
-            document.getElementById("deleteAthleteBtn").style.display = "none";
+        // Análise de competições
+        const medalhas1 = athlete1.performance.medalhas;
+        const medalhas2 = athlete2.performance.medalhas;
+        if (Math.abs(medalhas1 - medalhas2) > 1) {
+        analysis += `
+    </p><p>
+        Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
         }
 
-
-
-        // Função para Salvar e Editar Atleta
-
-        async function criarAtleta(dados) {
-            try {
-                const response = await fetch("http://127.0.0.1:8000/api/alunos", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(dados)
-                });
-
-                if (!response.ok) throw new Error("Erro ao criar atleta");
-                alert("Atleta criado com sucesso! ✅");
-            } catch (error) {
-                console.error("Erro ao criar atleta:", error);
-                alert("Não foi possível criar o atleta.");
-            }
-            await carregarAtletas();
-            updateTable();
+        // Análise de modalidade
+        if (athlete1.modalidade === athlete2.modalidade) {
+        analysis += `
+    </p><p>
+        Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
+        } else {
+        analysis += `
+    </p><p>
+        As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
         }
 
-        async function editarAtleta(id, dados) {
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(dados)
-                });
+        // Recomendações baseadas em performance
+        analysis += `
+    </p><p>
+        <strong>Recomendações de Treinamento:</strong> `;
 
-                if (!response.ok) throw new Error("Erro ao atualizar atleta");
-                alert("Atleta atualizado com sucesso! ✅");
-            } catch (error) {
-                console.error("Erro ao atualizar atleta:", error);
-                alert("Não foi possível atualizar o atleta.");
-            }
-            await carregarAtletas();
-            renderAthletes(athletes);
+        if (freq1 < 80 || freq2 < 80) {
+        analysis += `Para o atleta com menor frequência, considere programas de motivação e acompanhamento mais próximo. `;
         }
 
-
-        async function saveAthlete(event) {
-            event.preventDefault();
-
-            const dados = {
-                nome: document.getElementById("athleteName").value,
-                email: document.getElementById("athleteEmail").value,
-                modalidade: document.getElementById("athleteSport").value,
-                idade: parseInt(document.getElementById("athleteAge").value), // 👈 aqui!
-                status: document.getElementById("athleteStatus").value,
-                telefone: document.getElementById("athletePhone").value,
-                endereco: document.getElementById("athleteAddress").value
-            };
-
-            const id = document.getElementById("athleteModal").dataset.id;
-
-            if (!id) {
-                await criarAtleta(dados);
-            } else {
-                await editarAtleta(id, dados);
-            }
-
-            closeAthleteModal();
-            await carregarAtletas();
-            renderAthletes(athletes);
-            updateTable();
+        if (Math.abs(tecnica1 - tecnica2) > 1.5) {
+        analysis += `Foque em exercícios técnicos para o atleta com menor pontuação técnica. `;
         }
 
-
-        window.addEventListener("click", function (event) {
-            if (event.target == document.getElementById("athleteModal")) {
-                closeAthleteModal();
-            }
-            if (event.target == document.getElementById("filterModal")) {
-                closeFilterModal();
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', carregarAtletas);
-
-        // Funções para o modal de comparação
-        async function openCompareModal() {
-            console.log("Abrindo modal de comparação...");
-
-            // Preencher os selects com os atletas vindos do backend
-            const athlete1Select = document.getElementById("athlete1");
-            const athlete2Select = document.getElementById("athlete2");
-
-            // Limpar selects
-            const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
-            const traducoes = {
-                pt: { primeiro: 'Selecione o primeiro atleta', segundo: 'Selecione o segundo atleta' },
-                en: { primeiro: 'Select the first athlete', segundo: 'Select the second athlete' },
-                es: { primeiro: 'Selecciona el primer atleta', segundo: 'Selecciona el segundo atleta' }
-            };
-            const traducao = traducoes[idiomaAtual] || traducoes.pt;
-
-            athlete1Select.innerHTML = `<option value="">${traducao.primeiro}</option>`;
-            athlete2Select.innerHTML = `<option value="">${traducao.segundo}</option>`;
-
-            try {
-                // 🔹 Buscar atletas do banco via API
-                const response = await fetch('/api/alunos');
-                if (!response.ok) throw new Error("Erro ao buscar atletas");
-
-                const atletas = await response.json(); // lista real do backend
-                window.atletasGlobais = atletas; // guarda globalmente pra usar depois
-
-                // Adicionar atletas reais aos selects
-                atletas.forEach((atleta) => {
-                    const option1 = document.createElement("option");
-                    option1.value = atleta.id;
-                    option1.textContent = atleta.nome;
-                    athlete1Select.appendChild(option1);
-
-                    const option2 = document.createElement("option");
-                    option2.value = atleta.id;
-                    option2.textContent = atleta.nome;
-                    athlete2Select.appendChild(option2);
-                });
-
-                // Esconder resultados e limpar previews
-                document.getElementById("comparisonResults").style.display = "none";
-                document.getElementById("athlete1Preview").innerHTML = "Selecione um atleta";
-                document.getElementById("athlete2Preview").innerHTML = "Selecione um atleta";
-
-                // Desabilitar botão de comparação
-                document.getElementById("compareBtn").disabled = true;
-
-                // Exibir o modal
-                const modal = document.getElementById("compareModal");
-                if (modal) {
-                    modal.style.display = "flex";
-                    console.log("Modal de comparação exibido com sucesso");
-                } else {
-                    console.error("Modal de comparação não encontrado");
-                }
-
-            } catch (error) {
-                console.error("Erro ao abrir modal de comparação:", error);
-                alert("Não foi possível carregar a lista de atletas.");
-            }
+        if (Math.abs(forca1 - forca2) > 1.5) {
+        analysis += `Desenvolva programas de força específicos para equilibrar o desenvolvimento físico. `;
         }
 
-        function updateResultsCount() {
-            const count = athletes.length; // ou use o array filtrado, se estiver aplicando filtros
-            const span = document.getElementById("resultsCount");
-            span.textContent = `${count} atleta${count !== 1 ? "s" : ""}`;
-        }
+        analysis += `Monitore regularmente o progresso e ajuste os treinamentos conforme necessário.`;
 
-        function closeCompareModal() {
-            console.log("Fechando modal de comparação...");
-            const modal = document.getElementById("compareModal");
-            if (modal) {
-                modal.style.display = "none";
-                console.log("Modal de comparação fechado com sucesso");
-            } else {
-                console.error("Modal de comparação não encontrado para fechar");
-            }
-        }
-
-        // Função para atualizar o preview do atleta
-        function updateAthletePreview(athleteNum) {
-            const select = document.getElementById(`athlete${athleteNum}`);
-            const preview = document.getElementById(`athlete${athleteNum}Preview`);
-            const selectedIndex = select.value;
-
-            if (selectedIndex === "") {
-                preview.innerHTML = "Selecione um atleta";
-                preview.className = "athlete-preview";
-            } else {
-                const athlete = athletes[selectedIndex];
-                preview.innerHTML = `
-                                                <div class="athlete-preview-avatar">${athlete.avatar}</div>
-                                                <div class="athlete-preview-name">${athlete.nome}</div>
-                                                <div class="athlete-preview-sport">${athlete.modalidade}</div>
-                                              `;
-                preview.className = "athlete-preview has-athlete";
-            }
-
-            // Verificar se ambos os atletas foram selecionados
-            checkComparisonReady();
-        }
-
-        // Função para verificar se a comparação está pronta
-        function checkComparisonReady() {
-            const athlete1 = document.getElementById("athlete1").value;
-            const athlete2 = document.getElementById("athlete2").value;
-            const compareBtn = document.getElementById("compareBtn");
-
-            console.log("Verificando se comparação está pronta:", athlete1, athlete2);
-
-            if (athlete1 !== "" && athlete2 !== "" && athlete1 !== athlete2) {
-                compareBtn.disabled = false;
-                console.log("Botão de comparação habilitado");
-            } else {
-                compareBtn.disabled = true;
-                console.log("Botão de comparação desabilitado");
-            }
-        }
-
-        function compareAthletes() {
-            console.log("Função compareAthletes chamada");
-
-            const athlete1Index = document.getElementById("athlete1").value;
-            const athlete2Index = document.getElementById("athlete2").value;
-
-            console.log("Índices selecionados:", athlete1Index, athlete2Index);
-
-            if (!athlete1Index || !athlete2Index) {
-                alert("Por favor, selecione dois atletas para comparar.");
-                return;
-            }
-
-            if (athlete1Index === athlete2Index) {
-                alert("Por favor, selecione atletas diferentes para comparar.");
-                return;
-            }
-
-            const athlete1 = athletes[athlete1Index];
-            const athlete2 = athletes[athlete2Index];
-
-            console.log("Atletas selecionados:", athlete1, athlete2);
-
-            // Preencher estatísticas de performance
-            document.getElementById("freq1").textContent = `${athlete1.performance.frequencia}%`;
-            document.getElementById("freq2").textContent = `${athlete2.performance.frequencia}%`;
-
-            document.getElementById("treinos1").textContent = athlete1.performance.treinosCompletos;
-            document.getElementById("treinos2").textContent = athlete2.performance.treinosCompletos;
-
-            document.getElementById("medalhas1").textContent = athlete1.performance.medalhas;
-            document.getElementById("medalhas2").textContent = athlete2.performance.medalhas;
-
-            // Preencher tabela de comparação de performance
-            document.getElementById("name1").textContent = athlete1.name;
-            document.getElementById("name2").textContent = athlete2.name;
-
-            document.getElementById("sport1").textContent = athlete1.sport;
-            document.getElementById("sport2").textContent = athlete2.sport;
-
-            document.getElementById("freq1-detail").textContent = `${athlete1.performance.frequencia}%`;
-            document.getElementById("freq2-detail").textContent = `${athlete2.performance.frequencia}%`;
-            document.getElementById("freq-diff").textContent = calculateDifferential(athlete1.performance.frequencia, athlete2.performance.frequencia, '%');
-
-            document.getElementById("resistencia1").textContent = athlete1.performance.resistencia;
-            document.getElementById("resistencia2").textContent = athlete2.performance.resistencia;
-            document.getElementById("resistencia-diff").textContent = calculateDifferential(athlete1.performance.resistencia, athlete2.performance.resistencia, '');
-
-            document.getElementById("tecnica1").textContent = athlete1.performance.tecnica;
-            document.getElementById("tecnica2").textContent = athlete2.performance.tecnica;
-            document.getElementById("tecnica-diff").textContent = calculateDifferential(athlete1.performance.tecnica, athlete2.performance.tecnica, '');
-
-            document.getElementById("forca1").textContent = athlete1.performance.forca;
-            document.getElementById("forca2").textContent = athlete2.performance.forca;
-            document.getElementById("forca-diff").textContent = calculateDifferential(athlete1.performance.forca, athlete2.performance.forca, '');
-
-            document.getElementById("velocidade1").textContent = athlete1.performance.velocidade;
-            document.getElementById("velocidade2").textContent = athlete2.performance.velocidade;
-            document.getElementById("velocidade-diff").textContent = calculateDifferential(athlete1.performance.velocidade, athlete2.performance.velocidade, '');
-
-            document.getElementById("ultima1").textContent = athlete1.performance.ultimaCompeticao;
-            document.getElementById("ultima2").textContent = athlete2.performance.ultimaCompeticao;
-
-            // Gerar análise comparativa
-            generateAnalysis(athlete1, athlete2);
-
-            // Mostrar resultados
-            console.log("Tentando mostrar resultados da comparação");
-            const resultsElement = document.getElementById("comparisonResults");
-            if (resultsElement) {
-                resultsElement.style.display = "block";
-                console.log("Resultados da comparação exibidos com sucesso");
-            } else {
-                console.error("Elemento 'comparisonResults' não encontrado");
-            }
-        }
-
-        // Função para calcular anos de experiência
-        function calculateExperience(joinDate) {
-            const join = new Date(joinDate.split('/').reverse().join('-'));
-            const now = new Date();
-            const diffTime = Math.abs(now - join);
-            const diffYears = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 365));
-            return diffYears;
-        }
-
-        // Função para extrair número de altura/peso
-        function extractNumber(value) {
-            if (typeof value === 'number') return value;
-            if (typeof value === 'string') {
-                return parseFloat(value.replace(/[^\d.]/g, ''));
-            }
-            return 0;
-        }
-
-        // Função para calcular diferencial
-        function calculateDifferential(value1, value2, unit = '') {
-            try {
-                const num1 = extractNumber(value1);
-                const num2 = extractNumber(value2);
-                const diff = num1 - num2;
-
-                if (isNaN(diff)) return '-';
-
-                if (diff > 0) {
-                    return `+${diff.toFixed(1)}${unit}`;
-                } else if (diff < 0) {
-                    return `${diff.toFixed(1)}${unit}`;
-                } else {
-                    return '0' + unit;
-                }
-            } catch (error) {
-                console.error("Erro ao calcular diferencial:", error);
-                return '-';
-            }
-        }
-
-        // Função para gerar análise comparativa baseada em performance
-        function generateAnalysis(athlete1, athlete2) {
-            console.log("Gerando análise para:", athlete1.name, "vs", athlete2.name);
-
-            const analysisContent = document.getElementById("analysisContent");
-            if (!analysisContent) {
-                console.error("Elemento 'analysisContent' não encontrado");
-                return;
-            }
-
-            let analysis = "";
-
-            // Análise de frequência nos treinos
-            const freq1 = athlete1.performance.frequencia;
-            const freq2 = athlete2.performance.frequencia;
-            if (Math.abs(freq1 - freq2) > 10) {
-                analysis += `<p><span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
-            } else {
-                analysis += `<p>Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
-            }
-
-            // Análise de treinos completos
-            const treinos1 = athlete1.performance.treinosCompletos;
-            const treinos2 = athlete2.performance.treinosCompletos;
-            if (Math.abs(treinos1 - treinos2) > 20) {
-                analysis += `</p><p>Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
-            }
-
-            // Análise de habilidades técnicas
-            const tecnica1 = athlete1.performance.tecnica;
-            const tecnica2 = athlete2.performance.tecnica;
-            if (Math.abs(tecnica1 - tecnica2) > 1) {
-                analysis += `</p><p>Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
-            }
-
-            // Análise de força vs velocidade
-            const forca1 = athlete1.performance.forca;
-            const forca2 = athlete2.performance.forca;
-            const vel1 = athlete1.performance.velocidade;
-            const vel2 = athlete2.performance.velocidade;
-
-            if (forca1 > forca2 && vel1 > vel2) {
-                analysis += `</p><p><span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
-            } else if (forca2 > forca1 && vel2 > vel1) {
-                analysis += `</p><p><span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
-            } else {
-                analysis += `</p><p>Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
-            }
-
-            // Análise de competições
-            const medalhas1 = athlete1.performance.medalhas;
-            const medalhas2 = athlete2.performance.medalhas;
-            if (Math.abs(medalhas1 - medalhas2) > 1) {
-                analysis += `</p><p>Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
-            }
-
-            // Análise de modalidade
-            if (athlete1.modalidade === athlete2.modalidade) {
-                analysis += `</p><p>Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
-            } else {
-                analysis += `</p><p>As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
-            }
-
-            // Recomendações baseadas em performance
-            analysis += `</p><p><strong>Recomendações de Treinamento:</strong> `;
-
-            if (freq1 < 80 || freq2 < 80) {
-                analysis += `Para o atleta com menor frequência, considere programas de motivação e acompanhamento mais próximo. `;
-            }
-
-            if (Math.abs(tecnica1 - tecnica2) > 1.5) {
-                analysis += `Foque em exercícios técnicos para o atleta com menor pontuação técnica. `;
-            }
-
-            if (Math.abs(forca1 - forca2) > 1.5) {
-                analysis += `Desenvolva programas de força específicos para equilibrar o desenvolvimento físico. `;
-            }
-
-            analysis += `Monitore regularmente o progresso e ajuste os treinamentos conforme necessário.`;
-
-            analysisContent.innerHTML = analysis;
+        analysisContent.innerHTML = analysis;
         }
 
         function renderTrainingsChart(
-            athlete1Trainings,
-            athlete2Trainings,
-            athlete1Name,
-            athlete2Name
+        athlete1Trainings,
+        athlete2Trainings,
+        athlete1Name,
+        athlete2Name
         ) {
-            const container = document.getElementById("trainingsChartContainer");
-            container.innerHTML = `
-                                        <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
-                                          <div style="display: flex; flex-direction: column; align-items: center;">
-                                            <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+        const container = document.getElementById("trainingsChartContainer");
+        container.innerHTML = `
+        <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                                            <span>${athlete1Trainings}</span>
-                                          </div>
-                                          <div style="display: flex; flex-direction: column; align-items: center;">
-                                            <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                <span>${athlete1Trainings}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                                            <span>${athlete2Trainings}</span>
-                                          </div>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                                          <span style="color: var(--primary-color);">${athlete1Name}</span>
-                                          <span style="color: var(--info-color);">${athlete2Name}</span>
-                                        </div>
-                                      `;
+                <span>${athlete2Trainings}</span>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+            <span style="color: var(--primary-color);">${athlete1Name}</span>
+            <span style="color: var(--info-color);">${athlete2Name}</span>
+        </div>
+        `;
         }
 
         function renderGoalsChart(
-            athlete1Goals,
-            athlete2Goals,
-            athlete1Name,
-            athlete2Name
+        athlete1Goals,
+        athlete2Goals,
+        athlete1Name,
+        athlete2Name
         ) {
-            const athlete1Percentage =
-                (athlete1Goals.completed / athlete1Goals.total) * 100;
-            const athlete2Percentage =
-                (athlete2Goals.completed / athlete2Goals.total) * 100;
+        const athlete1Percentage =
+        (athlete1Goals.completed / athlete1Goals.total) * 100;
+        const athlete2Percentage =
+        (athlete2Goals.completed / athlete2Goals.total) * 100;
 
-            const container = document.getElementById("goalsChartContainer");
-            container.innerHTML = `
-                                        <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
-                                          <div style="width: 45%;">
-                                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                                              <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
-                                            </div>
-                                            <div style="text-align: center; margin-top: 5px;">${athlete1Percentage.toFixed(
-                1
-            )}%</div>
-                                          </div>
-                                          <div style="width: 45%;">
-                                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                                              <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
-                                            </div>
-                                            <div style="text-align: center; margin-top: 5px;">${athlete2Percentage.toFixed(
-                1
-            )}%</div>
-                                          </div>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                                          <span style="color: var(--primary-color);">${athlete1Name}</span>
-                                          <span style="color: var(--info-color);">${athlete2Name}</span>
-                                        </div>
-                                      `;
+        const container = document.getElementById("goalsChartContainer");
+        container.innerHTML = `
+        <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
+            <div style="width: 45%;">
+                <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                    <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px;">
+                    ${athlete1Percentage.toFixed(
+                    1
+                    )}%
+                </div>
+            </div>
+            <div style="width: 45%;">
+                <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                    <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px;">
+                    ${athlete2Percentage.toFixed(
+                    1
+                    )}%
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+            <span style="color: var(--primary-color);">${athlete1Name}</span>
+            <span style="color: var(--info-color);">${athlete2Name}</span>
+        </div>
+        `;
         }
 
         // Fechar modal de comparação clicando fora
         window.addEventListener("click", function (event) {
-            if (event.target == document.getElementById("compareModal")) {
-                closeCompareModal();
-            }
+        if (event.target == document.getElementById("compareModal")) {
+        closeCompareModal();
+        }
         });
 
         // Função de logout
         function logout() {
-            if (confirm("Tem certeza que deseja sair?")) {
-                window.location.href = "/";
-            }
+        if (confirm("Tem certeza que deseja sair?")) {
+        window.location.href = "/";
+        }
         }
 
         // Funções para os botões de ação do header
         function showNotifications() {
-            // Usar o sistema de notificações reais
-            if (window.sistemaNotificacoes) {
-                window.sistemaNotificacoes.abrirPainel();
-            } else {
-                console.log('⚠️ Sistema de notificações não disponível');
-            }
+        // Usar o sistema de notificações reais
+        if (window.sistemaNotificacoes) {
+        window.sistemaNotificacoes.abrirPainel();
+        } else {
+        console.log('⚠️ Sistema de notificações não disponível');
         }
-
-        function showSettings() {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                                              <div class="modal-content" style="max-width: 600px;">
-                                                <div class="modal-header">
-                                                  <h2>Configurações do Sistema</h2>
-                                                  <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" title="Fechar notificações" aria-label="Fechar modal de notificações">&times;</button>
-                                                </div>
-                                                <div class="settings-content">
-                                                  <div class="form-group">
-                                                    <label>Notificações por Email</label>
-                                                    <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <label>Notificações Push</label>
-                                                    <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <label>Idioma</label>
-                                                    <select>
-                                                      <option>Português</option>
-                                                      <option>English</option>
-                                                      <option>Español</option>
-                                                    </select>
-                                                  </div>
-                                                  <div class="form-group">
-                                                    <label>Tema</label>
-                                                    <select>
-                                                      <option>Claro</option>
-                                                      <option>Escuro</option>
-                                                      <option>Automático</option>
-                                                    </select>
-                                                  </div>
-                                                </div>
-                                                <div class="modal-actions">
-                                                  <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
-                                                  <button class="btn btn-primary" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
-                                                </div>
-                                              </div>
-                                            `;
-
-            document.body.appendChild(modal);
-
-            // Fechar modal ao clicar fora
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
         }
 
         // Funções para os botões da tabela
         function showFilters() {
-            document.getElementById("filterModal").style.display = "flex";
-            updateFilterCount();
+        document.getElementById("filterModal").style.display = "flex";
+        updateFilterCount();
         }
 
         function closeFilterModal() {
-            document.getElementById("filterModal").style.display = "none";
+        document.getElementById("filterModal").style.display = "none";
         }
 
         // Variáveis para armazenar os filtros ativos
         let activeFilters = {
-            sports: [],
-            status: [],
-            ageRanges: [],
-            name: ""
+        sports: [],
+        status: [],
+        ageRanges: [],
+        name: ""
         };
 
         // Função para aplicar os filtros
         function applyFilters() {
-            // Coletar filtros de modalidade
-            activeFilters.sports = [];
-            document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
-                if (checkbox.id.includes('natacao') || checkbox.id.includes('atletismo') ||
-                    checkbox.id.includes('ginastica') || checkbox.id.includes('volei') ||
-                    checkbox.id.includes('futebol') || checkbox.id.includes('basquete')) {
-                    activeFilters.sports.push(checkbox.value);
-                }
-            });
+        // Coletar filtros de modalidade
+        activeFilters.sports = [];
+        document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
+        if (checkbox.id.includes('natacao') || checkbox.id.includes('atletismo') ||
+        checkbox.id.includes('ginastica') || checkbox.id.includes('volei') ||
+        checkbox.id.includes('futebol') || checkbox.id.includes('basquete')) {
+        activeFilters.sports.push(checkbox.value);
+        }
+        });
 
-            // Coletar filtros de status
-            activeFilters.status = [];
-            document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
-                if (checkbox.id.includes('ativo') || checkbox.id.includes('inativo') ||
-                    checkbox.id.includes('lesionado')) {
-                    activeFilters.status.push(checkbox.value);
-                }
-            });
+        // Coletar filtros de status
+        activeFilters.status = [];
+        document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
+        if (checkbox.id.includes('ativo') || checkbox.id.includes('inativo') ||
+        checkbox.id.includes('lesionado')) {
+        activeFilters.status.push(checkbox.value);
+        }
+        });
 
-            // Coletar filtros de faixa etária
-            activeFilters.ageRanges = [];
-            document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
-                if (checkbox.id.includes('filter-18-20') || checkbox.id.includes('filter-21-25') ||
-                    checkbox.id.includes('filter-26-30') || checkbox.id.includes('filter-30+')) {
-                    activeFilters.ageRanges.push(checkbox.value);
-                }
-            });
+        // Coletar filtros de faixa etária
+        activeFilters.ageRanges = [];
+        document.querySelectorAll('input[id^="filter-"]:checked').forEach(checkbox => {
+        if (checkbox.id.includes('filter-18-20') || checkbox.id.includes('filter-21-25') ||
+        checkbox.id.includes('filter-26-30') || checkbox.id.includes('filter-30+')) {
+        activeFilters.ageRanges.push(checkbox.value);
+        }
+        });
 
-            // Coletar busca por nome
-            activeFilters.name = document.getElementById('filter-name').value.toLowerCase();
+        // Coletar busca por nome
+        activeFilters.name = document.getElementById('filter-name').value.toLowerCase();
 
-            // Fechar modal e aplicar filtros
-            closeFilterModal();
-            updateTable();
-            updateFilterCount();
+        // Fechar modal e aplicar filtros
+        closeFilterModal();
+        updateTable();
+        updateFilterCount();
         }
 
         // Função para limpar todos os filtros
         function clearAllFilters() {
-            // Desmarcar todos os checkboxes
-            document.querySelectorAll('input[id^="filter-"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
+        // Desmarcar todos os checkboxes
+        document.querySelectorAll('input[id^="filter-"]').forEach(checkbox => {
+        checkbox.checked = false;
+        });
 
-            // Limpar campo de busca
-            document.getElementById('filter-name').value = '';
+        // Limpar campo de busca
+        document.getElementById('filter-name').value = '';
 
-            // Limpar filtros ativos
-            activeFilters = {
-                sports: [],
-                status: [],
-                ageRanges: [],
-                name: ""
-            };
+        // Limpar filtros ativos
+        activeFilters = {
+        sports: [],
+        status: [],
+        ageRanges: [],
+        name: ""
+        };
 
-            // Atualizar tabela e contador
-            updateTable();
-            updateFilterCount();
+        // Atualizar tabela e contador
+        updateTable();
+        updateFilterCount();
         }
 
         // Função para atualizar o contador de filtros ativos
         function updateFilterCount() {
-            const totalFilters = activeFilters.sports.length + activeFilters.status.length +
-                activeFilters.ageRanges.length + (activeFilters.name ? 1 : 0);
+        const totalFilters = activeFilters.sports.length + activeFilters.status.length +
+        activeFilters.ageRanges.length + (activeFilters.name ? 1 : 0);
 
-            const indicator = document.getElementById('filterIndicator');
-            const countSpan = document.getElementById('filterIndicator').querySelector('.filter-count');
+        const indicator = document.getElementById('filterIndicator');
+        const countSpan = document.getElementById('filterIndicator').querySelector('.filter-count');
 
-            if (totalFilters > 0) {
-                indicator.style.display = 'inline-flex';
-                countSpan.textContent = totalFilters;
-            } else {
-                indicator.style.display = 'none';
-            }
+        if (totalFilters > 0) {
+        indicator.style.display = 'inline-flex';
+        countSpan.textContent = totalFilters;
+        } else {
+        indicator.style.display = 'none';
+        }
         }
 
         // Função para verificar se um atleta passa pelos filtros
         function athletePassesFilters(athlete) {
-            // Filtro por modalidade
-            if (activeFilters.sports.length > 0 && !activeFilters.sports.includes(athlete.sport)) {
-                return false;
-            }
+        // Filtro por modalidade
+        if (activeFilters.sports.length > 0 && !activeFilters.sports.includes(athlete.sport)) {
+        return false;
+        }
 
-            // Filtro por status
-            if (activeFilters.status.length > 0 && !activeFilters.status.includes(athlete.status)) {
-                return false;
-            }
+        // Filtro por status
+        if (activeFilters.status.length > 0 && !activeFilters.status.includes(athlete.status)) {
+        return false;
+        }
 
-            // Filtro por faixa etária
-            if (activeFilters.ageRanges.length > 0) {
-                const age = parseInt(athlete.age);
-                let passesAgeFilter = false;
+        // Filtro por faixa etária
+        if (activeFilters.ageRanges.length > 0) {
+        const age = parseInt(athlete.age);
+        let passesAgeFilter = false;
 
-                activeFilters.ageRanges.forEach(range => {
-                    if (range === '18-20' && age >= 18 && age <= 20) passesAgeFilter = true;
-                    if (range === '21-25' && age >= 21 && age <= 25) passesAgeFilter = true;
-                    if (range === '26-30' && age >= 26 && age <= 30) passesAgeFilter = true;
-                    if (range === '30+' && age > 30) passesAgeFilter = true;
-                });
+        activeFilters.ageRanges.forEach(range => {
+        if (range === '18-20' && age >= 18 && age <= 20) passesAgeFilter = true;
+        if (range === '21-25' && age >= 21 && age <= 25) passesAgeFilter = true;
+        if (range === '26-30' && age >= 26 && age <= 30) passesAgeFilter = true;
+        if (range === '30+' && age > 30) passesAgeFilter = true;
+        });
 
-                if (!passesAgeFilter) return false;
-            }
+        if (!passesAgeFilter) return false;
+        }
 
-            // Filtro por nome
-            if (activeFilters.name && !athlete.name.toLowerCase().includes(activeFilters.name)) {
-                return false;
-            }
+        // Filtro por nome
+        if (activeFilters.name && !athlete.name.toLowerCase().includes(activeFilters.name)) {
+        return false;
+        }
 
-            return true;
+        return true;
         }
 
         function addNewAthlete() {
-            document.getElementById("athleteModalTitle").textContent = "Adicionar Novo Atleta";
-            document.getElementById("athleteName").value = "";
-            document.getElementById("athleteEmail").value = "";
-            document.getElementById("athleteSport").value = "";
-            document.getElementById("athleteAge").value = "";
-            document.getElementById("athleteStatus").value = "Ativo";
-            document.getElementById("athletePhone").value = "";
-            document.getElementById("athleteAddress").value = "";
-            document.getElementById("athleteNotes").value = "";
-            document.getElementById("deleteAthleteBtn").style.display = "none";
-            document.getElementById("athleteModal").style.display = "flex";
+        document.getElementById("athleteModalTitle").textContent = "Adicionar Novo Atleta";
+        document.getElementById("athleteName").value = "";
+        document.getElementById("athleteEmail").value = "";
+        document.getElementById("athleteSport").value = "";
+        document.getElementById("athleteAge").value = "";
+        document.getElementById("athleteStatus").value = "Ativo";
+        document.getElementById("athletePhone").value = "";
+        document.getElementById("athleteAddress").value = "";
+        document.getElementById("athleteNotes").value = "";
+        document.getElementById("deleteAthleteBtn").style.display = "none";
+        document.getElementById("athleteModal").style.display = "flex";
         }
 
 
 
 
         async function confirmDeleteAthlete() {
-            const id = document.getElementById("athleteModal").dataset.id;
-            const nome = document.getElementById("athleteName").value;
+        const id = document.getElementById("athleteModal").dataset.id;
+        const nome = document.getElementById("athleteName").value;
 
-            if (!id) {
-                alert("ID do atleta não encontrado.");
-                return;
-            }
+        if (!id) {
+        alert("ID do atleta não encontrado.");
+        return;
+        }
 
-            if (confirm(`Tem certeza que deseja excluir ${nome}?`)) {
-                await deleteAthlete(id, nome);
-            }
+        if (confirm(`Tem certeza que deseja excluir ${nome}?`)) {
+        await deleteAthlete(id, nome);
+        }
         }
 
 
         // Função para excluir atleta
         async function deleteAthlete(id, nome) {
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
-                    method: "DELETE"
-                });
+        try {
+        const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
+        method: "DELETE"
+        });
 
-                if (!response.ok) throw new Error("Erro ao excluir atleta");
+        if (!response.ok) throw new Error("Erro ao excluir atleta");
 
-                alert(`${nome} foi removido do sistema ✅`);
-                closeAthleteModal();           // ✅ fecha o modal
-                await carregarAtletas();       // ✅ atualiza os dados
-                updateTable();                 // ✅ re-renderiza a tabela
-            } catch (error) {
-                console.error("Erro ao excluir atleta:", error);
-                alert("Não foi possível excluir o atleta.");
-            }
+        alert(`${nome} foi removido do sistema ✅`);
+        closeAthleteModal();           // ✅ fecha o modal
+        await carregarAtletas();       // ✅ atualiza os dados
+        updateTable();                 // ✅ re-renderiza a tabela
+        } catch (error) {
+        console.error("Erro ao excluir atleta:", error);
+        alert("Não foi possível excluir o atleta.");
+        }
         }
 
         // Função para atualizar a tabela
         function updateTable() {
-            const tbody = document.querySelector(".athletes-table-container table tbody");
-            tbody.innerHTML = ""; // Limpar a tabela
+        const tbody = document.querySelector(".athletes-table-container table tbody");
+        tbody.innerHTML = ""; // Limpar a tabela
 
-            // Filtrar atletas baseado nos filtros ativos
-            const filteredAthletes = athletes.filter(athlete => athletePassesFilters(athlete));
+        // Filtrar atletas baseado nos filtros ativos
+        const filteredAthletes = athletes.filter(athlete => athletePassesFilters(athlete));
 
-            // Atualizar contador de resultados
-            const resultsCount = document.getElementById('resultsCount');
-            const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
-            const traducoes = {
-                pt: { atletas: 'atletas', de: 'de' },
-                en: { atletas: 'athletes', de: 'of' },
-                es: { atletas: 'atletas', de: 'de' }
-            };
-            const traducao = traducoes[idiomaAtual] || traducoes.pt;
+        // Atualizar contador de resultados
+        const resultsCount = document.getElementById('resultsCount');
+        const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
+        const traducoes = {
+        pt: { atletas: 'atletas', de: 'de' },
+        en: { atletas: 'athletes', de: 'of' },
+        es: { atletas: 'atletas', de: 'de' }
+        };
+        const traducao = traducoes[idiomaAtual] || traducoes.pt;
 
-            if (filteredAthletes.length === athletes.length) {
-                resultsCount.textContent = `${athletes.length} ${traducao.atletas}`;
-            } else {
-                resultsCount.textContent = `${filteredAthletes.length} ${traducao.de} ${athletes.length} ${traducao.atletas}`;
-            }
+        if (filteredAthletes.length === athletes.length) {
+        resultsCount.textContent = `${athletes.length} ${traducao.atletas}`;
+        } else {
+        resultsCount.textContent = `${filteredAthletes.length} ${traducao.de} ${athletes.length} ${traducao.atletas}`;
+        }
 
-            // Mostrar mensagem se não houver resultados
-            if (filteredAthletes.length === 0) {
-                const noResultsRow = document.createElement("tr");
-                noResultsRow.innerHTML = `
-                                                <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                                                  <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-                                                  <h3>Nenhum atleta encontrado</h3>
-                                                  <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
-                                                </td>
-                                              `;
-                tbody.appendChild(noResultsRow);
-                return;
-            }
+        // Mostrar mensagem se não houver resultados
+        if (filteredAthletes.length === 0) {
+        const noResultsRow = document.createElement("tr");
+        noResultsRow.innerHTML = `
+        <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+            <h3>Nenhum atleta encontrado</h3>
+            <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
+        </td>
+        `;
+        tbody.appendChild(noResultsRow);
+        return;
+        }
 
-            filteredAthletes.forEach((athlete, index) => {
-                const row = document.createElement("tr");
-                row.onclick = () => openAthleteModal(index); // Abrir modal ao clicar na linha
+        filteredAthletes.forEach((athlete, index) => {
+        const row = document.createElement("tr");
+        row.onclick = () => openAthleteModal(index); // Abrir modal ao clicar na linha
 
-                const athleteCell = document.createElement("td");
-                athleteCell.className = "athlete-info";
-                athleteCell.innerHTML = `
-                                                <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
-                                                <div class="athlete-details">
-                                                  <h4>${athlete.nome}</h4>
-                                                  <p>${athlete.email}</p>
-                                                </div>
-                                              `;
+        const athleteCell = document.createElement("td");
+        athleteCell.className = "athlete-info";
+        athleteCell.innerHTML = `
+        <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
+        <div class="athlete-details">
+            <h4>${athlete.nome}</h4>
+            <p>${athlete.email}</p>
+        </div>
+        `;
 
-                const sportCell = document.createElement("td");
-                // Mapear modalidades para traduções
-                const modalidadeMap = {
-                    'Natação': 'modalidade.natacao',
-                    'Atletismo': 'modalidade.atletismo',
-                    'Ginástica': 'modalidade.ginastica',
-                    'Vôlei': 'modalidade.volei',
-                    'Futebol': 'modalidade.futebol'
-                };
-                const translateKey = modalidadeMap[athlete.modalidade];
-                if (translateKey) {
-                    sportCell.setAttribute('data-translate', translateKey);
-                }
-                sportCell.textContent = athlete.modalidade;
+        const sportCell = document.createElement("td");
+        // Mapear modalidades para traduções
+        const modalidadeMap = {
+        'Natação': 'modalidade.natacao',
+        'Atletismo': 'modalidade.atletismo',
+        'Ginástica': 'modalidade.ginastica',
+        'Vôlei': 'modalidade.volei',
+        'Futebol': 'modalidade.futebol'
+        };
+        const translateKey = modalidadeMap[athlete.modalidade];
+        if (translateKey) {
+        sportCell.setAttribute('data-translate', translateKey);
+        }
+        sportCell.textContent = athlete.modalidade;
 
-                const ageCell = document.createElement("td");
-                // Adicionar tradução para "anos"
-                const ageNumber = typeof athlete.idade === "string"
-                    ? athlete.idade.replace(" anos", "")
-                    : athlete.idade ?? "Não informado";
-                ageCell.innerHTML = `${ageNumber} <span data-translate="lista_atletas.anos">anos</span>`;
+        const ageCell = document.createElement("td");
+        // Adicionar tradução para "anos"
+        const ageNumber = typeof athlete.idade === "string"
+        ? athlete.idade.replace(" anos", "")
+        : athlete.idade ?? "Não informado";
+        ageCell.innerHTML = `${ageNumber} <span data-translate="lista_atletas.anos">anos</span>`;
 
-                const statusCell = document.createElement("td");
-                const statusBadge = document.createElement("span");
+        const statusCell = document.createElement("td");
+        const statusBadge = document.createElement("span");
 
-                // Definir a classe correta baseada no status
-                let statusClass = "status-active"; // padrão
-                if (athlete.status === "Ativo") {
-                    statusClass = "status-active";
-                } else if (athlete.status === "Inativo") {
-                    statusClass = "status-inactive";
-                } else if (athlete.status === "Lesionado") {
-                    statusClass = "status-lesionado";
-                }
+        // Definir a classe correta baseada no status
+        let statusClass = "status-active"; // padrão
+        if (athlete.status === "Ativo") {
+        statusClass = "status-active";
+        } else if (athlete.status === "Inativo") {
+        statusClass = "status-inactive";
+        } else if (athlete.status === "Lesionado") {
+        statusClass = "status-lesionado";
+        }
 
-                statusBadge.className = `status-badge ${statusClass}`;
+        statusBadge.className = `status-badge ${statusClass}`;
 
-                // Mapear status para traduções
-                const statusMap = {
-                    'Ativo': 'lista_atletas.status_ativo',
-                    'Inativo': 'lista_atletas.status_inativo',
-                    'Lesionado': 'lista_atletas.status_lesionado'
-                };
-                const statusTranslateKey = statusMap[athlete.status];
-                if (statusTranslateKey) {
-                    statusBadge.setAttribute('data-translate', statusTranslateKey);
-                }
+        // Mapear status para traduções
+        const statusMap = {
+        'Ativo': 'lista_atletas.status_ativo',
+        'Inativo': 'lista_atletas.status_inativo',
+        'Lesionado': 'lista_atletas.status_lesionado'
+        };
+        const statusTranslateKey = statusMap[athlete.status];
+        if (statusTranslateKey) {
+        statusBadge.setAttribute('data-translate', statusTranslateKey);
+        }
 
-                statusBadge.textContent = athlete.status;
-                statusCell.appendChild(statusBadge);
+        statusBadge.textContent = athlete.status;
+        statusCell.appendChild(statusBadge);
 
-                const actionsCell = document.createElement("td");
-                const actionsDiv = document.createElement("div");
-                actionsDiv.className = "action-buttons";
+        const actionsCell = document.createElement("td");
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "action-buttons";
 
-                const editBtn = document.createElement("div");
-                editBtn.className = "action-btn edit-btn";
-                editBtn.title = "Editar atleta";
-                editBtn.setAttribute("aria-label", "Editar atleta");
-                editBtn.onclick = (event) => {
-                    event.stopPropagation(); // Evitar abrir o modal ao clicar no botão de editar
-                    openAthleteModal(index);
-                };
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        const editBtn = document.createElement("div");
+        editBtn.className = "action-btn edit-btn";
+        editBtn.title = "Editar atleta";
+        editBtn.setAttribute("aria-label", "Editar atleta");
+        editBtn.onclick = (event) => {
+        event.stopPropagation(); // Evitar abrir o modal ao clicar no botão de editar
+        openAthleteModal(index);
+        };
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
 
-                const evaluateBtn = document.createElement("div");
-                evaluateBtn.className = "action-btn evaluate-btn";
-                evaluateBtn.title = "Avaliar atleta";
-                evaluateBtn.setAttribute("aria-label", "Avaliar atleta");
-                evaluateBtn.onclick = (event) => {
-                    event.stopPropagation(); // Evitar abrir o modal ao clicar no botão de avaliar
-                    avaliarAtleta(athlete);
-                };
-                evaluateBtn.innerHTML = '<i class="fas fa-star"></i>';
-                evaluateBtn.title = "Avaliar Atleta";
+        const evaluateBtn = document.createElement("div");
+        evaluateBtn.className = "action-btn evaluate-btn";
+        evaluateBtn.title = "Avaliar atleta";
+        evaluateBtn.setAttribute("aria-label", "Avaliar atleta");
+        evaluateBtn.onclick = (event) => {
+        event.stopPropagation(); // Evitar abrir o modal ao clicar no botão de avaliar
+        avaliarAtleta(athlete);
+        };
+        evaluateBtn.innerHTML = '<i class="fas fa-star"></i>';
+        evaluateBtn.title = "Avaliar Atleta";
 
-                const deleteBtn = document.createElement("div");
-                deleteBtn.className = "action-btn delete-btn";
-                deleteBtn.title = "Excluir atleta";
-                deleteBtn.setAttribute("aria-label", "Excluir atleta");
-                deleteBtn.onclick = (event) => {
-                    event.stopPropagation();
-                    document.getElementById("athleteModal").dataset.id = athlete.id;
-                    document.getElementById("athleteModalTitle").textContent = "Excluir Atleta";
-                    document.getElementById("athleteName").value = athlete.nome;
-                    document.getElementById("athleteEmail").value = athlete.email;
-                    document.getElementById("athleteSport").value = athlete.modalidade;
-                    document.getElementById("athleteAge").value = typeof athlete.idade === "string"
-                        ? athlete.idade.replace(" anos", "")
-                        : athlete.idade;
-                    document.getElementById("athleteStatus").value = athlete.status;
-                    document.getElementById("athletePhone").value = athlete.telefone;
-                    document.getElementById("athleteAddress").value = athlete.endereco;
-                    document.getElementById("athleteNotes").value = "";
-                    document.getElementById("deleteAthleteBtn").style.display = "block";
-                    document.getElementById("athleteModal").style.display = "flex";
-                };
+        const deleteBtn = document.createElement("div");
+        deleteBtn.className = "action-btn delete-btn";
+        deleteBtn.title = "Excluir atleta";
+        deleteBtn.setAttribute("aria-label", "Excluir atleta");
+        deleteBtn.onclick = (event) => {
+        event.stopPropagation();
+        document.getElementById("athleteModal").dataset.id = athlete.id;
+        document.getElementById("athleteModalTitle").textContent = "Excluir Atleta";
+        document.getElementById("athleteName").value = athlete.nome;
+        document.getElementById("athleteEmail").value = athlete.email;
+        document.getElementById("athleteSport").value = athlete.modalidade;
+        document.getElementById("athleteAge").value = typeof athlete.idade === "string"
+        ? athlete.idade.replace(" anos", "")
+        : athlete.idade;
+        document.getElementById("athleteStatus").value = athlete.status;
+        document.getElementById("athletePhone").value = athlete.telefone;
+        document.getElementById("athleteAddress").value = athlete.endereco;
+        document.getElementById("athleteNotes").value = "";
+        document.getElementById("deleteAthleteBtn").style.display = "block";
+        document.getElementById("athleteModal").style.display = "flex";
+        };
 
-                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
 
-                actionsDiv.appendChild(editBtn);
-                actionsDiv.appendChild(evaluateBtn);
-                actionsDiv.appendChild(deleteBtn);
-                actionsCell.appendChild(actionsDiv);
+        actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(evaluateBtn);
+        actionsDiv.appendChild(deleteBtn);
+        actionsCell.appendChild(actionsDiv);
 
-                console.log(`✅ Botões criados para ${athlete.nome}:`, {
-                    editBtn: editBtn.outerHTML,
-                    evaluateBtn: evaluateBtn.outerHTML,
-                    deleteBtn: deleteBtn.outerHTML,
-                    actionsDiv: actionsDiv.outerHTML
-                });
+        console.log(`✅ Botões criados para ${athlete.nome}:`, {
+        editBtn: editBtn.outerHTML,
+        evaluateBtn: evaluateBtn.outerHTML,
+        deleteBtn: deleteBtn.outerHTML,
+        actionsDiv: actionsDiv.outerHTML
+        });
 
-                row.appendChild(athleteCell);
-                row.appendChild(sportCell);
-                row.appendChild(ageCell);
-                row.appendChild(statusCell);
-                row.appendChild(actionsCell);
+        row.appendChild(athleteCell);
+        row.appendChild(sportCell);
+        row.appendChild(ageCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionsCell);
 
-                tbody.appendChild(row);
+        tbody.appendChild(row);
 
-                // Aplicar traduções para os elementos da linha recém-criada
-                if (window.sistemaIdiomas) {
-                    window.sistemaIdiomas.aplicarTraducoes(row);
-                }
-            });
+        // Aplicar traduções para os elementos da linha recém-criada
+        if (window.sistemaIdiomas) {
+        window.sistemaIdiomas.aplicarTraducoes(row);
+        }
+        });
         }
 
         // Função para avaliar atleta
-        function avaliarAtleta(athlete) {
-            console.log('🔄 Redirecionando para avaliação do atleta:', athlete);
+        function avaliarAtleta(atleta) {
+        console.log('🔄 Redirecionando para avaliação do atleta:', atleta);
 
-            // Criar um ID temporário baseado no nome se não existir
-            // Usar apenas o ID numérico do atleta
-            if (!athlete.id) {
-                alert('ID do atleta não encontrado. Não é possível avaliar este atleta.');
-                return;
-            }
+        // Criar um ID temporário baseado no nome se não existir
+        // Usar apenas o ID numérico do atleta
+        if (!atleta.id) {
+        alert('ID do atleta não encontrado. Não é possível avaliar este atleta.');
+        return;
+        }
 
-            // Redirecionar para a página de avaliação
-            window.location.href = `avaliar-atleta.html?id=${athlete.id}&nome=${encodeURIComponent(athlete.nome)}&modalidade=${encodeURIComponent(athlete.modalidade)}`;
+        // Redirecionar para a página de avaliação
+        window.location.href = `/treinador/avaliaratleta?id=${atleta.id}&nome=${encodeURIComponent(atleta.nome)}&modalidade=${encodeURIComponent(atleta.modalidade)}`;
+
         }
 
         // Função para inicializar a página
         document.addEventListener("DOMContentLoaded", () => {
-            updateTable(); // Atualizar a tabela ao carregar a página
+        updateTable(); // Atualizar a tabela ao carregar a página
 
-            // =====================================================
-            // INCLUSÃO DO ARQUIVO GLOBAL DE PERSONALIZAÇÃO
-            // =====================================================
+        // =====================================================
+        // INCLUSÃO DO ARQUIVO GLOBAL DE PERSONALIZAÇÃO
+        // =====================================================
 
-            // Carregar arquivo de personalização global
-            const script = document.createElement('script');
-            script.src = '/static/js/personalizar-usuario.js';
-            script.onload = function () {
-                // Carregar script de traduções
-                const traducaoScript = document.createElement('script');
-                traducaoScript.src = 'static/js/traducoes.js';
-                traducaoScript.onload = function () {
-                    // Inicializar sistema de idiomas
-                    if (typeof SistemaIdiomas !== 'undefined') {
-                        window.sistemaIdiomas = new SistemaIdiomas();
-                        console.log('✅ Sistema de idiomas inicializado na página dados gerais');
-                    } else {
-                        console.log('⚠️ Classe SistemaIdiomas não encontrada');
-                    }
-                };
-                document.head.appendChild(traducaoScript);
+        // Carregar arquivo de personalização global
+        const script = document.createElement('script');
+        script.src = '/static/js/personalizar-usuario.js';
+        script.onload = function () {
+        // Carregar script de traduções
+        const traducaoScript = document.createElement('script');
+        traducaoScript.src = 'static/js/traducoes.js';
+        traducaoScript.onload = function () {
+        // Inicializar sistema de idiomas
+        if (typeof SistemaIdiomas !== 'undefined') {
+        window.sistemaIdiomas = new SistemaIdiomas();
+        console.log('✅ Sistema de idiomas inicializado na página dados gerais');
+        } else {
+        console.log('⚠️ Classe SistemaIdiomas não encontrada');
+        }
+        };
+        document.head.appendChild(traducaoScript);
 
-                // Carregar script de notificações
-                const notifScript = document.createElement('script');
-                notifScript.src = 'static/js/notificacoes.js';
-                notifScript.onload = function () {
-                    // Inicializar sistema de notificações
-                    if (typeof SistemaNotificacoes !== 'undefined') {
-                        window.sistemaNotificacoes = new SistemaNotificacoes();
-                        console.log('✅ Sistema de notificações inicializado na página dados gerais');
-                    } else {
-                        console.log('⚠️ Classe SistemaNotificacoes não encontrada');
-                    }
-                };
-                document.head.appendChild(notifScript);
-                console.log('✅ [ATLETAS] Arquivo de personalização carregado');
-                // Verificar se as funções globais estão disponíveis
-                if (typeof carregarDadosUsuarioLogado === 'function') {
-                    console.log('✅ [ATLETAS] Funções globais disponíveis');
-                    // Carregar dados do usuário
-                    carregarDadosUsuarioLogado();
-                } else {
-                    console.error('❌ [ATLETAS] Funções globais não encontradas');
-                }
-            };
-            script.onerror = function () {
-                console.error('❌ [ATLETAS] Erro ao carregar arquivo de personalização');
-            };
-            document.head.appendChild(script);
+        // Carregar script de notificações
+        const notifScript = document.createElement('script');
+        notifScript.src = 'static/js/notificacoes.js';
+        notifScript.onload = function () {
+        // Inicializar sistema de notificações
+        if (typeof SistemaNotificacoes !== 'undefined') {
+        window.sistemaNotificacoes = new SistemaNotificacoes();
+        console.log('✅ Sistema de notificações inicializado na página dados gerais');
+        } else {
+        console.log('⚠️ Classe SistemaNotificacoes não encontrada');
+        }
+        };
+        document.head.appendChild(notifScript);
+        console.log('✅ [ATLETAS] Arquivo de personalização carregado');
+        // Verificar se as funções globais estão disponíveis
+        if (typeof carregarDadosUsuarioLogado === 'function') {
+        console.log('✅ [ATLETAS] Funções globais disponíveis');
+        // Carregar dados do usuário
+        carregarDadosUsuarioLogado();
+        } else {
+        console.error('❌ [ATLETAS] Funções globais não encontradas');
+        }
+        };
+        script.onerror = function () {
+        console.error('❌ [ATLETAS] Erro ao carregar arquivo de personalização');
+        };
+        document.head.appendChild(script);
         });
-    </script>
+        </script>
 </body>
 </html>

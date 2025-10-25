@@ -1208,7 +1208,30 @@
           },
         });
       }
-      
+
+        async function carregarPerfilAtleta() {
+            const usuarioInfo = localStorage.getItem("usuario_info");
+            if (!usuarioInfo) return console.warn("⚠️ Nenhum usuário logado");
+
+            const usuario = JSON.parse(usuarioInfo);
+            const response = await fetch(`/api/alunos/email/${encodeURIComponent(usuario.email)}`);
+            if (!response.ok) return console.error("❌ Erro ao buscar atleta");
+
+            const atleta = await response.json();
+            preencherPerfil(atleta);
+        }
+
+        function preencherPerfil(atleta) {
+            document.querySelector(".nome-atleta").textContent = atleta.nome;
+            document.querySelector(".modalidade-atleta").textContent = atleta.modalidade;
+            document.querySelector(".data-ingresso").textContent = `Atleta desde ${atleta.ano_ingresso} | Foco: ${atleta.foco}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarPerfilAtleta();
+        });
+
+
       // Configurar sincronização
       function configurarSincronizacaoDesempenho() {
         // Escutar mudanças no localStorage
@@ -1485,12 +1508,17 @@
         document.getElementById('dietModal').style.display = 'none';
       });
 
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarPerfilAtleta();
+        });
+
       // Remover event listeners antigos dos vídeos (agora são gerenciados dinamicamente)
     </script>
     
     <!-- Scripts para dashboard personalizado -->
+    <script src="/static/js/aluno.js"></script>
     <script src="/static/js/frontend-config.js"></script>
-    <script src="/static/js/dashboard-aluno.js"></script>
+    <script src="/static/js/dashboard.js"></script>
     <script src="/static/js/notificacoes.js"></script>
     
     <script>
