@@ -131,6 +131,7 @@ async def aluno_dashboard(request: Request, aluno_id: int):
     )
 
 
+
 @app.get("/api/atletas/{atleta_id}/desempenho", response_class=JSONResponse)
 async def api_desempenho(atleta_id: int):
     db = SessionLocal()
@@ -347,9 +348,6 @@ async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str
         "treinador": treinador
     })
 
-
-
-
 # Criar atleta
 @app.post("/api/alunos", response_class=JSONResponse)
 async def criar_aluno(aluno: AlunoCreate):
@@ -547,6 +545,8 @@ async def upload_video(
     
     finally:
         db.close()
+
+
 
 # Logout
 @app.get("/logout")

@@ -1,26 +1,20 @@
 ﻿async function carregarPerfilAtleta() {
-    const usuarioInfo = localStorage.getItem('usuario_info');
-    if (!usuarioInfo) {
-        console.warn('⚠️ Nenhum usuário logado');
-        return;
-    }
-
-    let email = '';
-    try {
-        const usuario = JSON.parse(usuarioInfo);
-        email = usuario.email;
-    } catch (error) {
-        console.error('❌ Erro ao ler dados do usuário:', error);
-        return;
-    }
+    const partes = window.location.pathname.split("/");
+    const atletaId = partes[partes.length - 1]; // extrai o ID da URL
 
     try {
-        const response = await fetch(`/api/alunos?email=${encodeURIComponent(email)}`);
-        if (!response.ok) throw new Error('Erro ao buscar atleta');
+        const response = await fetch(`/api/alunos/${atletaId}`);
+        if (!response.ok) throw new Error("Erro ao buscar dados do atleta");
 
         const atleta = await response.json();
-        preencherPerfil(atleta);
-    } catch (error) {
-        console.error('❌ Erro ao carregar perfil do atleta:', error);
+        document.getElementById("nome-atleta").textContent = atleta.nome;
+        document.getElementById("modalidade-atleta").textContent = atleta.modalidade;
+        document.getElementById("data-ingresso").textContent = `Atleta desde ${atleta.ano_ingresso} | Foco: ${atleta.foco}`;
+        document.getElementById("foto-atleta").src = atleta.foto;
+        document.getElementById("foto-atleta").alt = atleta.nome;
+    } catch (err) {
+        console.error("❌ Erro ao carregar perfil do atleta:", err);
     }
 }
+
+document.addEventListener("DOMContentLoaded", carregarPerfilAtleta);

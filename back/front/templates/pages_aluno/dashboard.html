@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -926,14 +926,13 @@
       <!-- Perfil do Aluno -->
       <div class="student-profile">
         <div class="student-avatar">
-          <img src="/static/img/logo_if_icon.png" alt="Carlos Silva" style="height: 70px; width: 70px;"/>
+          <img src="/static/img/man_profile.png" alt="Foto de Perfik" style="height: 70px; width: 70px;"/>
         </div>
-                 <div class="student-details">
-           <h2 class="nome-atleta">Carlos Silva</h2>
-           <span class="student-category">Carregando...</span>
-           <span class="student-sport modalidade-atleta">Natação</span>
-           <p class="data-ingresso">Atleta desde 2020 | Foco: Provas de 100m e 200m livre</p>
-         </div>
+        <div class="student-details">
+            <h2 class="nome-atleta">{{ aluno.nome }}</h2>
+            <span class="student-sport">{{ aluno.modalidade }}</span>
+            <p class="data-ingresso">Atleta desde {{ aluno.ano_ingresso }} | Foco: {{ aluno.foco }}</p>
+        </div>
       </div>
 
       <!-- Dashboard Grid -->
@@ -1071,7 +1070,7 @@
             </div>
           </div>
         </div>
-
+        </div>
 
     </main>
 
@@ -1315,6 +1314,14 @@
           }
         });
       }
+
+
+        function preencherPerfil(usuario) {
+            document.getElementById('nome-atleta').textContent = atleta.nome;
+            document.getElementById('modalidade-atleta').textContent = atleta.modalidade;
+            document.getElementById('data-ingresso').textContent = `Atleta desde ${atleta.ingresso} | Foco: ${usuario.foco}`;
+        }
+
       
             // Inicializar gráfico e sincronização
       criarGraficoDesempenho();

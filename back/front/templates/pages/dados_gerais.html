@@ -2983,37 +2983,52 @@
 
         // Função para verificar se um atleta passa pelos filtros
         function athletePassesFilters(athlete) {
-        // Filtro por modalidade
-        if (activeFilters.sports.length > 0 && !activeFilters.sports.includes(athlete.sport)) {
-        return false;
-        }
+            // Filtro por modalidade
+            if (
+                activeFilters.sports.length > 0 &&
+                (!athlete.modalidade || !activeFilters.sports.includes(athlete.modalidade))
+            ) {
+                return false;
+            }
 
-        // Filtro por status
-        if (activeFilters.status.length > 0 && !activeFilters.status.includes(athlete.status)) {
-        return false;
-        }
+            // Filtro por status
+            if (
+                activeFilters.status.length > 0 &&
+                (!athlete.status || !activeFilters.status.includes(athlete.status))
+            ) {
+                return false;
+            }
 
-        // Filtro por faixa etária
-        if (activeFilters.ageRanges.length > 0) {
-        const age = parseInt(athlete.age);
-        let passesAgeFilter = false;
+            // Filtro por faixa etária
+            if (activeFilters.ageRanges.length > 0) {
+                const idade = parseInt(
+                    typeof athlete.idade === "string"
+                        ? athlete.idade.replace(" anos", "")
+                        : athlete.idade
+                );
+                let passaFaixa = false;
 
-        activeFilters.ageRanges.forEach(range => {
-        if (range === '18-20' && age >= 18 && age <= 20) passesAgeFilter = true;
-        if (range === '21-25' && age >= 21 && age <= 25) passesAgeFilter = true;
-        if (range === '26-30' && age >= 26 && age <= 30) passesAgeFilter = true;
-        if (range === '30+' && age > 30) passesAgeFilter = true;
-        });
+                if (!isNaN(idade)) {
+                    activeFilters.ageRanges.forEach(range => {
+                        if (range === "18-20" && idade >= 18 && idade <= 20) passaFaixa = true;
+                        if (range === "21-25" && idade >= 21 && idade <= 25) passaFaixa = true;
+                        if (range === "26-30" && idade >= 26 && idade <= 30) passaFaixa = true;
+                        if (range === "30+" && idade > 30) passaFaixa = true;
+                    });
+                }
 
-        if (!passesAgeFilter) return false;
-        }
+                if (!passaFaixa) return false;
+            }
 
-        // Filtro por nome
-        if (activeFilters.name && !athlete.name.toLowerCase().includes(activeFilters.name)) {
-        return false;
-        }
+            // Filtro por nome
+            if (
+                activeFilters.name &&
+                (!athlete.nome || !athlete.nome.toLowerCase().includes(activeFilters.name))
+            ) {
+                return false;
+            }
 
-        return true;
+            return true;
         }
 
         function addNewAthlete() {

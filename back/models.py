@@ -1,3 +1,4 @@
+﻿from tkinter import CHAR
 from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime
 from sqlalchemy.orm import declarative_base, relationship
 import enum
