@@ -9,9 +9,7 @@ from sqlalchemy.orm import Session, relationship, joinedload
 from database import SessionLocal, engine, Base, get_db
 import models
 from sqlalchemy import func
-from datetime import datetime, timedelta, date, time
-from typing import List, Optional
-from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -30,6 +28,22 @@ app.mount("/static", StaticFiles(directory="front/static"), name="static")
 
 # Templates (HTML com Jinja2)
 templates = Jinja2Templates(directory="front/templates")
+
+
+
+
+
+class AlunoCreate(BaseModel):
+    nome: str
+    email: str
+    modalidade: str
+    idade: int
+    status: str
+    telefone: str
+    endereco: str
+
+
+
 
 # Função para popular usuários
 @app.on_event("startup")
@@ -114,6 +128,7 @@ async def aluno_dashboard(request: Request, aluno_id: int):
     )
 
 
+
 @app.get("/api/atletas/{atleta_id}/desempenho", response_class=JSONResponse)
 async def api_desempenho(atleta_id: int):
     db = SessionLocal()
@@ -137,6 +152,11 @@ async def api_desempenho(atleta_id: int):
     
     db.close()
     return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
+
+
+
+
+
 
 # TREINADOR
 
@@ -280,37 +300,76 @@ async def calendario(request: Request, treinador_id: int):
         {"request": request, "treinador": treinador}
     )
 
+@app.get("/treinador/avaliaratleta", response_class=HTMLResponse)
+async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str):
+    db = SessionLocal()
+    treinador = db.query(models.User).filter(models.User.tipo == models.UserType.treinador).first()
+    db.close()
+
+    return templates.TemplateResponse("pages/avaliar-atleta.html", {
+        "request": request,
+        "id": id,
+        "nome": nome,
+        "modalidade": modalidade,
+        "treinador": treinador
+    })
+
 # Criar atleta
 @app.post("/api/alunos", response_class=JSONResponse)
-async def criar_aluno(aluno: dict = Body(...)):
+async def criar_aluno(aluno: AlunoCreate):
+    try:
+        db = SessionLocal()
+        novo_aluno = models.User(
+            nome=aluno.nome,
+            email=aluno.email,
+            senha="123",
+            tipo=models.UserType.aluno,
+            modalidade=aluno.modalidade,
+            idade=aluno.idade,
+            status=aluno.status,
+            telefone=aluno.telefone,
+            endereco=aluno.endereco,
+        )
+        db.add(novo_aluno)
+        db.commit()
+        db.refresh(novo_aluno)
+        db.close()
+        return {
+            "id": novo_aluno.id,
+            "nome": novo_aluno.nome,
+            "email": novo_aluno.email,
+            "modalidade": novo_aluno.modalidade,
+            "idade": novo_aluno.idade,
+            "status": novo_aluno.status,
+            "telefone": novo_aluno.telefone,
+            "endereco": novo_aluno.endereco,
+        }
+    except Exception as e:
+        db.rollback()
+        db.close()
+        print("Erro ao criar aluno:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+@app.get("/api/alunos", response_class=JSONResponse)
+async def listar_alunos(): 
     db = SessionLocal()
-    novo_aluno = models.User(
-        nome=aluno.get("nome"),
-        email=aluno.get("email"),
-        senha="123",
-        tipo=models.UserType.aluno,
-        modalidade=aluno.get("modalidade"),
-        idade=aluno.get("idade"),
-        status=aluno.get("status"),
-        telefone=aluno.get("telefone"),
-        endereco=aluno.get("endereco"),
-        
-    )
-    db.add(novo_aluno)
-    db.commit()
-    db.refresh(novo_aluno)
+    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
     db.close()
-    return {
-        "id": novo_aluno.id,
-        "nome": novo_aluno.nome,
-        "email": novo_aluno.email,
-        "modalidade": novo_aluno.modalidade,
-        "idade": novo_aluno.idade,
-        "status": novo_aluno.status,
-        "telefone": novo_aluno.telefone,
-        "endereco": novo_aluno.endereco,
-        
-    }
+    return [
+        {
+        "id": aluno.id,
+        "nome": aluno.nome,
+        "email": aluno.email,
+        "modalidade": aluno.modalidade,
+        "idade": aluno.idade,
+        "status": aluno.status,
+        "telefone": aluno.telefone,
+        "endereco": aluno.endereco,
+        }
+    for aluno in alunos
+]
+
 
 # Editar atleta
 @app.put("/api/alunos/{atleta_id}", response_class=JSONResponse)
@@ -346,30 +405,12 @@ async def atualizar_aluno(atleta_id: int = Path(...), dados: dict = Body(...)):
         
     }
 
-@app.get("/api/alunos", response_class=JSONResponse)
-async def listar_alunos():
-    db = SessionLocal()
-    alunos = db.query(models.User).filter(models.User.tipo == models.UserType.aluno).all()
-    db.close()
-    result = []
-    for a in alunos:
-        result.append({
-        "id": a.id,
-        "nome": a.nome,
-        "email": a.email,
-        "modalidade": a.modalidade,
-        "idade": a.idade,
-        "status": a.status,
-        "telefone": a.telefone,
-        "endereco": a.endereco,
-})
-    return result
+# Deletar atleta
 
 @app.delete("/api/alunos/{atleta_id}", response_class=JSONResponse)
 async def deletar_aluno(atleta_id: int = Path(...)):
     db = SessionLocal()
     atleta = db.query(models.User).filter(models.User.id == atleta_id, models.User.tipo == models.UserType.aluno).first()
-    
     if not atleta:
         db.close()
         return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
@@ -377,8 +418,9 @@ async def deletar_aluno(atleta_id: int = Path(...)):
     db.delete(atleta)
     db.commit()
     db.close()
+    return {"message": "Atleta excluído com sucesso"}
 
-    return JSONResponse(status_code=200, content={"message": "Atleta excluído com sucesso"})
+
 
 
 @app.post("/api/desempenho", response_class=JSONResponse)
@@ -469,77 +511,6 @@ async def upload_video(
     
     finally:
         db.close()
-
-# Buscar todos os eventos
-@app.get("/api/eventos")
-async def get_eventos(db: Session = Depends(get_db)):
-        
-        eventos = db.query(models.Evento).options(joinedload(models.Evento.participantes)).all()
-        
-        # Converte para um formato JSON seguro
-        eventos_list = []
-        for ev in eventos:
-            eventos_list.append({
-                "id": ev.id,
-                "title": ev.titulo,
-                "date": ev.data.isoformat(),
-                "time": ev.hora.isoformat() if ev.hora else None,
-                "location": ev.local,
-                "type": ev.tipo,
-                "description": ev.descricao,
-                "treinador_id": ev.treinador_id,
-                "alunos_ids": [p.id for p in ev.participantes] # Lista de IDs de alunos
-            })
-        return eventos_list
-
-# Este é o schema que valida os dados que chegam do JavaScript para criar o evento na rota seguinte
-class EventoCreate(BaseModel):
-    title: str
-    date: date
-    time: Optional[str] = None
-    location: Optional[str] = None
-    type: str
-    description: Optional[str] = None
-    alunos_ids: List[int] = []
-    treinador_id: int
-
-@app.post("/api/CriarEventos")  #Está lançando no banco de dados, falta assimilar ao aluno
-async def create_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
-    
-    # 1. Buscar os alunos (participantes) no banco
-    participantes = []
-    if evento_data.alunos_ids:
-        participantes = db.query(models.User).filter(
-            models.User.id.in_(evento_data.alunos_ids)
-        ).all()
-
-    # 2. Criar o novo objeto Evento
-    novo_evento = models.Evento(
-        titulo=evento_data.title,
-        data=evento_data.date,
-        hora=evento_data.time,
-        local=evento_data.location,
-        tipo=evento_data.type,
-        descricao=evento_data.description,
-        treinador_id=evento_data.treinador_id,
-        participantes=participantes  # Associa os alunos encontrados
-    )
-    
-    # 3. Adicionar e salvar no banco
-    db.add(novo_evento)
-    db.commit()
-    db.refresh(novo_evento) # Pega o ID e outros dados gerados pelo banco
-
-    return {
-        "title": novo_evento.titulo,       
-        "date": novo_evento.data.isoformat(),
-        "time": novo_evento.hora.isoformat() if novo_evento.hora else None,
-        "location": novo_evento.local,     
-        "type": novo_evento.tipo,
-        "description": novo_evento.descricao, 
-        "treinador_id": novo_evento.treinador_id,
-        "alunos": [{"id": p.id, "nome": p.nome} for p in novo_evento.participantes] 
-    }
 
 # Logout
 @app.get("/logout")
