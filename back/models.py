@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime
+from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Table, Date, Time
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
@@ -6,6 +6,12 @@ from database import Base
 class UserType(enum.Enum):
     aluno = "aluno"
     treinador = "treinador"
+
+evento_alunos_association = Table(
+    'evento_alunos', Base.metadata,
+    Column('evento_id', Integer, ForeignKey('eventos.id'), primary_key=True),
+    Column('aluno_id', Integer, ForeignKey('users.id'), primary_key=True)
+)
 
 class User(Base):
     __tablename__ = "users"
@@ -23,6 +29,14 @@ class User(Base):
     endereco = Column(String(100), nullable=True)
     data_cadastro = Column(DateTime(timezone=True), server_default=func.now())
     dieta_filepath = Column(String(255), nullable=True)
+    # Eventos que este usuário (treinador) criou
+    eventos_criados = relationship("Evento", back_populates="criador", foreign_keys="Evento.treinador_id")
+    
+    # Eventos que este usuário (aluno) está participando
+    eventos_participantes = relationship(
+        "Evento",
+        secondary=evento_alunos_association,
+        back_populates="participantes")
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"
@@ -48,6 +62,27 @@ class Video(Base):
 
     # Relacionamento opcional com o User
     aluno = relationship("User")
+
+class Evento(Base):
+    __tablename__ = "eventos"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String(255), nullable=False)
+    data = Column(Date, nullable=False)
+    hora = Column(Time, nullable=True)
+    local = Column(String(255), nullable=True)
+    tipo = Column(String(50), nullable=True)
+    descricao = Column(String(1024), nullable=True)
+    
+    # Relação com o Treinador (Criador)
+    treinador_id = Column(Integer, ForeignKey("users.id"))
+    criador = relationship("User", back_populates="eventos_criados")
+
+    participantes = relationship(
+        "User",
+        secondary=evento_alunos_association,
+        back_populates="eventos_participantes"
+    )
 
 User.videos = relationship("Video", back_populates="aluno")
 

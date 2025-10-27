@@ -1,5 +1,3 @@
-// dashboard.js (ou o nome do seu arquivo principal)
-
 document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PARA TUDO
 
     // ================================================================

@@ -9,6 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link rel=""stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     <style>
       * {
         margin: 0;
@@ -491,6 +492,8 @@
         border-radius: 12px;
         padding: 25px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        max-height: 80vh; /* Define uma altura máxima (ex: 80% da altura da tela) */
+        overflow-y: auto; /* Adiciona uma barra de rolagem VERTICAL se o conteúdo passar dessa altura */  
       }
 
       .modal-header {
@@ -665,9 +668,245 @@
           gap: 0;
         }
       }
+       /* Container para a barra de pesquisa - para posicionar a caixa de sugestões */
+    .search-bar {
+      position: relative; /* Essencial para que a caixa de sugestões apareça logo abaixo */
+    }
+
+  /* Caixa de Sugestões - O container que aparece e desaparece (VERSÃO ATUALIZADA) */
+  #suggestionsBox {
+      position: absolute; 
+      top: calc(100% + 5px); /* Alterado: 100% da altura + 5px de espaço */
+      left: 0;
+      right: 0;
+      background-color: #ffffff; /* Alterado: Fundo branco */
+      border: 1px solid #ddd;     /* Alterado: Borda cinza clara */
+      border-radius: 8px;         /* Alterado: Borda arredondada em todos os cantos */
+      z-index: 10;
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Alterado: Sombra mais pronunciada */
+    }
+
+    /* Itens Individuais da Sugestão (VERSÃO ATUALIZADA) */
+    .suggestion-item {
+      padding: 12px 20px;
+      font-size: 15px;
+      color: #333333; /* Alterado: Cor de texto escura para o fundo branco */
+      cursor: pointer;
+      border-bottom: 1px solid #eee; /* Alterado: Linha separadora mais clara */
+      transition: background-color 0.2s ease;
+    }
+
+    /* Remove a borda do último item para um acabamento limpo */
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Efeito Hover (VERSÃO ATUALIZADA) */
+    .suggestion-item:hover {
+      background-color: #f5f5f5; /* Alterado: Fundo cinza bem claro para o hover */
+    }
+
+   /* * =======================================================
+ * CSS CORRIGIDO para estilizar o Choices.js
+ * =======================================================
+*/
+
+/* --- O Contêiner Principal --- */
+.choices__inner {
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 14px;
+  min-height: 40px;
+  color: #495057;
+  /* Garante que os itens e o input fiquem na mesma linha e quebrem */
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* --- Remove a borda azul feia quando está focado --- */
+.choices.is-focused .choices__inner {
+  border-color: #18477a;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* --- As "Tags" dos Alunos Selecionados --- */
+.choices__list--multiple .choices__item {
+  background-color: #f1f3f5;
+  border: 1px solid #dee2e6;
+  color: #212529;
+  border-radius: 10px;
+  padding: 4px 8px; /* Padding normal */
+  font-size: 13px;
+  margin-top: 3px;
+  margin-right: 5px;
+  
+  /* NOVO: Garante que o texto e o 'X' fiquem alinhados */
+  display: inline-flex;
+  align-items: center;
+}
+
+/* --- O botão 'X' de remover a tag --- */
+.choices__list--multiple .choices__item--button {
+  /* Estilos do 'X' (background, size, etc.) */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23495057"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
+  background-size: 12px 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+  border-left: none;
+  margin-left: 6px;
+  padding: 0;
+
+  /* --- NOVO: Força o texto a sumir --- */
+  font-size: 0 !important;
+  color: transparent !important;
+  text-indent: -9999px !important;
+  overflow: hidden !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.choices__list--multiple .choices__item--button:hover {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+/* --- O campo de digitação (A CORREÇÃO PRINCIPAL) --- */
+.choices__input {
+  background: none !important;
+  border: none !important;      /* Remove a borda quadrada */
+  box-shadow: none !important; /* Remove qualquer sombra */
+  padding: 4px 2px;            /* Adiciona um respiro vertical */
+  margin: 0;
+  
+  /* --- NOVO: Força o input para uma nova linha --- */
+  width: 100% !important;   
+  margin-top: 8px;           /* Espaço entre as tags de cima e o input */
+  color: #495057;            /* Cor do texto que você digita */
+  min-height: 22px;          /* Altura para o cursor aparecer melhor */
+}
+
+/* --- Oculta o botão "Clear All" (o 'X' flutuante) --- */
+.choices__button[data-choice-action="clearAll"] {
+  display: none !important;
+}
+
+
+/* --- O menu Dropdown (lista de resultados da busca) --- */
+.choices__list--dropdown {
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-top: 1px solid #e9ecef;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-top: -1px;
+  z-index: 10;
+}
+
+/* --- Texto do Placeholder (Ex: "Digite 2 ou mais letras...") --- */
+.choices__placeholder {
+  color: #6c757d;
+  opacity: 1;
+}
+
+/* --- Itens no dropdown --- */
+.choices__list--dropdown .choices__item {
+  font-size: 14px;
+  padding: 8px 12px;
+  color: #212529;
+}
+
+/* --- Item no dropdown com mouse em cima --- */
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: #f8f9fa;
+  color: #16181b;
+}
+
+/* --- Mensagens (Ex: "Nenhum aluno encontrado") --- */
+.choices__list--dropdown .choices__item--disabled {
+  padding: 8px 12px;
+  color: #adb5bd;
+  font-style: italic;
+  font-size: 13px;
+}
+/* Estilo para o botão de Adicionar Evento */
+.btn-add-evento {
+    /* Cores */
+    background-color: #00004f; /* Um tom de azul que combina com a barra lateral */
+    color: white; /* Texto branco para contraste */
+    border: none; /* Remove a borda padrão do botão */
+    
+    /* Preenchimento e Espaçamento */
+    padding: 10px 20px; /* Mais preenchimento para parecer mais "clicável" */
+    margin-left: 20px; /* Um pouco de espaço à esquerda se estiver ao lado das view-options */
+    
+    /* Borda Curvada */
+    border-radius: 25px; /* Bordas bem curvadas (metade da altura para um "pilula") */
+    
+    /* Fonte e Texto */
+    font-size: 1em; /* Tamanho de fonte padrão */
+    font-weight: 600; /* Levemente mais negrito */
+    cursor: pointer; /* Indica que é clicável */
+    text-align: center;
+    text-decoration: none; /* Sem sublinhado */
+    
+    /* Transições suaves para interatividade */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    
+    /* Para alinhar o ícone e o texto */
+    display: inline-flex; /* Permite alinhar itens internos */
+    align-items: center; /* Alinha verticalmente */
+    justify-content: center; /* Centraliza horizontalmente se houver espaço */
+    gap: 8px; /* Espaço entre o ícone e o texto */
+
+    /* Sombra sutil para profundidade */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Efeito ao passar o mouse (hover) */
+.btn-add-evento:hover {
+    background-color: #124985; /* Um azul um pouco mais escuro ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de "levantar" um pouco */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Sombra um pouco maior */
+}
+
+/* Efeito ao clicar (active) */
+.btn-add-evento:active {
+    background-color: #0c3158; /* Azul ainda mais escuro ao clicar */
+    transform: translateY(0); /* Volta à posição original */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra menor */
+}
+
+/* Ajustes para o ícone, se necessário */
+.btn-add-evento .fas {
+    margin-right: 5px; /* Espaçamento entre o ícone e o texto */
+}
+
+/* Opcional: Se quiser que o botão fique mais à direita ou tenha alinhamento flex */
+.calendar-header {
+    display: flex;
+    justify-content: space-between; /* Empurra os elementos para as pontas */
+    align-items: center; /* Alinha verticalmente */
+    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    gap: 15px; /* Espaço entre os itens no header */
+}
+
+/* Se você adicionou o botão dentro de .view-options */
+/* Ou se precisar que ele fique agrupado com os botões de view-options */
+.calendar-header .view-options {
+    display: flex; /* Para os botões de Mês, Semana, etc. */
+    gap: 5px;
+}
     </style>
   </head>
-  <body>
+  <body data-treinador-id="{{ treinador.id }}">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Sidebar -->
     <aside class="sidebar">
       <div>
@@ -710,10 +949,15 @@
                     <p>{{ treinador.cargos}}</p>
                 </div>
             </div>
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchAthlete" name="searchAthlete" placeholder="Pesquisar atleta..." />
+          
+          <div class="search-bar">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
+              <div id="suggestionsBox"></div> 
             </div>
+            
+            
+
             <div class="header-actions">
                 <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
                     <i class="fas fa-bell"></i>
@@ -738,6 +982,11 @@
             <button>Dia</button>
             <button>Lista</button>
           </div>
+          </div>
+          <button id="addEventBtn" class="btn-add-evento">
+             <i class="fas fa-plus"></i> Adicionar Evento
+          </button>
+      </div>          
         </div>
 
         <div class="calendar-weekdays">
@@ -752,128 +1001,16 @@
 
         <div class="calendar-grid" id="calendarGrid">
           <!-- Os dias do calendário serão preenchidos via JavaScript -->
+
+          <!--Eventos-->
         </div>
       </div>
+          <div class="calendar-container events-list">
+          <h3>Próximos Eventos</h3>
+          <div id="upcoming-events-items">
+      </div>
+        </div>
 
-      <!-- Próximos Eventos -->
-      <div class="calendar-container events-list">
-        <h3>Próximos Eventos</h3>
-        <div class="event-list-item">
-          <div class="event-date">
-            <div class="event-day">15</div>
-            <div class="event-month">SET</div>
-          </div>
-          <div class="event-details">
-            <div class="event-title">Campeonato Estadual de Atletismo</div>
-            <div class="event-info">
-              <span class="event-time"
-                ><i class="fas fa-clock"></i> 09:00h</span
-              >
-              <span class="event-location"
-                ><i class="fas fa-map-marker-alt"></i> Estádio Municipal</span
-              >
-            </div>
-          </div>
-          <div class="event-actions">
-            <button class="event-action-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="event-action-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="event-list-item">
-          <div class="event-date">
-            <div class="event-day">18</div>
-            <div class="event-month">SET</div>
-          </div>
-          <div class="event-details">
-            <div class="event-title">Reunião de Planejamento Técnico</div>
-            <div class="event-info">
-              <span class="event-time"
-                ><i class="fas fa-clock"></i> 14:00h</span
-              >
-              <span class="event-location"
-                ><i class="fas fa-map-marker-alt"></i> Sala de Reuniões</span
-              >
-            </div>
-          </div>
-          <div class="event-actions">
-            <button class="event-action-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="event-action-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="event-list-item">
-          <div class="event-date">
-            <div class="event-day">22</div>
-            <div class="event-month">SET</div>
-          </div>
-          <div class="event-details">
-            <div class="event-title">Torneio de Natação Interestadual</div>
-            <div class="event-info">
-              <span class="event-time"
-                ><i class="fas fa-clock"></i> 14:00h</span
-              >
-              <span class="event-location"
-                ><i class="fas fa-map-marker-alt"></i> Centro Aquático</span
-              >
-            </div>
-          </div>
-          <div class="event-actions">
-            <button class="event-action-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="event-action-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="event-list-item">
-          <div class="event-date">
-            <div class="event-day">25</div>
-            <div class="event-month">SET</div>
-          </div>
-          <div class="event-details">
-            <div class="event-title">Avaliação Física - Equipe de Vôlei</div>
-            <div class="event-info">
-              <span class="event-time"
-                ><i class="fas fa-clock"></i> 08:00h - 12:00h</span
-              >
-              <span class="event-location"
-                ><i class="fas fa-map-marker-alt"></i> Laboratório</span
-              >
-            </div>
-          </div>
-          <div class="event-actions">
-            <button class="event-action-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="event-action-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="event-list-item">
-          <div class="event-date">
-            <div class="event-day">05</div>
-            <div class="event-month">OUT</div>
-          </div>
-          <div class="event-details">
-            <div class="event-title">Campeonato Nacional de Ginástica</div>
-            <div class="event-info">
-              <span class="event-time"
-                ><i class="fas fa-clock"></i> 10:00h</span
-              >
-              <span class="event-location"
-                ><i class="fas fa-map-marker-alt"></i> Ginásio Olímpico</span
-              >
-            </div>
-          </div>
           <div class="event-actions">
             <button class="event-action-btn">
               <i class="fas fa-edit"></i>
@@ -937,6 +1074,11 @@
               placeholder="Detalhes do evento..."
             ></textarea>
           </div>
+    <div class="form-group">
+    <label for="eventAlunos">Atribuir a Alunos (opcional)</label>
+    <select id="eventAlunos" multiple placeholder="Digite para pesquisar alunos...">
+    </select>
+</div>
           <div class="modal-actions">
             <button type="button" class="btn btn-outline" id="cancelEvent">
               Cancelar
@@ -949,413 +1091,14 @@
             >
               Excluir
             </button>
-            <button type="submit" class="btn btn-primary">Salvar Evento</button>
+            <button type="submit" id="saveEventBtn">Salvar Evento</button>
           </div>
         </form>
       </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Variáveis globais
-        let currentDate = new Date();
-        let currentMonth = currentDate.getMonth();
-        let currentYear = currentDate.getFullYear();
-        const months = [
-          "Janeiro",
-          "Fevereiro",
-          "Março",
-          "Abril",
-          "Maio",
-          "Junho",
-          "Julho",
-          "Agosto",
-          "Setembro",
-          "Outubro",
-          "Novembro",
-          "Dezembro",
-        ];
+      <script src="/static/js/calendario.js"></script>
+      <script src="/static/js/dashboard.js"></script>
 
-        // Dados de exemplo para eventos
-        const events = [
-          {
-            id: 1,
-            title: "Campeonato Estadual de Atletismo",
-            date: "2023-09-15",
-            time: "09:00",
-            location: "Estádio Municipal",
-            type: "competition",
-          },
-          {
-            id: 2,
-            title: "Reunião de Planejamento Técnico",
-            date: "2023-09-18",
-            time: "14:00",
-            location: "Sala de Reuniões",
-            type: "meeting",
-          },
-          {
-            id: 3,
-            title: "Torneio de Natação Interestadual",
-            date: "2023-09-22",
-            time: "14:00",
-            location: "Centro Aquático",
-            type: "competition",
-          },
-          {
-            id: 4,
-            title: "Avaliação Física - Equipe de Vôlei",
-            date: "2023-09-25",
-            time: "08:00",
-            location: "Laboratório",
-            type: "training",
-          },
-          {
-            id: 5,
-            title: "Campeonato Nacional de Ginástica",
-            date: "2023-10-05",
-            time: "10:00",
-            location: "Ginásio Olímpico",
-            type: "competition",
-          },
-          {
-            id: 6,
-            title: "Treinamento Especial - Atletismo",
-            date: "2023-09-12",
-            time: "15:00",
-            location: "Pista de Atletismo",
-            type: "training",
-          },
-          {
-            id: 7,
-            title: "Workshop de Nutrição Esportiva",
-            date: "2023-09-20",
-            time: "10:00",
-            location: "Auditório",
-            type: "other",
-          },
-        ];
-
-        // Elementos do DOM
-        const calendarTitle = document.querySelector(".calendar-title");
-        const calendarGrid = document.getElementById("calendarGrid");
-        const prevMonthBtn = document.getElementById("prevMonth");
-        const nextMonthBtn = document.getElementById("nextMonth");
-        const addEventBtn = document.getElementById("addEventBtn");
-        const eventModal = document.getElementById("eventModal");
-        const closeModalBtn = document.querySelector(".close-modal");
-        const cancelEventBtn = document.getElementById("cancelEvent");
-        const eventForm = document.getElementById("eventForm");
-
-        // Inicializar o calendário
-        function initCalendar() {
-          updateCalendarTitle();
-          renderCalendar();
-          setupEventListeners();
-        }
-
-        // Atualizar o título do calendário
-        function updateCalendarTitle() {
-          calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
-        }
-
-        // Renderizar o calendário
-        function renderCalendar() {
-          // Limpar o grid do calendário
-          calendarGrid.innerHTML = "";
-
-          // Obter o primeiro dia do mês e o número de dias no mês
-          const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-          const daysInMonth = new Date(
-            currentYear,
-            currentMonth + 1,
-            0
-          ).getDate();
-
-          // Dias do mês anterior
-          const daysInPrevMonth = new Date(
-            currentYear,
-            currentMonth,
-            0
-          ).getDate();
-
-          // Preencher os dias do mês anterior
-          for (let i = firstDay - 1; i >= 0; i--) {
-            const day = daysInPrevMonth - i;
-            const dateStr = formatDate(currentYear, currentMonth - 1, day);
-            calendarGrid.appendChild(
-              createDayElement(day, "other-month", dateStr)
-            );
-          }
-
-          // Preencher os dias do mês atual
-          const today = new Date();
-          for (let i = 1; i <= daysInMonth; i++) {
-            const dateStr = formatDate(currentYear, currentMonth, i);
-            const isToday =
-              today.getDate() === i &&
-              today.getMonth() === currentMonth &&
-              today.getFullYear() === currentYear;
-            const dayClass = isToday ? "today" : "";
-            calendarGrid.appendChild(createDayElement(i, dayClass, dateStr));
-          }
-
-          // Preencher os dias do próximo mês
-          const totalCells = 42; // 6 semanas * 7 dias
-          const remainingCells = totalCells - (firstDay + daysInMonth);
-          for (let i = 1; i <= remainingCells; i++) {
-            const dateStr = formatDate(currentYear, currentMonth + 1, i);
-            calendarGrid.appendChild(
-              createDayElement(i, "other-month", dateStr)
-            );
-          }
-        }
-
-        // Criar elemento de dia
-        function createDayElement(day, className, dateStr) {
-          const dayElement = document.createElement("div");
-          dayElement.className = `calendar-day ${className}`;
-
-          const dayNumber = document.createElement("div");
-          dayNumber.className = "day-number";
-          dayNumber.textContent = day;
-          dayElement.appendChild(dayNumber);
-
-          const eventsContainer = document.createElement("div");
-          eventsContainer.className = "day-events";
-
-          // Adicionar eventos para este dia
-          const dayEvents = events.filter((event) => event.date === dateStr);
-          if (dayEvents.length > 0) {
-            dayElement.classList.add("has-events");
-            dayEvents.forEach((event) => {
-              const eventElement = document.createElement("div");
-              eventElement.className = `event-item event-${event.type}`;
-              eventElement.textContent = event.title;
-              eventElement.setAttribute("data-event-id", event.id);
-              eventsContainer.appendChild(eventElement);
-            });
-          }
-
-          dayElement.appendChild(eventsContainer);
-          dayElement.setAttribute("data-date", dateStr);
-
-          // Adicionar evento de clique para abrir o modal
-          dayElement.addEventListener("click", function () {
-            openAddEventModal(dateStr);
-          });
-
-          return dayElement;
-        }
-
-        // Formatar data como YYYY-MM-DD
-        function formatDate(year, month, day) {
-          // Ajustar o mês para ser baseado em 1
-          const adjustedMonth = month + 1;
-          return `${year}-${adjustedMonth.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-        }
-
-        // Configurar event listeners
-        function setupEventListeners() {
-          prevMonthBtn.addEventListener("click", function () {
-            currentMonth--;
-            if (currentMonth < 0) {
-              currentMonth = 11;
-              currentYear--;
-            }
-            updateCalendarTitle();
-            renderCalendar();
-          });
-
-          nextMonthBtn.addEventListener("click", function () {
-            currentMonth++;
-            if (currentMonth > 11) {
-              currentMonth = 0;
-              currentYear++;
-            }
-            updateCalendarTitle();
-            renderCalendar();
-          });
-
-          addEventBtn.addEventListener("click", function () {
-            openAddEventModal();
-          });
-
-          closeModalBtn.addEventListener("click", closeEventModal);
-          cancelEventBtn.addEventListener("click", closeEventModal);
-
-          eventForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            saveEvent();
-          });
-
-          // Fechar modal ao clicar fora dele
-          window.addEventListener("click", function (e) {
-            if (e.target === eventModal) {
-              closeEventModal();
-            }
-          });
-        }
-
-        // Abrir modal para adicionar evento
-        function openAddEventModal(dateStr = "") {
-          const modalTitle = document.querySelector("#eventModal h2");
-          const deleteBtn = document.getElementById("deleteEvent");
-
-          modalTitle.textContent = "Adicionar Evento";
-          deleteBtn.style.display = "none";
-
-          if (dateStr) {
-            document.getElementById("eventDate").value = dateStr;
-          } else {
-            document.getElementById("eventDate").value = formatDate(
-              currentYear,
-              currentMonth,
-              currentDate.getDate()
-            );
-          }
-
-          // Limpar outros campos do formulário
-          document.getElementById("eventTitle").value = "";
-          document.getElementById("eventTime").value = "";
-          document.getElementById("eventLocation").value = "";
-          document.getElementById("eventType").value = "competition";
-          document.getElementById("eventDescription").value = "";
-          eventForm.setAttribute("data-editing-id", "");
-
-          eventModal.style.display = "flex";
-        }
-
-        // Abrir modal para editar evento
-        function openEditEventModal(eventId) {
-          const modalTitle = document.querySelector("#eventModal h2");
-          const deleteBtn = document.getElementById("deleteEvent");
-          const eventData = events.find((ev) => ev.id == eventId);
-
-          if (!eventData) return;
-
-          modalTitle.textContent = "Editar Evento";
-          deleteBtn.style.display = "inline-block";
-          eventForm.setAttribute("data-editing-id", eventData.id);
-
-          document.getElementById("eventTitle").value = eventData.title;
-          document.getElementById("eventDate").value = eventData.date;
-          document.getElementById("eventTime").value = eventData.time;
-          document.getElementById("eventLocation").value = eventData.location;
-          document.getElementById("eventType").value = eventData.type;
-          document.getElementById("eventDescription").value =
-            eventData.description || "";
-
-          deleteBtn.onclick = function () {
-            deleteEvent(eventData.id);
-          };
-
-          eventModal.style.display = "flex";
-        }
-
-        // Fechar modal
-        function closeEventModal() {
-          eventModal.style.display = "none";
-        }
-
-        // Salvar evento (novo ou edição)
-        function saveEvent() {
-          const editingId = eventForm.getAttribute("data-editing-id");
-          const newEvent = {
-            id: editingId ? parseInt(editingId) : Date.now(),
-            title: document.getElementById("eventTitle").value,
-            date: document.getElementById("eventDate").value,
-            time: document.getElementById("eventTime").value,
-            location: document.getElementById("eventLocation").value,
-            type: document.getElementById("eventType").value,
-            description: document.getElementById("eventDescription").value,
-          };
-
-          if (editingId) {
-            // Editar evento existente
-            const index = events.findIndex((ev) => ev.id == editingId);
-            if (index !== -1) {
-              events[index] = newEvent;
-            }
-          } else {
-            // Novo evento
-            events.push(newEvent);
-          }
-
-          renderCalendar();
-          renderUpcomingEvents();
-          closeEventModal();
-        }
-
-        // Excluir evento
-        function deleteEvent(eventId) {
-          const index = events.findIndex((ev) => ev.id == eventId);
-          if (index !== -1) {
-            events.splice(index, 1);
-          }
-          renderCalendar();
-          renderUpcomingEvents();
-          closeEventModal();
-        }
-
-        // Renderizar lista de próximos eventos
-        function renderUpcomingEvents() {
-          const eventsListContainer = document.querySelector(".events-list");
-          eventsListContainer.innerHTML = "<h3>Próximos Eventos</h3>";
-
-          const upcoming = events
-            .filter((ev) => new Date(ev.date) >= new Date())
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-          if (upcoming.length === 0) {
-            eventsListContainer.innerHTML += "<p>Sem eventos futuros.</p>";
-            return;
-          }
-
-          upcoming.forEach((ev) => {
-            const evDate = new Date(ev.date);
-            const month = evDate
-              .toLocaleString("pt-BR", { month: "short" })
-              .toUpperCase();
-            const html = `
-              <div class="event-list-item">
-                <div class="event-date">
-                  <div class="event-day">${evDate.getDate()}</div>
-                  <div class="event-month">${month}</div>
-                </div>
-                <div class="event-details">
-                  <div class="event-title">${ev.title}</div>
-                  <div class="event-info">
-                    <span class="event-time"><i class="fas fa-clock"></i> ${
-                      ev.time || "--:--"
-                    }</span>
-                    <span class="event-location"><i class="fas fa-map-marker-alt"></i> ${
-                      ev.location || ""
-                    }</span>
-                  </div>
-                </div>
-                <div class="event-actions">
-                  <button class="event-action-btn" onclick="openEditEventModal(${
-                    ev.id
-                  })"><i class="fas fa-edit"></i></button>
-                  <button class="event-action-btn" onclick="deleteEvent(${
-                    ev.id
-                  })"><i class="fas fa-trash"></i></button>
-                </div>
-              </div>
-            `;
-            eventsListContainer.innerHTML += html;
-          });
-        }
-
-        // Inicializar
-        initCalendar();
-        renderUpcomingEvents();
-
-        // Expor funções globais para botões inline
-        window.openEditEventModal = openEditEventModal;
-        window.deleteEvent = deleteEvent;
-      });
-    </script>
-  </body>
+      </body>
 </html>

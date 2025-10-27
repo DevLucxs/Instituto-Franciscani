@@ -1,15 +1,17 @@
-﻿from fastapi import FastAPI, Request, Form, Body, Path
+﻿from fastapi import FastAPI, Request, Form, Body, Path, Depends
 import shutil
 from fastapi import File, UploadFile
 import os
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-from database import SessionLocal, engine, Base
+from sqlalchemy.orm import Session, relationship, joinedload
+from database import SessionLocal, engine, Base, get_db
 import models
 from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
+from typing import List, Optional
+from pydantic import BaseModel
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -135,11 +137,6 @@ async def api_desempenho(atleta_id: int):
     
     db.close()
     return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
-
-
-
-
-
 
 # TREINADOR
 
@@ -472,6 +469,77 @@ async def upload_video(
     
     finally:
         db.close()
+
+# Buscar todos os eventos
+@app.get("/api/eventos")
+async def get_eventos(db: Session = Depends(get_db)):
+        
+        eventos = db.query(models.Evento).options(joinedload(models.Evento.participantes)).all()
+        
+        # Converte para um formato JSON seguro
+        eventos_list = []
+        for ev in eventos:
+            eventos_list.append({
+                "id": ev.id,
+                "title": ev.titulo,
+                "date": ev.data.isoformat(),
+                "time": ev.hora.isoformat() if ev.hora else None,
+                "location": ev.local,
+                "type": ev.tipo,
+                "description": ev.descricao,
+                "treinador_id": ev.treinador_id,
+                "alunos_ids": [p.id for p in ev.participantes] # Lista de IDs de alunos
+            })
+        return eventos_list
+
+# Este é o schema que valida os dados que chegam do JavaScript para criar o evento na rota seguinte
+class EventoCreate(BaseModel):
+    title: str
+    date: date
+    time: Optional[str] = None
+    location: Optional[str] = None
+    type: str
+    description: Optional[str] = None
+    alunos_ids: List[int] = []
+    treinador_id: int
+
+@app.post("/api/CriarEventos")  #Está lançando no banco de dados, falta assimilar ao aluno
+async def create_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
+    
+    # 1. Buscar os alunos (participantes) no banco
+    participantes = []
+    if evento_data.alunos_ids:
+        participantes = db.query(models.User).filter(
+            models.User.id.in_(evento_data.alunos_ids)
+        ).all()
+
+    # 2. Criar o novo objeto Evento
+    novo_evento = models.Evento(
+        titulo=evento_data.title,
+        data=evento_data.date,
+        hora=evento_data.time,
+        local=evento_data.location,
+        tipo=evento_data.type,
+        descricao=evento_data.description,
+        treinador_id=evento_data.treinador_id,
+        participantes=participantes  # Associa os alunos encontrados
+    )
+    
+    # 3. Adicionar e salvar no banco
+    db.add(novo_evento)
+    db.commit()
+    db.refresh(novo_evento) # Pega o ID e outros dados gerados pelo banco
+
+    return {
+        "title": novo_evento.titulo,       
+        "date": novo_evento.data.isoformat(),
+        "time": novo_evento.hora.isoformat() if novo_evento.hora else None,
+        "location": novo_evento.local,     
+        "type": novo_evento.tipo,
+        "description": novo_evento.descricao, 
+        "treinador_id": novo_evento.treinador_id,
+        "alunos": [{"id": p.id, "nome": p.nome} for p in novo_evento.participantes] 
+    }
 
 # Logout
 @app.get("/logout")
