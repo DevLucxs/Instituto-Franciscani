@@ -910,949 +910,945 @@
     </style>
   </head>
   <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
-      <div class="sidebar-header">
-        <img src="/static/img/logo_if.png" alt="logo" width="230px" />
-      </div>
-      
-      <ul class="menu-items">
-          <li>
-              <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span data-translate="nav.dashboard">Dashboard</span></a>
-          </li>
-          <li>
-              <a href="#" class="active">
-                  <i class="fas fa-list"></i>
-                  <span data-translate="nav.dados_gerais">Dados Gerais</span>
+      <!-- Sidebar -->
+      <nav class="sidebar">
+          <div class="sidebar-header">
+              <img src="/static/img/logo_if.png" alt="logo" width="230px" />
+          </div>
+
+          <ul class="menu-items">
+              <li>
+                  <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span data-translate="nav.dashboard">Dashboard</span></a>
+              </li>
+              <li>
+                  <a href="#" class="active">
+                      <i class="fas fa-list"></i>
+                      <span data-translate="nav.dados_gerais">Dados Gerais</span>
+                  </a>
+              </li>
+              <li>
+                  <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span data-translate="nav.treinamentos">Treinamentos</span></a>
+              </li>
+              <li>
+                  <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span data-translate="nav.calendario">Calendário</span></a>
+              </li>
+          </ul>
+
+          <div class="sidebar-footer">
+              <a href="#" onclick="showHelp()">
+                  <i class="fas fa-question-circle"></i>
+                  Ajuda
               </a>
-          </li>
-          <li>
-              <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span data-translate="nav.treinamentos">Treinamentos</span></a>
-          </li>
-          <li>
-              <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span data-translate="nav.calendario">Calendário</span></a>
-          </li>
-      </ul>
-      
-      <div class="sidebar-footer">
-        <a href="#" onclick="showHelp()">
-          <i class="fas fa-question-circle"></i>
-          Ajuda
-        </a>
-        <a href="#" onclick="logout()">
-          <i class="fas fa-sign-out-alt"></i>
-          Sair
-        </a>
-      </div>
-    </nav>
+              <a href="#" onclick="logout()">
+                  <i class="fas fa-sign-out-alt"></i>
+                  Sair
+              </a>
+          </div>
+      </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-left">
-            <div class="user-info">
-                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper()  }}</div>
-                <div class="user-details">
-                    <h4>{{ treinador.nome }}</h4>
-                    <p>{{ treinador.cargos }}</p>
+      <!-- Main Content -->
+      <main class="main-content">
+          <!-- Header -->
+          <header class="header">
+              <div class="header-left">
+                  <div class="user-info">
+                      <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper()  }}</div>
+                      <div class="user-details">
+                          <h4>{{ treinador.nome }}</h4>
+                          <p>{{ treinador.cargos }}</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="header-actions">
+                  <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
+                      <i class="fas fa-bell"></i>
+                  </div>
+                  <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
+                      <i class="fas fa-cog"></i>
+                  </div>
+              </div>
+          </header>
+
+          <!-- Content -->
+          <div class="content">
+              <!-- Page Title -->
+              <div class="page-title">
+                  <h1 data-translate="avaliar.titulo">Avaliar Atleta</h1>
+                  <p>Avalie o desempenho e forneça feedback para o atleta</p>
+              </div>
+
+              <!-- Atleta Header -->
+              <div class="atleta-header">
+                  <div class="atleta-avatar" id="atletaAvatar">
+                      {{ nome.split(' ')[0][0] }}{{ nome.split(' ')[1][0] }}
+                  </div>
+                  <div class="atleta-info">
+                      <h2>Avaliação de <span id="atletaNome">{{ nome }}</span></h2>
+                      <p>ID: <span id="atletaId">{{ id }}</span></p>
+                      <p>Modalidade: <span id="atletaModalidade">{{ modalidade }}</span></p>
+                      <div class="atleta-stats">
+                          <div class="stat-item">
+                              <span class="stat-value" id="totalTreinos">12</span>
+                              <span class="stat-label">Treinos</span>
+                          </div>
+                          <div class="stat-item">
+                              <span class="stat-value" id="treinosConcluidos">8</span>
+                              <span class="stat-label">Concluídos</span>
+                          </div>
+                          <div class="stat-item">
+                              <span class="stat-value" id="horasTreinamento">24h</span>
+                              <span class="stat-label">Horas</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Gráfico de Desempenho -->
+              <div class="performance-chart-section">
+                  <div class="chart-card">
+                      <div class="chart-header">
+                          <div class="chart-icon">
+                              <i class="fas fa-chart-line"></i>
+                          </div>
+                          <h3 class="chart-title">Desempenho</h3>
+                      </div>
+
+                      <!-- Campos de Entrada para Desempenho -->
+                      <div class="performance-inputs">
+                          <div class="input-grid" id="performanceInputs">
+                              <!-- Os campos serão gerados dinamicamente baseados na modalidade -->
+                          </div>
+                          <div class="chart-actions">
+                              <button class="btn btn-primary" onclick="atualizarGrafico()">
+                                  <i class="fas fa-sync-alt"></i>
+                                  Atualizar Gráfico
+                              </button>
+                          </div>
+                      </div>
+
+                      <div class="chart-container">
+                          <canvas id="performanceChart" width="400" height="200"></canvas>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Avaliação Simples -->
+              <div class="avaliacao-simples">
+                  <div class="avaliacao-card">
+                      <div class="avaliacao-header">
+                          <div class="avaliacao-icon">
+                              <i class="fas fa-edit"></i>
+                          </div>
+                          <h3 class="avaliacao-title">Feedback do Atleta</h3>
+                      </div>
+
+                      <div class="avaliacao-content">
+                          <textarea class="avaliacao-textarea" id="avaliacaoTexto" placeholder="Escreva sua avaliação completa do atleta, incluindo pontos fortes, áreas de melhoria, recomendações e objetivos..."></textarea>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Botões de Ação -->
+              <div class="btn-group">
+                  <button class="btn btn-secondary" onclick="voltarParaDadosGerais()">
+                      <i class="fas fa-arrow-left"></i>
+                      Voltar
+                  </button>
+                  <button class="btn btn-primary" onclick="salvarAvaliacao()">
+                      <i class="fas fa-save"></i>
+                      Salvar Avaliação
+                  </button>
+              </div>
+
+              <!-- Histórico de Avaliações -->
+              <div class="historico-section">
+                  <div class="historico-header">
+                      <div class="historico-icon">
+                          <i class="fas fa-history"></i>
+                      </div>
+                      <h3 class="card-title">Histórico de Avaliações</h3>
+                  </div>
+
+                  <div id="historicoAvaliacoes">
+                      <!-- Avaliações serão carregadas aqui -->
+                  </div>
+              </div>
+          </div>
+      </main>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+      <script src="/static/js/settings.js"></script>
+      <script src="/static/js/apiClient.js"></script>
+      <script src="/static/js/frontend-config.js"></script>
+      <script src="/static/js/personalizar-usuario.js"></script>
+      <script src="/static/js/traducoes.js"></script>
+      <script src="/static/js/notificacoes.js"></script>
+      <script>
+          // Variáveis globais
+          let atletaId = null;
+          let atletaNome = '';
+          let atletaModalidade = '';
+          let avaliacaoAtual = {
+              tecnica: 0,
+              fisico: 0,
+              mental: 0,
+              comentarios: '',
+              recomendacoes: '',
+              objetivos: ''
+          };
+
+          // Função para aguardar o carregamento do apiClient
+          async function aguardarApiClient() {
+              let tentativas = 0;
+              const maxTentativas = 50; // 5 segundos
+
+              while (typeof apiClient === 'undefined' && tentativas < maxTentativas) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                  tentativas++;
+              }
+
+              if (typeof apiClient === 'undefined') {
+                  console.error('❌ apiClient não foi carregado após 5 segundos');
+                  return false;
+              }
+
+              console.log('✅ apiClient carregado com sucesso!');
+              return true;
+          }
+
+          // Inicializar página
+          document.addEventListener('DOMContentLoaded', async function () {
+              carregarDadosAtleta();
+
+              console.log('🚀 Iniciando página de avaliação...');
+
+              // Aguardar o carregamento do apiClient
+              const apiClientDisponivel = await aguardarApiClient();
+              if (!apiClientDisponivel) {
+                  console.error('❌ Não foi possível carregar o apiClient');
+                  return;
+              }
+
+              // Debug: Verificar se há atletas no banco
+              try {
+                  const atletasDebug = await apiClient.getAtletasDebug();
+                  console.log('🔍 Atletas no banco de dados:', atletasDebug);
+              } catch (error) {
+                  console.error('❌ Erro ao buscar atletas para debug:', error);
+              }
+
+              carregarDadosAtleta();
+              carregarEstatisticasAtleta();
+              carregarHistoricoAvaliacoes();
+              criarCamposDesempenho();
+              carregarDadosDesempenhoSalvos();
+
+              // Aguardar Chart.js carregar e criar gráfico
+              aguardarChartJS().then((chartDisponivel) => {
+                  if (chartDisponivel) {
+                      criarGraficoDesempenho();
+                  }
+              });
+
+              configurarSincronizacao();
+          });
+
+          // Carregar dados do atleta da URL
+          function carregarDadosAtleta() {
+              const urlParams = new URLSearchParams(window.location.search);
+              atletaId = urlParams.get('id');
+              atletaNome = decodeURIComponent(urlParams.get('nome') || '');
+              atletaModalidade = decodeURIComponent(urlParams.get('modalidade') || '');
+
+              const atleta = {
+                  id: atletaId,
+                  nome: atletaNome,
+                  modalidade: atletaModalidade
+              };
+
+              console.log('📋 Dados do atleta carregados:', atleta);
+
+              if (!atleta.id) {
+                  console.error('❌ ID do atleta não encontrado na URL');
+                  alert('ID do atleta não encontrado na URL');
+                  return;
+              }
+
+              document.getElementById('atletaNome').textContent = atleta.nome;
+              document.getElementById('atletaModalidade').textContent = atleta.modalidade;
+
+              const avatar = atleta.nome.split(' ').map(n => n[0]).join('').toUpperCase();
+              document.getElementById('atletaAvatar').textContent = avatar;
+          }
+
+          // Carregar estatísticas do atleta
+          async function carregarEstatisticasAtleta() {
+              if (!atletaId) {
+                  console.log('⚠️ ID do atleta não encontrado');
+                  return;
+              }
+
+              console.log(`🔄 Carregando estatísticas para atleta ID: ${atletaId}`);
+
+              try {
+                  const response = await apiClient.getEstatisticasAtleta(atletaId);
+                  console.log('📊 Resposta das estatísticas:', response);
+
+                  if (response.sucesso) {
+                      const stats = response.estatisticas;
+                      console.log('✅ Estatísticas recebidas:', stats);
+
+                      // Atualizar os elementos com os dados reais
+                      const totalTreinosEl = document.getElementById('totalTreinos');
+                      const treinosConcluidosEl = document.getElementById('treinosConcluidos');
+                      const horasTreinamentoEl = document.getElementById('horasTreinamento');
+
+                      if (totalTreinosEl) {
+                          totalTreinosEl.textContent = stats.treinos_realizados || 0;
+                          console.log(`📈 Total de treinos atualizado: ${stats.treinos_realizados}`);
+                      }
+
+                      if (treinosConcluidosEl) {
+                          treinosConcluidosEl.textContent = stats.treinos_concluidos || 0;
+                          console.log(`✅ Treinos concluídos atualizado: ${stats.treinos_concluidos}`);
+                      }
+
+                      if (horasTreinamentoEl) {
+                          horasTreinamentoEl.textContent = `${stats.horas_treino || 0}h`;
+                          console.log(`⏰ Horas de treinamento atualizado: ${stats.horas_treino}h`);
+                      }
+                  } else {
+                      console.error('❌ Erro na resposta da API:', response);
+                      // Manter valores padrão em caso de erro
+                      document.getElementById('totalTreinos').textContent = '0';
+                      document.getElementById('treinosConcluidos').textContent = '0';
+                      document.getElementById('horasTreinamento').textContent = '0h';
+                  }
+              } catch (error) {
+                  console.error('❌ Erro ao carregar estatísticas:', error);
+                  // Manter valores padrão em caso de erro
+                  document.getElementById('totalTreinos').textContent = '0';
+                  document.getElementById('treinosConcluidos').textContent = '0';
+                  document.getElementById('horasTreinamento').textContent = '0h';
+              }
+          }
+
+          // Carregar histórico de avaliações
+          async function carregarHistoricoAvaliacoes() {
+              if (!atletaId) return;
+
+              try {
+                  const response = await apiClient.getAvaliacoesAtleta(atletaId);
+                  if (response.sucesso) {
+                      renderizarHistorico(response.avaliacoes);
+                  }
+              } catch (error) {
+                  console.error('Erro ao carregar histórico:', error);
+              }
+          }
+
+          // Renderizar histórico de avaliações
+          function renderizarHistorico(avaliacoes) {
+              const container = document.getElementById('historicoAvaliacoes');
+
+              if (!avaliacoes || avaliacoes.length === 0) {
+                  container.innerHTML = `
+                  <div style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+                    <h3>Nenhuma avaliação encontrada</h3>
+                    <p>Este atleta ainda não possui avaliações registradas.</p>
+                  </div>
+                `;
+                  return;
+              }
+
+              container.innerHTML = avaliacoes.map(avaliacao => `
+                <div class="historico-item">
+                  <div class="historico-date">
+                    ${new Date(avaliacao.data).toLocaleDateString('pt-BR')}
+                  </div>
+                  <div class="historico-rating">
+                    ${'★'.repeat(avaliacao.media)}${'☆'.repeat(5 - avaliacao.media)}
+                  </div>
+                  <div class="historico-comment">
+                    ${avaliacao.comentarios || 'Sem comentários'}
+                  </div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="header-actions">
-          <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
-            <i class="fas fa-cog"></i>
-          </div>
-        </div>
-      </header>
-
-      <!-- Content -->
-      <div class="content">
-        <!-- Page Title -->
-        <div class="page-title">
-          <h1 data-translate="avaliar.titulo">Avaliar Atleta</h1>
-          <p>Avalie o desempenho e forneça feedback para o atleta</p>
-        </div>
-
-        <!-- Atleta Header -->
-        <div class="atleta-header">
-            <div class="atleta-avatar">
-                {{ nome.split(' ')[0][0] }}{{ nome.split(' ')[1][0] }}
-            </div>
-            <div class="atleta-info">
-                <h2>Avaliação de {{ nome }}</h2>
-                <p>ID: {{ id }}</p>
-                <p>Modalidade: {{ modalidade }}</p>
-                <div class="atleta-stats">
-                    <div class="stat-item">
-                        <span class="stat-value" id="totalTreinos">12</span>
-                        <span class="stat-label">Treinos</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="treinosConcluidos">8</span>
-                        <span class="stat-label">Concluídos</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="horasTreinamento">24h</span>
-                        <span class="stat-label">Horas</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-                 <!-- Gráfico de Desempenho -->
-         <div class="performance-chart-section">
-           <div class="chart-card">
-             <div class="chart-header">
-               <div class="chart-icon">
-                 <i class="fas fa-chart-line"></i>
-               </div>
-               <h3 class="chart-title">Desempenho</h3>
-             </div>
-             
-             <!-- Campos de Entrada para Desempenho -->
-             <div class="performance-inputs">
-               <div class="input-grid" id="performanceInputs">
-                 <!-- Os campos serão gerados dinamicamente baseados na modalidade -->
-               </div>
-               <div class="chart-actions">
-                 <button class="btn btn-primary" onclick="atualizarGrafico()">
-                   <i class="fas fa-sync-alt"></i>
-                   Atualizar Gráfico
-                 </button>
-               </div>
-             </div>
-             
-             <div class="chart-container">
-               <canvas id="performanceChart" width="400" height="200"></canvas>
-             </div>
-           </div>
-         </div>
-
-                  <!-- Avaliação Simples -->
-         <div class="avaliacao-simples">
-           <div class="avaliacao-card">
-             <div class="avaliacao-header">
-               <div class="avaliacao-icon">
-                 <i class="fas fa-edit"></i>
-               </div>
-               <h3 class="avaliacao-title">Feedback do Atleta</h3>
-             </div>
-             
-             <div class="avaliacao-content">
-               <textarea class="avaliacao-textarea" id="avaliacaoTexto" placeholder="Escreva sua avaliação completa do atleta, incluindo pontos fortes, áreas de melhoria, recomendações e objetivos..."></textarea>
-             </div>
-           </div>
-         </div>
-
-        <!-- Botões de Ação -->
-        <div class="btn-group">
-          <button class="btn btn-secondary" onclick="voltarParaDadosGerais()">
-            <i class="fas fa-arrow-left"></i>
-            Voltar
-          </button>
-                     <button class="btn btn-primary" onclick="salvarAvaliacao()">
-             <i class="fas fa-save"></i>
-             Salvar Avaliação
-           </button>
-        </div>
-
-        <!-- Histórico de Avaliações -->
-        <div class="historico-section">
-          <div class="historico-header">
-            <div class="historico-icon">
-              <i class="fas fa-history"></i>
-            </div>
-            <h3 class="card-title">Histórico de Avaliações</h3>
-          </div>
-          
-          <div id="historicoAvaliacoes">
-            <!-- Avaliações serão carregadas aqui -->
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-         
-    <script src="/static/js/settings.js"></script>  
-
-    <script src="/static/js/frontend-config.js"></script>
-    <script src="/static/js/personalizar-usuario.js"></script>
-    <script src="/static/js/traducoes.js"></script>
-    <script src="/static/js/notificacoes.js"></script>
-    <script>
-      // Variáveis globais
-      let atletaId = null;
-      let atletaNome = '';
-      let atletaModalidade = '';
-      let avaliacaoAtual = {
-        tecnica: 0,
-        fisico: 0,
-        mental: 0,
-        comentarios: '',
-        recomendacoes: '',
-        objetivos: ''
-      };
-
-      // Função para aguardar o carregamento do apiClient
-      async function aguardarApiClient() {
-        let tentativas = 0;
-        const maxTentativas = 50; // 5 segundos
-        
-        while (typeof apiClient === 'undefined' && tentativas < maxTentativas) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          tentativas++;
-        }
-        
-        if (typeof apiClient === 'undefined') {
-          console.error('❌ apiClient não foi carregado após 5 segundos');
-          return false;
-        }
-        
-        console.log('✅ apiClient carregado com sucesso!');
-        return true;
-      }
-
-      // Inicializar página
-      document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🚀 Iniciando página de avaliação...');
-        
-        // Aguardar o carregamento do apiClient
-        const apiClientDisponivel = await aguardarApiClient();
-        if (!apiClientDisponivel) {
-          console.error('❌ Não foi possível carregar o apiClient');
-          return;
-        }
-        
-        // Debug: Verificar se há atletas no banco
-        try {
-          const atletasDebug = await apiClient.getAtletasDebug();
-          console.log('🔍 Atletas no banco de dados:', atletasDebug);
-        } catch (error) {
-          console.error('❌ Erro ao buscar atletas para debug:', error);
-        }
-        
-                 carregarDadosAtleta();
-         carregarEstatisticasAtleta();
-         carregarHistoricoAvaliacoes();
-         criarCamposDesempenho();
-         carregarDadosDesempenhoSalvos();
-         
-         // Aguardar Chart.js carregar e criar gráfico
-         aguardarChartJS().then((chartDisponivel) => {
-           if (chartDisponivel) {
-             criarGraficoDesempenho();
-           }
-         });
-         
-         configurarSincronizacao();
-      });
-
-      // Carregar dados do atleta da URL
-      function carregarDadosAtleta() {
-        const urlParams = new URLSearchParams(window.location.search);
-        atletaId = urlParams.get('id');
-        atletaNome = decodeURIComponent(urlParams.get('nome') || '');
-        atletaModalidade = decodeURIComponent(urlParams.get('modalidade') || '');
-
-        console.log('📋 Dados do atleta carregados:', {
-          id: atleta.id,
-          nome: atleta.nome,
-          modalidade: atleta.modalidade
-        });
-
-        // Verificar se o ID foi encontrado
-        if (!atletaId) {
-          console.error('❌ ID do atleta não encontrado na URL');
-          alert('ID do atleta não encontrado na URL');
-          return;
-        }
-
-        // Atualizar interface
-        document.getElementById('atletaNome').textContent = atleta.nome;
-        document.getElementById('atletaModalidade').textContent = atleta.modalidade;
-        
-        // Gerar avatar
-        const avatar = atletaNome.split(' ').map(n => n[0]).join('').toUpperCase();
-        document.getElementById('atletaAvatar').textContent = avatar;
-      }
-
-      // Carregar estatísticas do atleta
-      async function carregarEstatisticasAtleta() {
-        if (!atletaId) {
-          console.log('⚠️ ID do atleta não encontrado');
-          return;
-        }
-
-        console.log(`🔄 Carregando estatísticas para atleta ID: ${atletaId}`);
-        
-        try {
-          const response = await apiClient.getEstatisticasAtleta(atletaId);
-          console.log('📊 Resposta das estatísticas:', response);
-          
-          if (response.sucesso) {
-            const stats = response.estatisticas;
-            console.log('✅ Estatísticas recebidas:', stats);
-            
-            // Atualizar os elementos com os dados reais
-            const totalTreinosEl = document.getElementById('totalTreinos');
-            const treinosConcluidosEl = document.getElementById('treinosConcluidos');
-            const horasTreinamentoEl = document.getElementById('horasTreinamento');
-            
-            if (totalTreinosEl) {
-              totalTreinosEl.textContent = stats.treinos_realizados || 0;
-              console.log(`📈 Total de treinos atualizado: ${stats.treinos_realizados}`);
-            }
-            
-            if (treinosConcluidosEl) {
-              treinosConcluidosEl.textContent = stats.treinos_concluidos || 0;
-              console.log(`✅ Treinos concluídos atualizado: ${stats.treinos_concluidos}`);
-            }
-            
-            if (horasTreinamentoEl) {
-              horasTreinamentoEl.textContent = `${stats.horas_treino || 0}h`;
-              console.log(`⏰ Horas de treinamento atualizado: ${stats.horas_treino}h`);
-            }
-          } else {
-            console.error('❌ Erro na resposta da API:', response);
-            // Manter valores padrão em caso de erro
-            document.getElementById('totalTreinos').textContent = '0';
-            document.getElementById('treinosConcluidos').textContent = '0';
-            document.getElementById('horasTreinamento').textContent = '0h';
+              `).join('');
           }
-        } catch (error) {
-          console.error('❌ Erro ao carregar estatísticas:', error);
-          // Manter valores padrão em caso de erro
-          document.getElementById('totalTreinos').textContent = '0';
-          document.getElementById('treinosConcluidos').textContent = '0';
-          document.getElementById('horasTreinamento').textContent = '0h';
-        }
-      }
 
-      // Carregar histórico de avaliações
-      async function carregarHistoricoAvaliacoes() {
-        if (!atletaId) return;
 
-        try {
-          const response = await apiClient.getAvaliacoesAtleta(atletaId);
-          if (response.sucesso) {
-            renderizarHistorico(response.avaliacoes);
+
+          // Salvar avaliação
+          async function salvarAvaliacao() {
+              console.log('🚀 Iniciando salvamento de avaliação...');
+              console.log('🔍 atletaId atual:', atletaId);
+
+              console.log("ID:", atletaId);
+              console.log("Nome:", atletaNome);
+              console.log("Modalidade:", atletaModalidade);
+
+
+              if (!atletaId || !atletaNome || !atletaModalidade) {
+                  console.error('❌ Parâmetros incompletos na URL');
+                  alert('Parâmetros incompletos na URL');
+                  return;
+              }
+
+              const avaliacaoTexto = document.getElementById('avaliacaoTexto').value.trim();
+              console.log('📝 Texto da avaliação:', avaliacaoTexto);
+
+              if (!avaliacaoTexto) {
+                  console.warn('⚠️ Campo de avaliação vazio');
+                  alert('Por favor, escreva uma avaliação do atleta');
+                  return;
+              }
+
+              // ✅ Aqui está a correção: usar token já salvo
+              const token = localStorage.getItem('jwt_token');
+              if (!token) {
+                  alert('Você precisa estar logado para salvar uma avaliação.');
+                  return;
+              }
+
+              const dadosAvaliacao = {
+                  aluno_id: parseInt(atletaId),
+                  texto: avaliacaoTexto
+              };
+
+              try {
+                  console.log('💾 Salvando feedback no banco de dados...');
+                  console.log('📝 Dados a serem salvos:', dadosAvaliacao);
+
+                  const baseURL = window.location.protocol === 'file:' ? 'http://127.0.0.1:8000' : '';
+                  const apiURL = `${baseURL}/api/feedbacks`;
+
+                  const response = await fetch(apiURL, {
+                      method: 'POST',
+                      headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify(dadosAvaliacao)
+                  });
+
+                  const resultado = await response.json();
+                  console.log('📡 Resposta da API:', resultado);
+
+                  if (resultado.sucesso) {
+                      console.log('✅ Feedback salvo no banco de dados com sucesso!');
+
+                      const notification = document.createElement('div');
+                      notification.className = 'message success';
+                      notification.innerHTML = '<i class="fas fa-check-circle"></i> Avaliação salva com sucesso!';
+                      notification.style.position = 'fixed';
+                      notification.style.top = '20px';
+                      notification.style.right = '20px';
+                      notification.style.zIndex = '9999';
+                      notification.style.padding = '15px 20px';
+                      notification.style.borderRadius = '8px';
+                      notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+                      notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                      notification.style.color = 'white';
+                      notification.style.fontWeight = '600';
+
+                      document.body.appendChild(notification);
+
+                      setTimeout(() => {
+                          notification.remove();
+                      }, 3000);
+
+                      document.getElementById('avaliacaoTexto').value = '';
+                  } else {
+                      console.error('❌ Erro ao salvar feedback:', resultado.erro);
+                      alert('Erro ao salvar avaliação: ' + resultado.erro);
+                  }
+
+              } catch (error) {
+                  console.error('❌ Erro na requisição:', error);
+              }
           }
-        } catch (error) {
-          console.error('Erro ao carregar histórico:', error);
-        }
-      }
 
-      // Renderizar histórico de avaliações
-      function renderizarHistorico(avaliacoes) {
-        const container = document.getElementById('historicoAvaliacoes');
-        
-        if (!avaliacoes || avaliacoes.length === 0) {
-          container.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: #666;">
-              <i class="fas fa-clipboard-list" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-              <h3>Nenhuma avaliação encontrada</h3>
-              <p>Este atleta ainda não possui avaliações registradas.</p>
-            </div>
-          `;
-          return;
-        }
-
-        container.innerHTML = avaliacoes.map(avaliacao => `
-          <div class="historico-item">
-            <div class="historico-date">
-              ${new Date(avaliacao.data).toLocaleDateString('pt-BR')}
-            </div>
-            <div class="historico-rating">
-              ${'★'.repeat(avaliacao.media)}${'☆'.repeat(5 - avaliacao.media)}
-            </div>
-            <div class="historico-comment">
-              ${avaliacao.comentarios || 'Sem comentários'}
-            </div>
-          </div>
-        `).join('');
-      }
-
-      
-
-             // Salvar avaliação
-       async function salvarAvaliacao() {
-         console.log('🚀 Iniciando salvamento de avaliação...');
-         console.log('🔍 atletaId atual:', atletaId);
-         
-         if (!atletaId) {
-           console.error('❌ ID do atleta não encontrado');
-           alert('ID do atleta não encontrado');
-           return;
-         }
-
-         // Coletar dados do formulário
-         const avaliacaoTexto = document.getElementById('avaliacaoTexto').value.trim();
-         console.log('📝 Texto da avaliação:', avaliacaoTexto);
-
-         // Validar se o campo foi preenchido
-         if (!avaliacaoTexto) {
-           console.warn('⚠️ Campo de avaliação vazio');
-           alert('Por favor, escreva uma avaliação do atleta');
-           return;
-         }
-
-         // Obter token de autenticação
-         const token = localStorage.getItem('jwt_token');
-         if (!token) {
-           alert('Token de autenticação não encontrado');
-           return;
-         }
-
-         const dadosAvaliacao = {
-           atleta_id: parseInt(atletaId),
-           feedback: avaliacaoTexto
-         };
-
-         try {
-           console.log('💾 Salvando feedback no banco de dados...');
-           console.log('📝 Dados a serem salvos:', dadosAvaliacao);
-           
-           // Determinar URL base
-           const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
-           const apiURL = `${baseURL}/api/avaliacoes`;
-           
-           console.log('🌐 URL da API:', apiURL);
-           
-           // Salvar no banco de dados via API
-           const response = await fetch(apiURL, {
-             method: 'POST',
-             headers: {
-               'Authorization': `Bearer ${token}`,
-               'Content-Type': 'application/json'
-             },
-             body: JSON.stringify(dadosAvaliacao)
-           });
-
-           const resultado = await response.json();
-           console.log('📡 Resposta da API:', resultado);
-
-           if (resultado.sucesso) {
-             console.log('✅ Feedback salvo no banco de dados com sucesso!');
-             
-             // Mostrar notificação de sucesso
-             const notification = document.createElement('div');
-             notification.className = 'message success';
-             notification.innerHTML = '<i class="fas fa-check-circle"></i> Avaliação salva com sucesso!';
-             notification.style.position = 'fixed';
-             notification.style.top = '20px';
-             notification.style.right = '20px';
-             notification.style.zIndex = '9999';
-             notification.style.padding = '15px 20px';
-             notification.style.borderRadius = '8px';
-             notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-             notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-             notification.style.color = 'white';
-             notification.style.fontWeight = '600';
-             
-             document.body.appendChild(notification);
-             
-             setTimeout(() => {
-               notification.remove();
-             }, 3000);
-             
-             // Limpar o campo de texto
-             document.getElementById('avaliacaoTexto').value = '';
-             
-           } else {
-             console.error('❌ Erro ao salvar feedback:', resultado.erro);
-             alert('Erro ao salvar avaliação: ' + resultado.erro);
-           }
-           
-         } catch (error) {
-           console.error('❌ Erro na requisição:', error);
-           alert('Erro ao salvar avaliação. Tente novamente.');
-         }
-       }
-
-             // Limpar formulário
-       function limparFormulario() {
-         document.getElementById('avaliacaoTexto').value = '';
-       }
-
-             // Criar campos de entrada para desempenho
-       function criarCamposDesempenho() {
-         const container = document.getElementById('performanceInputs');
-         
-         // Definir categorias baseadas na modalidade
-         let categorias = [];
-         if (atletaModalidade.toLowerCase().includes('natação') || atletaModalidade.toLowerCase().includes('natacao')) {
-           categorias = ['100m Livre', '200m Livre', 'Resistência', 'Técnica', 'Força'];
-         } else if (atletaModalidade.toLowerCase().includes('futebol')) {
-           categorias = ['Velocidade', 'Resistência', 'Técnica', 'Força', 'Agilidade'];
-         } else if (atletaModalidade.toLowerCase().includes('basquete')) {
-           categorias = ['Arremesso', 'Drible', 'Defesa', 'Força', 'Agilidade'];
-         } else {
-           categorias = ['Técnica', 'Físico', 'Mental', 'Resistência', 'Força'];
-         }
-         
-         // Criar campos para cada categoria
-         container.innerHTML = categorias.map(categoria => `
-           <div class="performance-input-group">
-             <label>${categoria}</label>
-             <div class="performance-input-row">
-               <span class="input-label">Esperado:</span>
-               <input type="number" id="esperado_${categoria.replace(/\s+/g, '_')}" 
-                      min="0" max="100" value="80" placeholder="0-100">
-             </div>
-             <div class="performance-input-row">
-               <span class="input-label">Atingido:</span>
-               <input type="number" id="atingido_${categoria.replace(/\s+/g, '_')}" 
-                      min="0" max="100" value="75" placeholder="0-100">
-             </div>
-           </div>
-         `).join('');
-       }
-
-       // Obter dados dos campos de entrada
-       function obterDadosDesempenho() {
-         const categorias = [];
-         const desempenhoEsperado = [];
-         const desempenhoAtingido = [];
-         
-         // Obter categorias baseadas na modalidade
-         const categoriasLista = obterCategoriasPorModalidade(atletaModalidade);
-         
-         // Coletar dados dos campos
-         categoriasLista.forEach(categoria => {
-           const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
-           const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
-           
-           const valorEsperado = parseInt(document.getElementById(idEsperado)?.value || 0);
-           const valorAtingido = parseInt(document.getElementById(idAtingido)?.value || 0);
-           
-           categorias.push(categoria);
-           desempenhoEsperado.push(valorEsperado);
-           desempenhoAtingido.push(valorAtingido);
-         });
-         
-         return { categorias, desempenhoEsperado, desempenhoAtingido };
-       }
-
-       // Obter categorias por modalidade
-       function obterCategoriasPorModalidade(modalidade) {
-         const categoriasPorModalidade = {
-           'Natação': ['100m Livre', '200m Livre', 'Resistência', 'Técnica', 'Força'],
-           'Atletismo': ['100m', '200m', '400m', 'Resistência', 'Técnica'],
-           'Ginástica': ['Flexibilidade', 'Força', 'Equilíbrio', 'Técnica', 'Coreografia'],
-           'Vôlei': ['Saque', 'Recepção', 'Ataque', 'Bloqueio', 'Defesa'],
-           'Futebol': ['Drible', 'Passe', 'Finalização', 'Resistência', 'Técnica'],
-           'Basquete': ['Arremesso', 'Drible', 'Passe', 'Rebote', 'Defesa']
-         };
-         
-         return categoriasPorModalidade[modalidade] || ['Técnica', 'Físico', 'Mental'];
-       }
-
-       // Obter dados zerados para atletas não avaliados
-       function obterDadosDesempenhoZerados() {
-         const categorias = obterCategoriasPorModalidade(atletaModalidade);
-         const desempenhoEsperado = new Array(categorias.length).fill(0);
-         const desempenhoAtingido = new Array(categorias.length).fill(0);
-         
-         return { categorias, desempenhoEsperado, desempenhoAtingido };
-       }
-
-       // Criar gráfico de desempenho
-       function criarGraficoDesempenho() {
-         // Verificar se Chart.js está carregado
-         if (typeof Chart === 'undefined') {
-           console.error('❌ Chart.js não está carregado!');
-           return;
-         }
-         
-         const canvas = document.getElementById('performanceChart');
-         if (!canvas) {
-           console.error('❌ Canvas performanceChart não encontrado!');
-           return;
-         }
-         const ctx = canvas.getContext('2d');
-         
-         // Verificar se há dados salvos
-         const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
-         let dados;
-         let titulo;
-
-         if (dadosSalvos) {
-           // Usar dados salvos
-           dados = JSON.parse(dadosSalvos);
-           titulo = `Desempenho - ${atletaModalidade}`;
-           console.log('📊 Dados salvos encontrados:', dados);
-         } else {
-           // Usar dados zerados
-           dados = obterDadosDesempenhoZerados();
-           titulo = `Desempenho - ${atletaModalidade} (Não Avaliado)`;
-           console.log('📊 Usando dados zerados (atleta não avaliado):', dados);
-           console.log('📊 Modalidade:', atletaModalidade);
-           console.log('📊 Categorias:', dados.categorias);
-         }
-         
-         // Destruir gráfico anterior se existir
-         if (window.performanceChart && typeof window.performanceChart.destroy === 'function') {
-           window.performanceChart.destroy();
-         }
-         
-         console.log('📊 Criando gráfico com dados:', dados);
-         console.log('📊 Labels:', dados.categorias);
-         
-         // Converter objeto categorias para arrays
-         const labels = [];
-         const esperado = [];
-         const atingido = [];
-         
-         Object.keys(dados.categorias).forEach(chave => {
-           const categoria = dados.categorias[chave];
-           let label;
-           switch(chave) {
-             case '100m_livre': label = '100m Livre'; break;
-             case '200m_livre': label = '200m Livre'; break;
-             case 'resistencia': label = 'Resistência'; break;
-             case 'tecnica': label = 'Técnica'; break;
-             case 'forca': label = 'Força'; break;
-             default: label = chave; break;
-           }
-           labels.push(label);
-           esperado.push(categoria.esperado || 0);
-           atingido.push(categoria.atingido || 0);
-         });
-         
-         console.log('📊 Labels processados:', labels);
-         console.log('📊 Esperado processado:', esperado);
-         console.log('📊 Atingido processado:', atingido);
-         
-         window.performanceChart = new Chart(ctx, {
-           type: 'bar',
-           data: {
-             labels: labels,
-             datasets: [
-               {
-                 label: 'Desempenho Esperado',
-                 data: esperado,
-                 backgroundColor: 'rgba(0, 0, 94, 0.6)',
-                 borderColor: 'rgba(0, 0, 94, 1)',
-                 borderWidth: 1
-               },
-               {
-                 label: 'Desempenho Atingido',
-                 data: atingido,
-                 backgroundColor: 'rgba(34, 197, 94, 0.6)',
-                 borderColor: 'rgba(34, 197, 94, 1)',
-                 borderWidth: 1
-               }
-             ]
-           },
-           options: {
-             responsive: true,
-             maintainAspectRatio: false,
-             scales: {
-               y: {
-                 beginAtZero: true,
-                 max: 100,
-                 title: {
-                   display: true,
-                   text: 'Pontuação'
-                 }
-               },
-               x: {
-                 title: {
-                   display: true,
-                   text: 'Categorias'
-                 }
-               }
-             },
-             plugins: {
-               legend: {
-                 position: 'top',
-               },
-               title: {
-                 display: true,
-                 text: titulo,
-                 font: {
-                   size: 16,
-                   weight: 'bold'
-                 }
-               }
-             }
-           }
-         });
-       }
-
-       // Aguardar Chart.js carregar
-       async function aguardarChartJS() {
-         let tentativas = 0;
-         const maxTentativas = 50; // 5 segundos
-         
-         while (typeof Chart === 'undefined' && tentativas < maxTentativas) {
-           await new Promise(resolve => setTimeout(resolve, 100));
-           tentativas++;
-         }
-         
-         if (typeof Chart === 'undefined') {
-           console.error('❌ Chart.js não foi carregado após 5 segundos');
-           return false;
-         }
-         
-         console.log('✅ Chart.js carregado com sucesso!');
-         return true;
-       }
-
-       // Atualizar gráfico com novos dados
-       async function atualizarGrafico() {
-         try {
-           // Aguardar Chart.js se necessário
-           const chartDisponivel = await aguardarChartJS();
-           if (!chartDisponivel) {
-             console.error('❌ Chart.js não disponível');
-             return;
-           }
-           
-           // Obter dados dos campos
-           const dados = obterDadosDesempenho();
-           
-           // Converter arrays para objeto no formato esperado pela API
-           const categoriasObj = {};
-           dados.categorias.forEach((categoria, index) => {
-             let chave;
-             switch(categoria) {
-               case '100m Livre': chave = '100m_livre'; break;
-               case '200m Livre': chave = '200m_livre'; break;
-               case 'Resistência': chave = 'resistencia'; break;
-               case 'Técnica': chave = 'tecnica'; break;
-               case 'Força': chave = 'forca'; break;
-               default: chave = categoria.toLowerCase().replace(/\s+/g, '_'); break;
-             }
-             categoriasObj[chave] = {
-               esperado: dados.desempenhoEsperado[index] || 0,
-               atingido: dados.desempenhoAtingido[index] || 0
-             };
-           });
-           
-           const dadosParaSalvar = {
-             atletaId: atletaId,
-             modalidade: atletaModalidade,
-             categorias: categoriasObj,
-             dataAtualizacao: new Date().toISOString()
-           };
-           
-           console.log('💾 Salvando dados de desempenho:', dadosParaSalvar);
-           
-           // Salvar no servidor via API
-           try {
-             const token = localStorage.getItem('jwt_token');
-             const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
-             
-             const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
-               method: 'POST',
-               headers: {
-                 'Authorization': `Bearer ${token}`,
-                 'Content-Type': 'application/json'
-               },
-               body: JSON.stringify({ categorias: categoriasObj })
-             });
-            
-            if (response.ok) {
-              const result = await response.json();
-              console.log('✅ Desempenho salvo no servidor:', result);
-            } else {
-              console.error('❌ Erro ao salvar desempenho no servidor');
-            }
-          } catch (error) {
-            console.error('❌ Erro na requisição:', error);
+          // Limpar formulário
+          function limparFormulario() {
+              document.getElementById('avaliacaoTexto').value = '';
           }
-          
-          // Salvar no localStorage para sincronização
-          localStorage.setItem(`desempenho_${atletaId}`, JSON.stringify(dadosParaSalvar));
-          
-          // Atualizar gráfico local
-          criarGraficoDesempenho();
-           
-           // Mostrar notificação de sucesso
-           const notification = document.createElement('div');
-           notification.className = 'message success';
-           notification.innerHTML = '<i class="fas fa-check-circle"></i> Gráfico atualizado e sincronizado!';
-           notification.style.position = 'fixed';
-           notification.style.top = '20px';
-           notification.style.right = '20px';
-           notification.style.zIndex = '9999';
-           notification.style.padding = '15px 20px';
-           notification.style.borderRadius = '8px';
-           notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-           
-           document.body.appendChild(notification);
-           
-           setTimeout(() => {
-             notification.remove();
-           }, 3000);
-           
-           // Disparar evento para sincronização
-           window.dispatchEvent(new CustomEvent('desempenhoAtualizado', {
-             detail: dadosParaSalvar
-           }));
-           
-         } catch (error) {
-           console.error('❌ Erro ao atualizar gráfico:', error);
-           
-           const notification = document.createElement('div');
-           notification.className = 'message error';
-           notification.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao atualizar gráfico!';
-           notification.style.position = 'fixed';
-           notification.style.top = '20px';
-           notification.style.right = '20px';
-           notification.style.zIndex = '9999';
-           notification.style.padding = '15px 20px';
-           notification.style.borderRadius = '8px';
-           notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-           
-           document.body.appendChild(notification);
-           
-           setTimeout(() => {
-             notification.remove();
-           }, 3000);
-         }
-       }
 
-       // Carregar dados de desempenho salvos
-       function carregarDadosDesempenhoSalvos() {
-         if (!atletaId) return;
-         
-         try {
-           const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
-           if (dadosSalvos) {
-             const dados = JSON.parse(dadosSalvos);
-             console.log('📊 Carregando dados salvos:', dados);
-             
-             // Preencher campos com dados salvos
-             dados.categorias.forEach((categoria, index) => {
-               const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
-               const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
-               
-               const campoEsperado = document.getElementById(idEsperado);
-               const campoAtingido = document.getElementById(idAtingido);
-               
-               if (campoEsperado) campoEsperado.value = dados.desempenhoEsperado[index] || 80;
-               if (campoAtingido) campoAtingido.value = dados.desempenhoAtingido[index] || 75;
-             });
-           }
-         } catch (error) {
-           console.error('❌ Erro ao carregar dados salvos:', error);
-         }
-       }
+          // Criar campos de entrada para desempenho
+          function criarCamposDesempenho() {
+              const container = document.getElementById('performanceInputs');
 
-       // Configurar sincronização entre abas
-       function configurarSincronizacao() {
-         // Escutar mudanças no localStorage
-         window.addEventListener('storage', function(e) {
-           if (e.key === `desempenho_${atletaId}` && e.newValue) {
-             console.log('🔄 Dados atualizados em outra aba, recarregando...');
-             
-             try {
-               const dados = JSON.parse(e.newValue);
-               
-               // Atualizar campos
-               dados.categorias.forEach((categoria, index) => {
-                 const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
-                 const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
-                 
-                 const campoEsperado = document.getElementById(idEsperado);
-                 const campoAtingido = document.getElementById(idAtingido);
-                 
-                 if (campoEsperado) campoEsperado.value = dados.desempenhoEsperado[index] || 80;
-                 if (campoAtingido) campoAtingido.value = dados.desempenhoAtingido[index] || 75;
-               });
-               
-               // Atualizar gráfico
-               aguardarChartJS().then((chartDisponivel) => {
-                 if (chartDisponivel) {
-                   criarGraficoDesempenho();
-                 }
-               });
-               
-               // Mostrar notificação
-               const notification = document.createElement('div');
-               notification.className = 'message success';
-               notification.innerHTML = '<i class="fas fa-sync-alt"></i> Gráfico sincronizado automaticamente!';
-               notification.style.position = 'fixed';
-               notification.style.top = '20px';
-               notification.style.right = '20px';
-               notification.style.zIndex = '9999';
-               notification.style.padding = '15px 20px';
-               notification.style.borderRadius = '8px';
-               notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-               
-               document.body.appendChild(notification);
-               
-               setTimeout(() => {
-                 notification.remove();
-               }, 3000);
-               
-             } catch (error) {
-               console.error('❌ Erro ao processar dados sincronizados:', error);
-             }
-           }
-         });
+              // Definir categorias baseadas na modalidade
+              let categorias = [];
+              if (atletaModalidade.toLowerCase().includes('natação') || atletaModalidade.toLowerCase().includes('natacao')) {
+                  categorias = ['100m Livre', '200m Livre', 'Resistência', 'Técnica', 'Força'];
+              } else if (atletaModalidade.toLowerCase().includes('futebol')) {
+                  categorias = ['Velocidade', 'Resistência', 'Técnica', 'Força', 'Agilidade'];
+              } else if (atletaModalidade.toLowerCase().includes('basquete')) {
+                  categorias = ['Arremesso', 'Drible', 'Defesa', 'Força', 'Agilidade'];
+              } else {
+                  categorias = ['Técnica', 'Físico', 'Mental', 'Resistência', 'Força'];
+              }
 
-         // Escutar eventos customizados
-         window.addEventListener('desempenhoAtualizado', function(e) {
-           console.log('🔄 Evento de atualização recebido:', e.detail);
-           // O gráfico já foi atualizado na função atualizarGrafico
-         });
-       }
+              // Criar campos para cada categoria
+              container.innerHTML = categorias.map(categoria => `
+                 <div class="performance-input-group">
+                   <label>${categoria}</label>
+                   <div class="performance-input-row">
+                     <span class="input-label">Esperado:</span>
+                     <input type="number" id="esperado_${categoria.replace(/\s+/g, '_')}"
+                            min="0" max="100" value="80" placeholder="0-100">
+                   </div>
+                   <div class="performance-input-row">
+                     <span class="input-label">Atingido:</span>
+                     <input type="number" id="atingido_${categoria.replace(/\s+/g, '_')}"
+                            min="0" max="100" value="75" placeholder="0-100">
+                   </div>
+                 </div>
+               `).join('');
+          }
 
-       // Voltar para dados gerais
-       function voltarParaDadosGerais() {
-         window.location.href = 'dados_gerais.html';
-       }
+          // Obter dados dos campos de entrada
+          function obterDadosDesempenho() {
+              const categorias = [];
+              const desempenhoEsperado = [];
+              const desempenhoAtingido = [];
 
-      // Funções auxiliares
-      function showNotifications() {
-        // Usar o sistema de notificações reais
-        if (window.sistemaNotificacoes) {
-          window.sistemaNotificacoes.abrirPainel();
-        } else {
-          console.log('⚠️ Sistema de notificações não disponível');
-        }
-      }
+              // Obter categorias baseadas na modalidade
+              const categoriasLista = obterCategoriasPorModalidade(atletaModalidade);
 
-      function showHelp() {
-        alert('Sistema de ajuda em desenvolvimento');
-      }
+              // Coletar dados dos campos
+              categoriasLista.forEach(categoria => {
+                  const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
+                  const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
 
-      function logout() {
-        if (confirm('Tem certeza que deseja sair?')) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('jwt_token');
-          window.location.href = '/static/index.html';
-        }
-      }
+                  const valorEsperado = parseInt(document.getElementById(idEsperado)?.value || 0);
+                  const valorAtingido = parseInt(document.getElementById(idAtingido)?.value || 0);
 
-      // Inicializar sistema de idiomas
-      document.addEventListener('DOMContentLoaded', function() {
-        if (typeof SistemaIdiomas !== 'undefined') {
-          window.sistemaIdiomas = new SistemaIdiomas();
-          console.log('✅ Sistema de idiomas inicializado na página avaliar atleta');
-        } else {
-          console.log('⚠️ Classe SistemaIdiomas não encontrada');
-        }
-      });
-      
-      // Inicializar sistema de notificações
-      document.addEventListener('DOMContentLoaded', function() {
-        if (typeof SistemaNotificacoes !== 'undefined') {
-          window.sistemaNotificacoes = new SistemaNotificacoes();
-          console.log('✅ Sistema de notificações inicializado na página avaliar atleta');
-        } else {
-          console.log('⚠️ Classe SistemaNotificacoes não encontrada');
-        }
-      });
-    </script>
+                  categorias.push(categoria);
+                  desempenhoEsperado.push(valorEsperado);
+                  desempenhoAtingido.push(valorAtingido);
+              });
+
+              return { categorias, desempenhoEsperado, desempenhoAtingido };
+          }
+
+          // Obter categorias por modalidade
+          function obterCategoriasPorModalidade(modalidade) {
+              const categoriasPorModalidade = {
+                  'Natação': ['100m Livre', '200m Livre', 'Resistência', 'Técnica', 'Força'],
+                  'Atletismo': ['100m', '200m', '400m', 'Resistência', 'Técnica'],
+                  'Ginástica': ['Flexibilidade', 'Força', 'Equilíbrio', 'Técnica', 'Coreografia'],
+                  'Vôlei': ['Saque', 'Recepção', 'Ataque', 'Bloqueio', 'Defesa'],
+                  'Futebol': ['Drible', 'Passe', 'Finalização', 'Resistência', 'Técnica'],
+                  'Basquete': ['Arremesso', 'Drible', 'Passe', 'Rebote', 'Defesa']
+              };
+
+              return categoriasPorModalidade[modalidade] || ['Técnica', 'Físico', 'Mental'];
+          }
+
+          // Obter dados zerados para atletas não avaliados
+          function obterDadosDesempenhoZerados() {
+              const categorias = obterCategoriasPorModalidade(atletaModalidade);
+              const desempenhoEsperado = new Array(categorias.length).fill(0);
+              const desempenhoAtingido = new Array(categorias.length).fill(0);
+
+              return { categorias, desempenhoEsperado, desempenhoAtingido };
+          }
+
+          // Criar gráfico de desempenho
+          function criarGraficoDesempenho() {
+              // Verificar se Chart.js está carregado
+              if (typeof Chart === 'undefined') {
+                  console.error('❌ Chart.js não está carregado!');
+                  return;
+              }
+
+              const canvas = document.getElementById('performanceChart');
+              if (!canvas) {
+                  console.error('❌ Canvas performanceChart não encontrado!');
+                  return;
+              }
+              const ctx = canvas.getContext('2d');
+
+              // Verificar se há dados salvos
+              const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
+              let dados;
+              let titulo;
+
+              if (dadosSalvos) {
+                  // Usar dados salvos
+                  dados = JSON.parse(dadosSalvos);
+                  titulo = `Desempenho - ${atletaModalidade}`;
+                  console.log('📊 Dados salvos encontrados:', dados);
+              } else {
+                  // Usar dados zerados
+                  dados = obterDadosDesempenhoZerados();
+                  titulo = `Desempenho - ${atletaModalidade} (Não Avaliado)`;
+                  console.log('📊 Usando dados zerados (atleta não avaliado):', dados);
+                  console.log('📊 Modalidade:', atletaModalidade);
+                  console.log('📊 Categorias:', dados.categorias);
+              }
+
+              // Destruir gráfico anterior se existir
+              if (window.performanceChart && typeof window.performanceChart.destroy === 'function') {
+                  window.performanceChart.destroy();
+              }
+
+              console.log('📊 Criando gráfico com dados:', dados);
+              console.log('📊 Labels:', dados.categorias);
+
+              // Converter objeto categorias para arrays
+              const labels = [];
+              const esperado = [];
+              const atingido = [];
+
+              Object.keys(dados.categorias).forEach(chave => {
+                  const categoria = dados.categorias[chave];
+                  let label;
+                  switch (chave) {
+                      case '100m_livre': label = '100m Livre'; break;
+                      case '200m_livre': label = '200m Livre'; break;
+                      case 'resistencia': label = 'Resistência'; break;
+                      case 'tecnica': label = 'Técnica'; break;
+                      case 'forca': label = 'Força'; break;
+                      default: label = chave; break;
+                  }
+                  labels.push(label);
+                  esperado.push(categoria.esperado || 0);
+                  atingido.push(categoria.atingido || 0);
+              });
+
+              console.log('📊 Labels processados:', labels);
+              console.log('📊 Esperado processado:', esperado);
+              console.log('📊 Atingido processado:', atingido);
+
+              window.performanceChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: labels,
+                      datasets: [
+                          {
+                              label: 'Desempenho Esperado',
+                              data: esperado,
+                              backgroundColor: 'rgba(0, 0, 94, 0.6)',
+                              borderColor: 'rgba(0, 0, 94, 1)',
+                              borderWidth: 1
+                          },
+                          {
+                              label: 'Desempenho Atingido',
+                              data: atingido,
+                              backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                              borderColor: 'rgba(34, 197, 94, 1)',
+                              borderWidth: 1
+                          }
+                      ]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                          y: {
+                              beginAtZero: true,
+                              max: 100,
+                              title: {
+                                  display: true,
+                                  text: 'Pontuação'
+                              }
+                          },
+                          x: {
+                              title: {
+                                  display: true,
+                                  text: 'Categorias'
+                              }
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              position: 'top',
+                          },
+                          title: {
+                              display: true,
+                              text: titulo,
+                              font: {
+                                  size: 16,
+                                  weight: 'bold'
+                              }
+                          }
+                      }
+                  }
+              });
+          }
+
+          // Aguardar Chart.js carregar
+          async function aguardarChartJS() {
+              let tentativas = 0;
+              const maxTentativas = 50; // 5 segundos
+
+              while (typeof Chart === 'undefined' && tentativas < maxTentativas) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                  tentativas++;
+              }
+
+              if (typeof Chart === 'undefined') {
+                  console.error('❌ Chart.js não foi carregado após 5 segundos');
+                  return false;
+              }
+
+              console.log('✅ Chart.js carregado com sucesso!');
+              return true;
+          }
+
+          // Atualizar gráfico com novos dados
+          async function atualizarGrafico() {
+              try {
+                  // Aguardar Chart.js se necessário
+                  const chartDisponivel = await aguardarChartJS();
+                  if (!chartDisponivel) {
+                      console.error('❌ Chart.js não disponível');
+                      return;
+                  }
+
+                  // Obter dados dos campos
+                  const dados = obterDadosDesempenho();
+
+                  // Converter arrays para objeto no formato esperado pela API
+                  const categoriasObj = {};
+                  dados.categorias.forEach((categoria, index) => {
+                      let chave;
+                      switch (categoria) {
+                          case '100m Livre': chave = '100m_livre'; break;
+                          case '200m Livre': chave = '200m_livre'; break;
+                          case 'Resistência': chave = 'resistencia'; break;
+                          case 'Técnica': chave = 'tecnica'; break;
+                          case 'Força': chave = 'forca'; break;
+                          default: chave = categoria.toLowerCase().replace(/\s+/g, '_'); break;
+                      }
+                      categoriasObj[chave] = {
+                          esperado: dados.desempenhoEsperado[index] || 0,
+                          atingido: dados.desempenhoAtingido[index] || 0
+                      };
+                  });
+
+                  const dadosParaSalvar = {
+                      atletaId: atletaId,
+                      modalidade: atletaModalidade,
+                      categorias: categoriasObj,
+                      dataAtualizacao: new Date().toISOString()
+                  };
+
+                  console.log('💾 Salvando dados de desempenho:', dadosParaSalvar);
+
+                  // Salvar no servidor via API
+                  try {
+                      const token = localStorage.getItem('jwt_token');
+                      const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+
+                      const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
+                          method: 'POST',
+                          headers: {
+                              'Authorization': `Bearer ${token}`,
+                              'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ categorias: categoriasObj })
+                      });
+
+                      if (response.ok) {
+                          const result = await response.json();
+                          console.log('✅ Desempenho salvo no servidor:', result);
+                      } else {
+                          console.error('❌ Erro ao salvar desempenho no servidor');
+                      }
+                  } catch (error) {
+                      console.error('❌ Erro na requisição:', error);
+                  }
+
+                  // Salvar no localStorage para sincronização
+                  localStorage.setItem(`desempenho_${atletaId}`, JSON.stringify(dadosParaSalvar));
+
+                  // Atualizar gráfico local
+                  criarGraficoDesempenho();
+
+                  // Mostrar notificação de sucesso
+                  const notification = document.createElement('div');
+                  notification.className = 'message success';
+                  notification.innerHTML = '<i class="fas fa-check-circle"></i> Gráfico atualizado e sincronizado!';
+                  notification.style.position = 'fixed';
+                  notification.style.top = '20px';
+                  notification.style.right = '20px';
+                  notification.style.zIndex = '9999';
+                  notification.style.padding = '15px 20px';
+                  notification.style.borderRadius = '8px';
+                  notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+
+                  document.body.appendChild(notification);
+
+                  setTimeout(() => {
+                      notification.remove();
+                  }, 3000);
+
+                  // Disparar evento para sincronização
+                  window.dispatchEvent(new CustomEvent('desempenhoAtualizado', {
+                      detail: dadosParaSalvar
+                  }));
+
+              } catch (error) {
+                  console.error('❌ Erro ao atualizar gráfico:', error);
+
+                  const notification = document.createElement('div');
+                  notification.className = 'message error';
+                  notification.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro ao atualizar gráfico!';
+                  notification.style.position = 'fixed';
+                  notification.style.top = '20px';
+                  notification.style.right = '20px';
+                  notification.style.zIndex = '9999';
+                  notification.style.padding = '15px 20px';
+                  notification.style.borderRadius = '8px';
+                  notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+
+                  document.body.appendChild(notification);
+
+                  setTimeout(() => {
+                      notification.remove();
+                  }, 3000);
+              }
+          }
+
+          // Carregar dados de desempenho salvos
+          function carregarDadosDesempenhoSalvos() {
+              if (!atletaId) return;
+
+              try {
+                  const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
+                  if (dadosSalvos) {
+                      const dados = JSON.parse(dadosSalvos);
+                      console.log('📊 Carregando dados salvos:', dados);
+
+                      // Preencher campos com dados salvos
+                      dados.categorias.forEach((categoria, index) => {
+                          const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
+                          const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
+
+                          const campoEsperado = document.getElementById(idEsperado);
+                          const campoAtingido = document.getElementById(idAtingido);
+
+                          if (campoEsperado) campoEsperado.value = dados.desempenhoEsperado[index] || 80;
+                          if (campoAtingido) campoAtingido.value = dados.desempenhoAtingido[index] || 75;
+                      });
+                  }
+              } catch (error) {
+                  console.error('❌ Erro ao carregar dados salvos:', error);
+              }
+          }
+
+          // Configurar sincronização entre abas
+          function configurarSincronizacao() {
+              // Escutar mudanças no localStorage
+              window.addEventListener('storage', function (e) {
+                  if (e.key === `desempenho_${atletaId}` && e.newValue) {
+                      console.log('🔄 Dados atualizados em outra aba, recarregando...');
+
+                      try {
+                          const dados = JSON.parse(e.newValue);
+
+                          // Atualizar campos
+                          dados.categorias.forEach((categoria, index) => {
+                              const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
+                              const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
+
+                              const campoEsperado = document.getElementById(idEsperado);
+                              const campoAtingido = document.getElementById(idAtingido);
+
+                              if (campoEsperado) campoEsperado.value = dados.desempenhoEsperado[index] || 80;
+                              if (campoAtingido) campoAtingido.value = dados.desempenhoAtingido[index] || 75;
+                          });
+
+                          // Atualizar gráfico
+                          aguardarChartJS().then((chartDisponivel) => {
+                              if (chartDisponivel) {
+                                  criarGraficoDesempenho();
+                              }
+                          });
+
+                          // Mostrar notificação
+                          const notification = document.createElement('div');
+                          notification.className = 'message success';
+                          notification.innerHTML = '<i class="fas fa-sync-alt"></i> Gráfico sincronizado automaticamente!';
+                          notification.style.position = 'fixed';
+                          notification.style.top = '20px';
+                          notification.style.right = '20px';
+                          notification.style.zIndex = '9999';
+                          notification.style.padding = '15px 20px';
+                          notification.style.borderRadius = '8px';
+                          notification.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+
+                          document.body.appendChild(notification);
+
+                          setTimeout(() => {
+                              notification.remove();
+                          }, 3000);
+
+                      } catch (error) {
+                          console.error('❌ Erro ao processar dados sincronizados:', error);
+                      }
+                  }
+              });
+
+              // Escutar eventos customizados
+              window.addEventListener('desempenhoAtualizado', function (e) {
+                  console.log('🔄 Evento de atualização recebido:', e.detail);
+                  // O gráfico já foi atualizado na função atualizarGrafico
+              });
+          }
+
+          // Voltar para dados gerais
+          function voltarParaDadosGerais() {
+              window.location.href = 'dados_gerais.html';
+          }
+
+          // Funções auxiliares
+          function showNotifications() {
+              // Usar o sistema de notificações reais
+              if (window.sistemaNotificacoes) {
+                  window.sistemaNotificacoes.abrirPainel();
+              } else {
+                  console.log('⚠️ Sistema de notificações não disponível');
+              }
+          }
+
+          function showHelp() {
+              alert('Sistema de ajuda em desenvolvimento');
+          }
+
+          function logout() {
+              if (confirm('Tem certeza que deseja sair?')) {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('jwt_token');
+                  window.location.href = '/static/index.html';
+              }
+          }
+
+          // Inicializar sistema de idiomas
+          document.addEventListener('DOMContentLoaded', function () {
+              if (typeof SistemaIdiomas !== 'undefined') {
+                  window.sistemaIdiomas = new SistemaIdiomas();
+                  console.log('✅ Sistema de idiomas inicializado na página avaliar atleta');
+              } else {
+                  console.log('⚠️ Classe SistemaIdiomas não encontrada');
+              }
+          });
+
+          // Inicializar sistema de notificações
+          document.addEventListener('DOMContentLoaded', function () {
+              if (typeof SistemaNotificacoes !== 'undefined') {
+                  window.sistemaNotificacoes = new SistemaNotificacoes();
+                  console.log('✅ Sistema de notificações inicializado na página avaliar atleta');
+              } else {
+                  console.log('⚠️ Classe SistemaNotificacoes não encontrada');
+              }
+          });
+      </script>
   </body>
 </html>
