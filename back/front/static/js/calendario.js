@@ -1,4 +1,6 @@
       document.addEventListener("DOMContentLoaded", function () {
+        
+        
         // Variáveis globais
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
@@ -120,6 +122,11 @@
             choicesAlunos.setChoices([{ value: '', label: 'Erro ao buscar', disabled: true }]);
         }
     });
+
+    function closeEventModal() {
+    const eventModal = document.getElementById("eventModal");
+    eventModal.style.display = "none";
+}
 
         // Inicializar o calendário
         async function initCalendar() { 
@@ -276,50 +283,56 @@
           });
         }
 
-        // Abrir modal para adicionar evento
-        function openAddEventModal(dateStr = "") {
-          const modalTitle = document.querySelector("#eventModal h2");
-          const deleteBtn = document.getElementById("deleteEvent");
+      // Abrir modal para adicionar evento
+function openAddEventModal(dateStr = "") {
+    const modalTitle = document.querySelector("#eventModal h2");
+    
+    
 
-          modalTitle.textContent = "Adicionar Evento";
-          deleteBtn.style.display = "none";
+    modalTitle.textContent = "Adicionar Evento";
+    
+    
 
-          eventForm.removeAttribute("data-editing-id");
-          eventForm.reset();
+    eventForm.removeAttribute("data-editing-id");
+    eventForm.reset();
 
-          choicesAlunos.removeActiveItems();
+    choicesAlunos.removeActiveItems();
 
-          if (dateStr) {
-            document.getElementById("eventDate").value = dateStr;
-          } else {
-            document.getElementById("eventDate").value = formatDate(
-              currentYear,
-              currentMonth,
-              currentDate.getDate()
-            );
-          }
+    if (dateStr) {
+        document.getElementById("eventDate").value = dateStr;
+    } else {
+        document.getElementById("eventDate").value = formatDate(
+            currentYear,
+            currentMonth,
+            currentDate.getDate()
+        );
+    }
 
-          // Limpar outros campos do formulário
-          document.getElementById("eventTitle").value = "";
-          document.getElementById("eventTime").value = "";
-          document.getElementById("eventLocation").value = "";
-          document.getElementById("eventType").value = "competition";
-          document.getElementById("eventDescription").value = "";
-          eventForm.setAttribute("data-editing-id", "");
+    // Limpar outros campos do formulário
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventTime").value = "";
+    document.getElementById("eventLocation").value = "";
+    document.getElementById("eventType").value = "competition";
+    document.getElementById("eventDescription").value = "";
+    eventForm.setAttribute("data-editing-id", "");
 
-          eventModal.style.display = "flex";
-        }
+    eventModal.style.display = "flex";
+}
 
         // Abrir modal para editar evento
-        function openEditEventModal(eventId) {
+        // Abrir modal para editar evento
+function openEditEventModal(eventId) {
     const modalTitle = document.querySelector("#eventModal h2");
-    const deleteBtn = document.getElementById("deleteEvent");
+    
+    
+    
     const eventData = events.find((ev) => ev.id == eventId);
-
     if (!eventData) return;
 
     modalTitle.textContent = "Editar Evento";
-    deleteBtn.style.display = "inline-block";
+    
+    
+    
     eventForm.setAttribute("data-editing-id", eventData.id);
 
     // Preenche os campos do formulário
@@ -330,7 +343,7 @@
     document.getElementById("eventType").value = eventData.type;
     document.getElementById("eventDescription").value = eventData.description || "";
 
-    // --- LÓGICA ATUALIZADA PARA PRÉ-SELECIONAR ALUNOS ---
+    
     const alunos_atuais = eventData.alunos || [];
     
     choicesAlunos.clearStore();
@@ -350,17 +363,10 @@
         choicesAlunos.setValue(ids_strings);
     }
 
-    deleteBtn.onclick = function () {
-        deleteEvent(eventData.id);
-    };
+    
 
-    eventModal.style.display = "flex";
+    eventModal.style.display = "flex"; 
 }
-
-        // Fechar modal
-        function closeEventModal() {
-          eventModal.style.display = "none";
-        }
 
         // Salvar evento (novo ou edição)
        // Função saveEvent() completa e atualizada
@@ -374,7 +380,14 @@ async function saveEvent() {
     let formattedTime = null;
 
     if (timeValue) {
-        formattedTime = timeValue + ":00"; 
+    // CORREÇÃO: Verifica se o valor é 'HH:MM' (2 partes) ou 'HH:MM:SS' (3 partes)
+    if (timeValue.split(':').length === 2) {
+        // É 'HH:MM', então adiciona os segundos
+        formattedTime = timeValue + ":00";
+    } else {
+        // Já é 'HH:MM:SS', então usa o valor como está
+        formattedTime = timeValue;
+    }
     }
 
     const newEventData = {
@@ -562,5 +575,6 @@ function renderUpcomingEvents() {
         window.deleteEvent = deleteEvent;
       });
 
+      
       
     
