@@ -585,8 +585,9 @@ async def create_evento(evento_data: EventoCreate, db: Session = Depends(get_db)
         "type": novo_evento.tipo,
         "description": novo_evento.descricao, 
         "treinador_id": novo_evento.treinador_id,
-        "alunos": [{"id": p.id, "nome": p.nome} for p in novo_evento.participantes] 
+        "alunos": [{"id": p.id, "nome": p.nome} for p in participantes] 
     }
+
 
 #Deletar eventeos
 @app.delete("/api/DeletarEventos/{evento_id}", status_code=200)

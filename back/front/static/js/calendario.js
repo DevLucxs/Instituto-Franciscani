@@ -374,7 +374,10 @@ async function saveEvent() {
     const editingId = eventForm.getAttribute("data-editing-id");
     
     const alunosSelect = document.getElementById("eventAlunos");
-    const alunos_ids = choicesAlunos.getValue(true).map(id => parseInt(id));
+    const raw_aluno_ids = choicesAlunos.getValue(true); 
+    const alunos_ids = (Array.isArray(raw_aluno_ids) ? raw_aluno_ids : [])
+    .map(id => parseInt(id))      
+    .filter(id => !isNaN(id));
     const treinadorId = document.body.dataset.treinadorId; 
     const timeValue = document.getElementById("eventTime").value; 
     let formattedTime = null;
@@ -421,22 +424,26 @@ async function saveEvent() {
             }
             // --- FIM DA LÓGICA DE ATUALIZAÇÃO ---
 
-        } else {
-            // --- LÓGICA DE CRIAR (POST) ---
-            const response = await fetch("/api/CriarEventos", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEventData)
-            });
+       } else {
+            // --- LÓGICA DE CRIAR (POST) ---
+            const response = await fetch("/api/CriarEventos", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newEventData)
+            });
+            
+            // Se a resposta NÃO ESTIVER OK (ex: 422, 500)
+            if (!response.ok) {
+                // Tenta ler o JSON de erro que o backend enviou
+                const errorData = await response.json();
+                console.error("Erro de validação do servidor:", errorData);
+                throw new Error("Falha na validação dos dados: " + JSON.stringify(errorData.detail || errorData));
+            }
             
-            if (!response.ok) throw new Error("Falha ao salvar o evento.");
-            
-            const errorData = await response.json();
-            console.error("Erro de validação do servidor:", errorData);
-            throw new Error("Falha na validação dos dados: " + JSON.stringify(errorData));
-            eventoSalvo = await response.json();
-            events.push(eventoSalvo); // Adiciona o novo evento à lista local
-        }
+            // Se a resposta ESTIVER OK (200)
+            eventoSalvo = await response.json(); // Lê o JSON de sucesso
+            events.push(eventoSalvo); // Adiciona o novo evento à lista local
+        }
         
         renderCalendar();
         renderUpcomingEvents();

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text
+from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
@@ -52,14 +52,6 @@ class Feedback(Base):
 
     aluno = relationship("User", foreign_keys=[aluno_id])
     treinador = relationship("User", foreign_keys=[treinador_id])
-
-
-
-
-
-
-
-
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"
