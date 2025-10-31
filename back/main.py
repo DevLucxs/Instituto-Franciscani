@@ -12,6 +12,11 @@ from sqlalchemy import func
 from datetime import datetime, timedelta, date, time
 from typing import List, Optional
 from pydantic import BaseModel
+from pydantic import BaseModel
+from schema import FeedbackCreate, FeedbackOut
+from auth import criar_token_acesso, get_usuario_logado
+from fastapi import APIRouter, Depends
+
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -279,6 +284,48 @@ async def calendario(request: Request, treinador_id: int):
         "pages/calendario.html", 
         {"request": request, "treinador": treinador}
     )
+
+
+@app.post("/api/feedbacks")
+async def criar_feedback(feedback: FeedbackCreate, usuario: models.User = Depends(get_usuario_logado)):
+    try:
+        db = SessionLocal()
+        novo_feedback = models.Feedback(
+            texto=feedback.texto,
+            video_url=feedback.video_url,
+            treinador_id=usuario.id,
+            aluno_id=feedback.aluno_id
+        )
+        db.add(novo_feedback)
+        db.commit()
+        db.refresh(novo_feedback)
+        db.close()
+        return {"sucesso": True, "mensagem": "Feedback criado com sucesso"}
+    except Exception as e:
+        db.rollback()
+        db.close()
+        raise HTTPException(status_code=500, detail=f"Erro ao criar feedback: {str(e)}")
+
+
+@app.get("/api/alunos/{aluno_id}/feedbacks")
+def listar_feedbacks(aluno_id: int, db: Session = Depends(get_db)):
+    feedbacks = db.query(models.Feedback).filter(models.Feedback.aluno_id == aluno_id).all()
+    
+    resultado = []
+    for f in feedbacks:
+        resultado.append({
+            "id": f.id,
+            "aluno_id": f.aluno_id,
+            "treinador_id": f.treinador_id,
+            "treinador_nome": f.treinador.nome if f.treinador else "Treinador",
+            "texto": f.texto,
+            "video_url": f.video_url,
+            "criado_em": f.criado_em
+        })
+    return {"feedbacks": resultado}
+
+
+
 
 # Criar atleta
 @app.post("/api/alunos", response_class=JSONResponse)

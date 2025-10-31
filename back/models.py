@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Table, Date, Time
+from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
+from datetime import datetime
 
 class UserType(enum.Enum):
     aluno = "aluno"
@@ -38,6 +39,28 @@ class User(Base):
         secondary=evento_alunos_association,
         back_populates="participantes")
 
+
+class Feedback(Base):
+    __tablename__ = "feedbacks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    aluno_id = Column(Integer, ForeignKey("users.id"))
+    treinador_id = Column(Integer, ForeignKey("users.id"))
+    texto = Column(Text, nullable=False)
+    video_url = Column(String, nullable=True)
+    criado_em = Column(DateTime, default=datetime.utcnow)
+
+    aluno = relationship("User", foreign_keys=[aluno_id])
+    treinador = relationship("User", foreign_keys=[treinador_id])
+
+
+
+
+
+
+
+
+
 class Desempenho(Base):
     __tablename__ = "desempenhos"
     
@@ -45,8 +68,8 @@ class Desempenho(Base):
     atleta_id = Column(Integer, ForeignKey("users.id"))
     treino = Column(String(255), nullable=False)
     tempo = Column(Float)      # tempo em segundos
-    distancia = Column(Float)  # dist�ncia em metros
-    
+    distancia = Column(Float)  # distância em metros
+
     atleta = relationship("User", back_populates="desempenhos")
 
 class Video(Base):
