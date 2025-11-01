@@ -32,6 +32,7 @@ app = FastAPI()
 
 # Servindo arquivos estáticos
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
+app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 
 # Templates (HTML com Jinja2)
 templates = Jinja2Templates(directory="front/templates")
@@ -484,10 +485,10 @@ async def upload_video(
     titulo: str = Form(...),
     descricao: str = Form(None),
     aluno_id: int = Form(None),
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
 ):
 
-    db = SessionLocal()
     try:
         # Define um caminho para o arquivo de vídeo
         video_path = os.path.join(VIDEO_UPLOAD_DIRECTORY, file.filename)
@@ -496,11 +497,13 @@ async def upload_video(
         with open(video_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
+        url_path = f"/uploads/videos/{file.filename}"
+
         # Cria a nova entrada de vídeo no banco de dados
         novo_video = models.Video(
             titulo=titulo,
             descricao=descricao,
-            filepath=video_path,
+            filepath=url_path,
             aluno_id=aluno_id
         )
         db.add(novo_video)
@@ -516,6 +519,77 @@ async def upload_video(
     
     finally:
         db.close()
+
+# RETORNA VÍDEOS
+@app.get("/api/treinador/videos")
+async def get_videos(db: Session = Depends(get_db)):
+    try:
+        videos = db.query(models.Video).options(joinedload(models.Video.aluno)).all()
+        
+        videos_list = []
+        for v in videos:
+            url_video_path = v.filepath 
+            
+            if url_video_path: 
+                url_video_path = url_video_path.replace("\\", "/")
+                if url_video_path.startswith("./"):
+                    url_video_path = url_video_path[1:]
+            videos_list.append({
+                "id": v.id,
+                "titulo": v.titulo,
+                "descricao": v.descricao,
+                "url_video": v.filepath, 
+                "data_upload": v.data_upload.isoformat(),
+                "atleta_id": v.aluno_id,
+                "atleta_nome": v.aluno.nome if v.aluno else "Sem atleta"
+            })
+            
+        
+        return {"sucesso": True, "videos": videos_list}
+        
+    except Exception as e:
+        print(f"Erro ao buscar vídeos: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar vídeos")
+
+@app.delete("/api/treinador/videos/{video_id}", status_code=200)
+async def delete_video_route(video_id: int, db: Session = Depends(get_db)):
+    try:
+        # 1. Encontra o vídeo no banco de dados
+        video = db.query(models.Video).filter(models.Video.id == video_id).first()
+        
+        if not video:
+            raise HTTPException(status_code=404, detail="Vídeo não encontrado")
+
+        # 2. Pega o caminho do arquivo (ex: "./uploads/videos/file.mp4" ou "/uploads/videos/file.mp4")
+        file_path = video.filepath
+        
+        # 3. Deleta o registro do banco de dados
+        db.delete(video)
+        db.commit()
+        
+        # 4. Deleta o arquivo físico do servidor
+        # (Adiciona uma verificação para garantir que o caminho existe)
+        
+        # Limpa o caminho para o formato do OS (caso esteja como /uploads/...)
+        if file_path.startswith('/'):
+            file_path = "." + file_path # Converte "/uploads/..." para "./uploads/..."
+            
+        file_path = os.path.normpath(file_path) # Garante que o OS entenda o caminho
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Arquivo físico excluído: {file_path}")
+        else:
+            print(f"Aviso: Arquivo físico não encontrado em {file_path}, mas o registro do banco foi excluído.")
+
+        
+        
+        return {"sucesso": True, "message": "Vídeo excluído com sucesso"}
+
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao excluir vídeo: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao excluir o vídeo.")
 
 # Buscar todos os eventos
 @app.get("/api/eventos")
