@@ -1244,6 +1244,14 @@
     align-items: center;
     gap: 5px;
 }
+
+.modal-body {
+  /* Define uma altura máxima (ex: 70% da altura da tela) */
+  max-height: 70vh; 
+  
+  /* Adiciona barra de rolagem vertical APENAS se o conteúdo passar da altura */
+  overflow-y: auto;
+}
     </style>
   </head>
   <body>
@@ -2699,79 +2707,39 @@
         return dataBrasilia.toLocaleString('pt-BR', opcoes);
       }
 
-      // Função para visualizar vídeo
-      function visualizarVideo(url, titulo = 'Vídeo', descricao = '', atletaNome = '', dataUpload = '') {
-        console.log('🎥 [VÍDEO] Iniciando visualização:', { url, titulo, descricao, atletaNome, dataUpload });
-        
-        // Preencher o modal de visualização
-        const videoElement = document.getElementById('videoPlayer');
-        const videoSource = document.getElementById('videoSource');
-        const videoTitle = document.getElementById('videoViewDetailsTitle');
-        const videoDescription = document.getElementById('videoViewDescription');
-        const videoDate = document.getElementById('videoViewDate');
-        const videoAthlete = document.getElementById('videoViewAthlete');
-        
-        if (!videoElement || !videoSource) {
-          console.error('❌ [VÍDEO] Elementos do player não encontrados');
-          alert('Erro: Player de vídeo não encontrado');
-          return;
-        }
-        
-        // Verificar se a URL do vídeo é válida
-        if (!url || url.trim() === '') {
-          console.error('❌ [VÍDEO] URL do vídeo inválida:', url);
-          alert('Erro: URL do vídeo não disponível');
-          return;
-        }
-        
-        console.log('🎥 [VÍDEO] Configurando vídeo com URL:', url);
-        
-        // Construir URL correta para arquivos locais
-        let videoUrl = url;
-        if (url.startsWith('/uploads/')) {
-          // Para arquivos locais, usar a rota do Flask
-          videoUrl = `http://localhost:5000${url}`;
-        }
-        
-        console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
-        
-        // Configurar o vídeo
-        videoSource.src = videoUrl;
-        videoElement.load(); // Recarregar o vídeo com a nova fonte
-        
-        // Adicionar event listeners para debug
-        videoElement.addEventListener('loadstart', () => {
-          console.log('🎥 [VÍDEO] Iniciando carregamento...');
-        });
-        
-        videoElement.addEventListener('canplay', () => {
-          console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
-        });
-        
-        videoElement.addEventListener('loadeddata', () => {
-          console.log('✅ [VÍDEO] Dados do vídeo carregados');
-        });
-        
-        videoElement.addEventListener('error', (e) => {
-          console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
-          console.error('❌ [VÍDEO] Erro details:', videoElement.error);
-        });
-        
-        videoElement.addEventListener('load', () => {
-          console.log('✅ [VÍDEO] Vídeo carregado com sucesso');
-        });
-        
-        // Preencher informações
-        videoTitle.textContent = titulo;
-        videoDescription.textContent = descricao || 'Sem descrição disponível';
-        videoDate.textContent = dataUpload || 'Data não disponível';
-        videoAthlete.textContent = atletaNome || 'Atleta não especificado';
-        
-        console.log('🎥 [VÍDEO] Abrindo modal...');
-        
-        // Abrir o modal
-        document.getElementById('videoViewModal').style.display = 'block';
-      }
+      // Função para visualizar vídeo (VERSÃO CORRIGIDA com URL absoluta)
+      function visualizarVideo(url, titulo = 'Vídeo', descricao = '', atletaNome = '', dataUpload = '') {
+        console.log('🎥 [VÍDEO] Iniciando visualização:', { url, titulo });
+        
+        const videoElement = document.getElementById('videoPlayer');
+        const videoSource = document.getElementById('videoSource');
+        
+        if (!videoElement || !videoSource) {
+          console.error('❌ [VÍDEO] Elementos do player não encontrados');
+          return;
+        }
+        
+        if (!url || url.trim() === '') {
+          console.error('❌ [VÍDEO] URL do vídeo inválida:', url);
+          return;
+        }
+        
+        const absoluteUrl = window.location.origin + url; 
+        console.log('🎥 [VÍDEO] Carregando URL absoluta:', absoluteUrl);
+
+        videoSource.src = absoluteUrl; // Define a URL completa
+        videoElement.load(); // Recarrega o player
+        
+        // Preencha os outros detalhes (título, descrição...)
+        document.getElementById('videoViewTitle').textContent = titulo;
+        document.getElementById('videoViewDetailsTitle').textContent = titulo;
+        document.getElementById('videoViewDescription').textContent = descricao || 'Sem descrição';
+        document.getElementById('videoViewDate').textContent = dataUpload || '';
+        document.getElementById('videoViewAthlete').textContent = atletaNome || '';
+        
+        // Abrir o modal
+        document.getElementById('videoViewModal').style.display = 'block';
+      }
 
       // Função para editar vídeo (placeholder)
       function editarVideo(videoId) {
@@ -2783,19 +2751,13 @@
         if (confirm('Tem certeza que deseja excluir este vídeo? Esta ação não pode ser desfeita.')) {
           console.log('🗑️ [VÍDEO] Iniciando exclusão do vídeo ID:', videoId);
           
-          // Obter token de autenticação
-          const token = localStorage.getItem('jwt_token');
-          if (!token) {
-            alert('Erro: Token de autenticação não encontrado');
-            return;
-          }
-          
           // Fazer requisição para excluir o vídeo
-          const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
-          fetch(`${baseURL}/api/treinador/videos/${videoId}`, {
+          const absoluteUrl = window.location.origin + `/api/treinador/videos/${videoId}`;
+          console.log('🗑️ [VÍDEO] Enviando DELETE para:', absoluteUrl);
+
+          fetch(absoluteUrl, {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           })
