@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+Ôªødocument.addEventListener("DOMContentLoaded", () => {
     const formAluno = document.getElementById("loginAluno");
 
     if (formAluno) {
@@ -21,12 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (data.success) {
                     if (data.tipo === "aluno") {
-                        window.location.href = "templates/pages_aluno/dashboard.html";
+                        window.location.href = "pages_aluno/dashboard.html";
                     } else if (data.tipo === "treinador") {
-                        window.location.href = "templates/pages/dashboard.html";
+                        window.location.href = "pages/dashboard.html";
                     }
                 } else {
-                    errorMsg.textContent = data.message || "Usu·rio ou senha inv·lidos";
+                    errorMsg.textContent = data.message || "Usu√°rio ou senha inv√°lidos";
                     errorMsg.style.display = "block";
                 }
 

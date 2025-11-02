@@ -1,10 +1,11 @@
+﻿﻿
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dados Gerais | Instituto Franciscani</title>
-    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
+    <link rel="icon" href="/static/img/logo_if_icon.ico" type="image/x-icon" />
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -75,12 +76,7 @@
                     justify-content: center;
                 }
 
-            .sidebar-header img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-            }
+
 
         .menu-items {
             list-style: none;
@@ -733,34 +729,76 @@
 
         /* Estilos para configurações */
         .settings-content {
+            padding: 25px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-            .settings-content .form-group {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid #eee;
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: var(--dark-color);
             }
 
-                .settings-content .form-group:last-child {
-                    border-bottom: none;
+            .form-group input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                margin-right: 10px;
+            }
+
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                transition: var(--transition);
+            }
+
+                .form-group select:focus {
+                    outline: none;
+                    border-color: var(--primary-color);
                 }
 
-            .settings-content label {
-                margin: 0;
-                font-weight: 500;
+        .modal-actions {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary-color);
+                color: white;
             }
 
-            .settings-content input[type="checkbox"] {
-                width: auto;
-                margin: 0;
-            }
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
 
-            .settings-content select {
-                width: 150px;
-                margin: 0;
+            .btn-primary:hover {
+                background: var(--secondary-color);
             }
 
         /* Estilos Modernos para o Modal de Atleta */
@@ -1510,45 +1548,6 @@
                 padding: 10px 8px;
             }
         }
-         /* Container para a barra de pesquisa - para posicionar a caixa de sugestões */
-    .search-bar {
-      position: relative; /* Essencial para que a caixa de sugestões apareça logo abaixo */
-    }
-
-  /* Caixa de Sugestões - O container que aparece e desaparece (VERSÃO ATUALIZADA) */
-  #suggestionsBox {
-      position: absolute; 
-      top: calc(100% + 5px); /* Alterado: 100% da altura + 5px de espaço */
-      left: 0;
-      right: 0;
-      background-color: #ffffff; /* Alterado: Fundo branco */
-      border: 1px solid #ddd;     /* Alterado: Borda cinza clara */
-      border-radius: 8px;         /* Alterado: Borda arredondada em todos os cantos */
-      z-index: 10;
-      max-height: 250px;
-      overflow-y: auto;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Alterado: Sombra mais pronunciada */
-    }
-
-    /* Itens Individuais da Sugestão (VERSÃO ATUALIZADA) */
-    .suggestion-item {
-      padding: 12px 20px;
-      font-size: 15px;
-      color: #333333; /* Alterado: Cor de texto escura para o fundo branco */
-      cursor: pointer;
-      border-bottom: 1px solid #eee; /* Alterado: Linha separadora mais clara */
-      transition: background-color 0.2s ease;
-    }
-
-    /* Remove a borda do último item para um acabamento limpo */
-    .suggestion-item:last-child {
-      border-bottom: none;
-    }
-
-    /* Efeito Hover (VERSÃO ATUALIZADA) */
-    .suggestion-item:hover {
-      background-color: #f5f5f5; /* Alterado: Fundo cinza bem claro para o hover */
-    }
     </style>
 </head>
 <body>
@@ -1592,9 +1591,9 @@
             </div>
 
             <div class="search-bar" data-treinador-id="{{ treinador.id }}">
-              <i class="fas fa-search"></i>
-              <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
-              <div id="suggestionsBox"></div> 
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
+                <div id="suggestionsBox"></div>
             </div>
             <script src="/static/js/dashboard.js"></script>
             <div class="header-actions">
@@ -1643,7 +1642,7 @@
                         <th data-translate="lista_atletas.coluna_modalidade">Modalidade</th>
                         <th data-translate="lista_atletas.coluna_idade">Idade</th>
                         <th data-translate="lista_atletas.coluna_status">Status</th>
-                        <th data-translate="lista_atletas.coluna_acoes">Ações</th>
+                        <th data-translate="lista_atletas.coluna_acoes" style="text-align: center; min-width: 140px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -1809,7 +1808,7 @@
                 </button>
             </div>
 
-            <form id="athleteForm" class="modern-form">
+            <form id="athleteForm" class="modern-form" onsubmit="saveAthlete(event)">
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-user"></i>
@@ -2149,9 +2148,14 @@
 
 
 
+
+    <script src="/static/js/settings.js"></script>
+
     <script>
 
         // Função para carregar atletas via API
+
+        const API_BASE_URL = "http://127.0.0.1:8000/api"
 
         let athletes = [];
 
@@ -2161,10 +2165,11 @@
             try {
                 const response = await fetch('/api/alunos');
                 if (!response.ok) throw new Error('Erro ao buscar atletas');
-                athletes = await response.json();
-                renderAthletes(athletes);
+                athletes = await response.json(); // ✅ atualiza array global
+                updateTable();                    // ✅ renderiza com base no array global
             } catch (error) {
                 console.error('Erro:', error);
+                athletes = [];
             }
         }
 
@@ -2174,52 +2179,125 @@
 
             athletes.forEach((atleta, index) => {
                 const row = document.createElement('tr');
-                row.setAttribute('onclick', `openAthleteModal(${index})`);
-                row.innerHTML = `
-                    <td>
-                        <div class="athlete-info">
-                            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
-                            <div class="athlete-details">
-                                <h4>${atleta.nome}</h4>
-                                <p>${atleta.email}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${atleta.modalidade || 'Não informado'}</td>
-                    <td>${atleta.idade || 'Não informado'}</td>
-                    <td><span class="status-badge status-active">${atleta.status || 'Não informado'}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <div class="action-btn edit-btn" onclick="openAthleteModal(${index}); event.stopPropagation();" title="Editar atleta">
-                                <i class="fas fa-edit"></i>
-                            </div>
-                            <div class="action-btn evaluate-btn" onclick="avaliarAtleta(athletes[${index}]); event.stopPropagation();" title="Avaliar atleta">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="action-btn delete-btn" onclick="deleteAthlete(${index}); event.stopPropagation();" title="Excluir atleta">
-                                <i class="fas fa-trash"></i>
-                            </div>
-                        </div>
-                    </td>
-                `;
+                row.onclick = () => openAthleteModal(index);
+
+                const avatar = document.createElement('td');
+                avatar.innerHTML = `
+        <div class="athlete-info">
+            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
+            <div class="athlete-details">
+                <h4>${atleta.nome}</h4>
+                <p>${atleta.email}</p>
+            </div>
+        </div>
+        `;
+
+                const modalidade = document.createElement('td');
+                modalidade.textContent = atleta.modalidade || 'Não informado';
+
+                const idade = document.createElement('td');
+                idade.textContent = atleta.idade || 'Não informado';
+
+                const status = document.createElement('td');
+                status.innerHTML = `<span class="status-badge status-active">${atleta.status || 'Não informado'}</span>`;
+
+                const actions = document.createElement('td');
+                actions.style.textAlign = "center";
+                actions.style.verticalAlign = "middle";
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = "action-buttons";
+                actionsDiv.style.display = "flex";
+                actionsDiv.style.justifyContent = "center";
+                actionsDiv.style.gap = "12px";
+
+                const editBtn = document.createElement('div');
+                editBtn.className = "action-btn edit-btn";
+                editBtn.title = "Editar atleta";
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.onclick = (event) => {
+                    event.stopPropagation();
+                    openAthleteModal(index);
+                };
+
+                const evaluateBtn = document.createElement('div');
+                evaluateBtn.className = "action-btn evaluate-btn";
+                evaluateBtn.title = "Avaliar atleta";
+                evaluateBtn.innerHTML = '<i class="fas fa-star"></i>';
+                evaluateBtn.onclick = (event) => {
+                    event.stopPropagation();
+                    avaliarAtleta(atleta); // ✅ aqui o objeto está seguro
+                };
+
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = "action-btn delete-btn";
+                deleteBtn.title = "Excluir atleta";
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.onclick = (event) => {
+                    event.stopPropagation();
+                    deleteAthlete(index);
+                };
+
+                actionsDiv.appendChild(editBtn);
+                actionsDiv.appendChild(evaluateBtn);
+                actionsDiv.appendChild(deleteBtn);
+                actions.appendChild(actionsDiv);
+
+                row.appendChild(avatar);
+                row.appendChild(modalidade);
+                row.appendChild(idade);
+                row.appendChild(status);
+                row.appendChild(actions);
+
                 tableBody.appendChild(row);
             });
+
             document.getElementById("resultsCount").textContent = `${athletes.length} atletas`;
         }
 
         function openAthleteModal(index) {
+            // A variável global 'athletes' deve conter um array de objetos de atletas.
+            // Certifique-se de que a variável 'athletes' está no escopo ou é global.
             const athlete = athletes[index];
+
+            // 🛑 TRATAMENTO DE ERRO na ABERTURA: Verifica se o atleta existe no array
+            if (!athlete) {
+                console.error(`Erro: Tentativa de abrir modal para índice inválido: ${index}`);
+                alert("Erro: Atleta não encontrado para edição. Recarregue a página.");
+                return;
+            }
+
+            // 1. OBTÉM a referência ao elemento modal
+            const athleteModal = document.getElementById("athleteModal");
+
+            // 2. 💡 CORREÇÃO PRINCIPAL: Salva o ID do atleta no atributo data-id do modal.
+            // O ID é necessário para a função deleteAthlete() e para futuras edições.
+            // Assumimos que o objeto 'athlete' possui uma propriedade chamada 'id'.
+            if (athleteModal) {
+                athleteModal.dataset.id = athlete.id;
+            } else {
+                console.error("Erro: Elemento 'athleteModal' não encontrado no DOM.");
+            }
+
+            document.getElementById("athleteForm").reset(); // Limpa o formulário antes de preencher
+
             document.getElementById("athleteModalTitle").textContent = "Editar Atleta";
             document.getElementById("athleteName").value = athlete.nome;
             document.getElementById("athleteEmail").value = athlete.email;
             document.getElementById("athleteSport").value = athlete.modalidade;
-            document.getElementById("athleteAge").value = athlete.idade.replace(" anos", "");
+
+            // Remove " anos" com segurança
+            document.getElementById("athleteAge").value = typeof athlete.idade === "string"
+                ? athlete.idade.replace(" anos", "")
+                : athlete.idade;
+
             document.getElementById("athleteStatus").value = athlete.status;
             document.getElementById("athletePhone").value = athlete.telefone || "";
             document.getElementById("athleteAddress").value = athlete.endereco || "";
-            document.getElementById("athleteNotes").value = "";
+            document.getElementById("athleteNotes").value = ""; // Se houver campo de notas
+
             document.getElementById("deleteAthleteBtn").style.display = "block";
-            document.getElementById("athleteModal").dataset.index = index;
+            document.getElementById("athleteModal").dataset.id = athlete.id; // Define o índice para o SAVE
             document.getElementById("athleteModal").style.display = "flex";
         }
 
@@ -2227,85 +2305,88 @@
             document.getElementById("athleteForm").reset();
             document.getElementById("athleteModalTitle").textContent = "Novo Atleta";
             document.getElementById("deleteAthleteBtn").style.display = "none";
-            document.getElementById("athleteModal").dataset.index = "";
+
+            // 🛑 LIMPEZA CRÍTICA: Define o índice como string vazia para forçar o POST em saveAthlete
+            document.getElementById("athleteModal").dataset.id = "";
+
             document.getElementById("athleteModal").style.display = "flex";
         }
 
         function closeAthleteModal() {
             document.getElementById("athleteModal").style.display = "none";
             document.getElementById("athleteForm").reset();
-            document.getElementById("athleteModal").dataset.index = "";
+            document.getElementById("athleteModal").dataset.id = "";
+            document.getElementById("deleteAthleteBtn").style.display = "none";
         }
+
+
+
+        // Função para Salvar e Editar Atleta
+
+        async function criarAtleta(dados) {
+            try {
+                const response = await fetch("http://127.0.0.1:8000/api/alunos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+
+                if (!response.ok) throw new Error("Erro ao criar atleta");
+                alert("Atleta criado com sucesso! ✅");
+            } catch (error) {
+                console.error("Erro ao criar atleta:", error);
+                alert("Não foi possível criar o atleta.");
+            }
+            await carregarAtletas();
+            updateTable();
+        }
+
+        async function editarAtleta(id, dados) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+
+                if (!response.ok) throw new Error("Erro ao atualizar atleta");
+                alert("Atleta atualizado com sucesso! ✅");
+            } catch (error) {
+                console.error("Erro ao atualizar atleta:", error);
+                alert("Não foi possível atualizar o atleta.");
+            }
+            await carregarAtletas();
+            renderAthletes(athletes);
+        }
+
 
         async function saveAthlete(event) {
             event.preventDefault();
 
-            const name = document.getElementById("athleteName").value;
-            const email = document.getElementById("athleteEmail").value;
-            const sport = document.getElementById("athleteSport").value;
-            const age = document.getElementById("athleteAge").value;
-            const status = document.getElementById("athleteStatus").value;
-            const phone = document.getElementById("athletePhone").value;
-            const address = document.getElementById("athleteAddress").value;
-
-            if (!name || !email || !sport || !age || !status) {
-                alert("Por favor, preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            const index = document.getElementById("athleteModal").dataset.index;
-
             const dados = {
-                nome: name,
-                email: email,
-                modalidade: sport,
-                idade: `${age} anos`,
-                status: status,
-                telefone: phone,
-                endereco: address
+                nome: document.getElementById("athleteName").value,
+                email: document.getElementById("athleteEmail").value,
+                modalidade: document.getElementById("athleteSport").value,
+                idade: parseInt(document.getElementById("athleteAge").value), // 👈 aqui!
+                status: document.getElementById("athleteStatus").value,
+                telefone: document.getElementById("athletePhone").value,
+                endereco: document.getElementById("athleteAddress").value
             };
 
-            try {
-                if (index !== "") {
-                    // Edição de atleta existente
-                    const atleta = athletes[index];
-                    const response = await fetch(`/api/alunos/${atleta.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(dados)
-                    });
+            const id = document.getElementById("athleteModal").dataset.id;
 
-                    if (!response.ok) throw new Error("Erro ao atualizar atleta");
-                    alert("Atleta atualizado com sucesso!");
-                } else {
-                    // Criação de novo atleta
-                    const response = await fetch("/api/alunos", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(dados)
-                    });
-
-                    if (!response.ok) throw new Error("Erro ao criar atleta");
-                    alert("Atleta adicionado com sucesso!");
-                }
-
-                closeAthleteModal();
-                await carregarAtletas(); // recarrega do banco
-            } catch (error) {
-                console.error("Erro ao salvar atleta:", error);
-                alert("Não foi possível salvar o atleta.");
+            if (!id) {
+                await criarAtleta(dados);
+            } else {
+                await editarAtleta(id, dados);
             }
+
+            closeAthleteModal();
+            await carregarAtletas();
+            renderAthletes(athletes);
+            updateTable();
         }
 
-        function deleteAthlete(index) {
-            const athlete = athletes[index];
-            if (confirm(`Tem certeza que deseja excluir ${athlete.name}?`)) {
-                athletes.splice(index, 1);
-                alert(`${athlete.name} foi removido do sistema`);
-                closeAthleteModal();
-                renderAthletes(athletes);
-            }
-        }
 
         window.addEventListener("click", function (event) {
             if (event.target == document.getElementById("athleteModal")) {
@@ -2411,10 +2492,10 @@
             } else {
                 const athlete = athletes[selectedIndex];
                 preview.innerHTML = `
-                                <div class="athlete-preview-avatar">${athlete.avatar}</div>
-                                <div class="athlete-preview-name">${athlete.name}</div>
-                                <div class="athlete-preview-sport">${athlete.sport}</div>
-                              `;
+        <div class="athlete-preview-avatar">${athlete.avatar}</div>
+        <div class="athlete-preview-name">${athlete.nome}</div>
+        <div class="athlete-preview-sport">${athlete.modalidade}</div>
+        `;
                 preview.className = "athlete-preview has-athlete";
             }
 
@@ -2572,23 +2653,30 @@
             const freq1 = athlete1.performance.frequencia;
             const freq2 = athlete2.performance.frequencia;
             if (Math.abs(freq1 - freq2) > 10) {
-                analysis += `<p><span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
+                analysis += `<p>
+            <span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
             } else {
-                analysis += `<p>Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
+                analysis += `
+        <p>
+            Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
             }
 
             // Análise de treinos completos
             const treinos1 = athlete1.performance.treinosCompletos;
             const treinos2 = athlete2.performance.treinosCompletos;
             if (Math.abs(treinos1 - treinos2) > 20) {
-                analysis += `</p><p>Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
+                analysis += `
+        </p><p>
+            Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
             }
 
             // Análise de habilidades técnicas
             const tecnica1 = athlete1.performance.tecnica;
             const tecnica2 = athlete2.performance.tecnica;
             if (Math.abs(tecnica1 - tecnica2) > 1) {
-                analysis += `</p><p>Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
+                analysis += `
+        </p><p>
+            Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
             }
 
             // Análise de força vs velocidade
@@ -2598,29 +2686,43 @@
             const vel2 = athlete2.performance.velocidade;
 
             if (forca1 > forca2 && vel1 > vel2) {
-                analysis += `</p><p><span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
+                analysis += `
+        </p><p>
+            <span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
             } else if (forca2 > forca1 && vel2 > vel1) {
-                analysis += `</p><p><span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
+                analysis += `
+        </p><p>
+            <span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
             } else {
-                analysis += `</p><p>Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
+                analysis += `
+        </p><p>
+            Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
             }
 
             // Análise de competições
             const medalhas1 = athlete1.performance.medalhas;
             const medalhas2 = athlete2.performance.medalhas;
             if (Math.abs(medalhas1 - medalhas2) > 1) {
-                analysis += `</p><p>Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
+                analysis += `
+        </p><p>
+            Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
             }
 
             // Análise de modalidade
-            if (athlete1.sport === athlete2.sport) {
-                analysis += `</p><p>Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.sport}</span>), facilitando comparações diretas de desempenho e ranking.`;
+            if (athlete1.modalidade === athlete2.modalidade) {
+                analysis += `
+        </p><p>
+            Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
             } else {
-                analysis += `</p><p>As modalidades são diferentes: <span class="analysis-highlight">${athlete1.sport}</span> vs <span class="analysis-highlight">${athlete2.sport}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
+                analysis += `
+        </p><p>
+            As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
             }
 
             // Recomendações baseadas em performance
-            analysis += `</p><p><strong>Recomendações de Treinamento:</strong> `;
+            analysis += `
+        </p><p>
+            <strong>Recomendações de Treinamento:</strong> `;
 
             if (freq1 < 80 || freq2 < 80) {
                 analysis += `Para o atleta com menor frequência, considere programas de motivação e acompanhamento mais próximo. `;
@@ -2647,23 +2749,23 @@
         ) {
             const container = document.getElementById("trainingsChartContainer");
             container.innerHTML = `
-                        <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
-                          <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+            <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                            <span>${athlete1Trainings}</span>
-                          </div>
-                          <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                    <span>${athlete1Trainings}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                            <span>${athlete2Trainings}</span>
-                          </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                          <span style="color: var(--primary-color);">${athlete1Name}</span>
-                          <span style="color: var(--info-color);">${athlete2Name}</span>
-                        </div>
-                      `;
+                    <span>${athlete2Trainings}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                <span style="color: var(--info-color);">${athlete2Name}</span>
+            </div>
+            `;
         }
 
         function renderGoalsChart(
@@ -2679,29 +2781,33 @@
 
             const container = document.getElementById("goalsChartContainer");
             container.innerHTML = `
-                        <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
-                          <div style="width: 45%;">
-                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                              <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
-                            </div>
-                            <div style="text-align: center; margin-top: 5px;">${athlete1Percentage.toFixed(
+            <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
+                <div style="width: 45%;">
+                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 5px;">
+                        ${athlete1Percentage.toFixed(
                 1
-            )}%</div>
-                          </div>
-                          <div style="width: 45%;">
-                            <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                              <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
-                            </div>
-                            <div style="text-align: center; margin-top: 5px;">${athlete2Percentage.toFixed(
+            )}%
+                    </div>
+                </div>
+                <div style="width: 45%;">
+                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 5px;">
+                        ${athlete2Percentage.toFixed(
                 1
-            )}%</div>
-                          </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                          <span style="color: var(--primary-color);">${athlete1Name}</span>
-                          <span style="color: var(--info-color);">${athlete2Name}</span>
-                        </div>
-                      `;
+            )}%
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                <span style="color: var(--info-color);">${athlete2Name}</span>
+            </div>
+            `;
         }
 
         // Fechar modal de comparação clicando fora
@@ -2726,59 +2832,6 @@
             } else {
                 console.log('⚠️ Sistema de notificações não disponível');
             }
-        }
-
-        function showSettings() {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                              <div class="modal-content" style="max-width: 600px;">
-                                <div class="modal-header">
-                                  <h2>Configurações do Sistema</h2>
-                                  <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" title="Fechar notificações" aria-label="Fechar modal de notificações">&times;</button>
-                                </div>
-                                <div class="settings-content">
-                                  <div class="form-group">
-                                    <label>Notificações por Email</label>
-                                    <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-                                  </div>
-                                  <div class="form-group">
-                                    <label>Notificações Push</label>
-                                    <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
-                                  </div>
-                                  <div class="form-group">
-                                    <label>Idioma</label>
-                                    <select>
-                                      <option>Português</option>
-                                      <option>English</option>
-                                      <option>Español</option>
-                                    </select>
-                                  </div>
-                                  <div class="form-group">
-                                    <label>Tema</label>
-                                    <select>
-                                      <option>Claro</option>
-                                      <option>Escuro</option>
-                                      <option>Automático</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                <div class="modal-actions">
-                                  <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
-                                  <button class="btn btn-primary" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
-                                </div>
-                              </div>
-                            `;
-
-            document.body.appendChild(modal);
-
-            // Fechar modal ao clicar fora
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
         }
 
         // Funções para os botões da tabela
@@ -2880,32 +2933,47 @@
         // Função para verificar se um atleta passa pelos filtros
         function athletePassesFilters(athlete) {
             // Filtro por modalidade
-            if (activeFilters.sports.length > 0 && !activeFilters.sports.includes(athlete.sport)) {
+            if (
+                activeFilters.sports.length > 0 &&
+                (!athlete.modalidade || !activeFilters.sports.includes(athlete.modalidade))
+            ) {
                 return false;
             }
 
             // Filtro por status
-            if (activeFilters.status.length > 0 && !activeFilters.status.includes(athlete.status)) {
+            if (
+                activeFilters.status.length > 0 &&
+                (!athlete.status || !activeFilters.status.includes(athlete.status))
+            ) {
                 return false;
             }
 
             // Filtro por faixa etária
             if (activeFilters.ageRanges.length > 0) {
-                const age = parseInt(athlete.age);
-                let passesAgeFilter = false;
+                const idade = parseInt(
+                    typeof athlete.idade === "string"
+                        ? athlete.idade.replace(" anos", "")
+                        : athlete.idade
+                );
+                let passaFaixa = false;
 
-                activeFilters.ageRanges.forEach(range => {
-                    if (range === '18-20' && age >= 18 && age <= 20) passesAgeFilter = true;
-                    if (range === '21-25' && age >= 21 && age <= 25) passesAgeFilter = true;
-                    if (range === '26-30' && age >= 26 && age <= 30) passesAgeFilter = true;
-                    if (range === '30+' && age > 30) passesAgeFilter = true;
-                });
+                if (!isNaN(idade)) {
+                    activeFilters.ageRanges.forEach(range => {
+                        if (range === "18-20" && idade >= 18 && idade <= 20) passaFaixa = true;
+                        if (range === "21-25" && idade >= 21 && idade <= 25) passaFaixa = true;
+                        if (range === "26-30" && idade >= 26 && idade <= 30) passaFaixa = true;
+                        if (range === "30+" && idade > 30) passaFaixa = true;
+                    });
+                }
 
-                if (!passesAgeFilter) return false;
+                if (!passaFaixa) return false;
             }
 
             // Filtro por nome
-            if (activeFilters.name && !athlete.name.toLowerCase().includes(activeFilters.name)) {
+            if (
+                activeFilters.name &&
+                (!athlete.nome || !athlete.nome.toLowerCase().includes(activeFilters.name))
+            ) {
                 return false;
             }
 
@@ -2926,94 +2994,40 @@
             document.getElementById("athleteModal").style.display = "flex";
         }
 
-        // Função para salvar ou atualizar atleta
-        async function saveAthlete() {
-            const index = document.getElementById("athleteModal").dataset.index;
-            const name = document.getElementById("athleteName").value;
-            const email = document.getElementById("athleteEmail").value;
-            const sport = document.getElementById("athleteSport").value;
-            const age = document.getElementById("athleteAge").value;
-            const status = document.getElementById("athleteStatus").value;
-            const phone = document.getElementById("athletePhone").value;
-            const address = document.getElementById("athleteAddress").value;
-            const notes = document.getElementById("athleteNotes").value;
 
-            if (index !== "") {
-                const atleta = athletes[index];
-                const dadosAtualizados = {
-                    nome: name,
-                    email,
-                    modalidade: sport,
-                    idade: `${age} anos`,
-                    status,
-                    telefone: phone,
-                    endereco: address
-                };
 
-                try {
-                    const response = await fetch(`/api/alunos/${atleta.id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(dadosAtualizados)
-                    });
 
-                    if (!response.ok) throw new Error("Erro ao atualizar atleta");
-                    alert("Atleta atualizado com sucesso!");
-                    closeAthleteModal();
-                    await carregarAtletas(); // recarrega do banco
-                } catch (error) {
-                    console.error("Erro ao salvar atleta:", error);
-                    alert("Não foi possível salvar o atleta.");
-                }
+        async function confirmDeleteAthlete() {
+            const id = document.getElementById("athleteModal").dataset.id;
+            const nome = document.getElementById("athleteName").value;
 
-            } else {
-                const novoAtleta = {
-                    nome: name,
-                    email,
-                    modalidade: sport,
-                    idade: `${age} anos`,
-                    status,
-                    telefone: phone,
-                    endereco: address
-                };
-
-                try {
-                    const response = await fetch("/api/alunos", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(novoAtleta)
-                    });
-
-                    if (!response.ok) throw new Error("Erro ao criar atleta");
-                    alert("Atleta adicionado com sucesso!");
-                    closeAthleteModal();
-                    await carregarAtletas(); // recarrega do banco
-                } catch (error) {
-                    console.error("Erro ao criar atleta:", error);
-                    alert("Não foi possível adicionar o atleta.");
-                }
+            if (!id) {
+                alert("ID do atleta não encontrado.");
+                return;
             }
-            closeAthleteModal();
-            updateTable(); // Atualizar a tabela após salvar/editar
+
+            if (confirm(`Tem certeza que deseja excluir ${nome}?`)) {
+                await deleteAthlete(id, nome);
+            }
         }
 
-        // Função para excluir atleta
-        async function deleteAthlete(index) {
-            const athlete = athletes[index];
-            if (confirm(`Tem certeza que deseja excluir ${athlete.nome}?`)) {
-                try {
-                    const response = await fetch(`/api/alunos/${athlete.id}`, {
-                        method: "DELETE"
-                    });
 
-                    if (!response.ok) throw new Error("Erro ao excluir atleta");
-                    alert(`${athlete.nome} foi removido do sistema`);
-                    closeAthleteModal();
-                    await carregarAtletas(); // recarrega do banco
-                } catch (error) {
-                    console.error("Erro ao excluir atleta:", error);
-                    alert("Não foi possível excluir o atleta.");
-                }
+        // Função para excluir atleta
+        async function deleteAthlete(id, nome) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/alunos/${id}`, {
+                    method: "DELETE"
+                });
+
+                if (!response.ok) throw new Error("Erro ao excluir atleta");
+
+                alert(`${nome} foi removido do sistema ✅`);
+                closeAthleteModal();           // ✅ fecha o modal
+                await carregarAtletas();       // ✅ atualiza os dados
+                updateTable();                 // ✅ re-renderiza a tabela
+            } catch (error) {
+                console.error("Erro ao excluir atleta:", error);
+                alert("Não foi possível excluir o atleta.");
             }
         }
 
@@ -3045,12 +3059,12 @@
             if (filteredAthletes.length === 0) {
                 const noResultsRow = document.createElement("tr");
                 noResultsRow.innerHTML = `
-                                <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                                  <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-                                  <h3>Nenhum atleta encontrado</h3>
-                                  <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
-                                </td>
-                              `;
+            <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+                <h3>Nenhum atleta encontrado</h3>
+                <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
+            </td>
+            `;
                 tbody.appendChild(noResultsRow);
                 return;
             }
@@ -3062,12 +3076,12 @@
                 const athleteCell = document.createElement("td");
                 athleteCell.className = "athlete-info";
                 athleteCell.innerHTML = `
-                                <div class="athlete-avatar">${athlete.avatar}</div>
-                                <div class="athlete-details">
-                                  <h4>${athlete.name}</h4>
-                                  <p>${athlete.email}</p>
-                                </div>
-                              `;
+            <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
+            <div class="athlete-details">
+                <h4>${athlete.nome}</h4>
+                <p>${athlete.email}</p>
+            </div>
+            `;
 
                 const sportCell = document.createElement("td");
                 // Mapear modalidades para traduções
@@ -3078,15 +3092,17 @@
                     'Vôlei': 'modalidade.volei',
                     'Futebol': 'modalidade.futebol'
                 };
-                const translateKey = modalidadeMap[athlete.sport];
+                const translateKey = modalidadeMap[athlete.modalidade];
                 if (translateKey) {
                     sportCell.setAttribute('data-translate', translateKey);
                 }
-                sportCell.textContent = athlete.sport;
+                sportCell.textContent = athlete.modalidade;
 
                 const ageCell = document.createElement("td");
                 // Adicionar tradução para "anos"
-                const ageNumber = athlete.age.replace(' anos', '');
+                const ageNumber = typeof athlete.idade === "string"
+                    ? athlete.idade.replace(" anos", "")
+                    : athlete.idade ?? "Não informado";
                 ageCell.innerHTML = `${ageNumber} <span data-translate="lista_atletas.anos">anos</span>`;
 
                 const statusCell = document.createElement("td");
@@ -3148,20 +3164,23 @@
                 deleteBtn.title = "Excluir atleta";
                 deleteBtn.setAttribute("aria-label", "Excluir atleta");
                 deleteBtn.onclick = (event) => {
-                    event.stopPropagation(); // Evitar abrir o modal ao clicar no botão de excluir
-                    document.getElementById("athleteModal").dataset.index = index; // Passar o índice para o modal de confirmação
+                    event.stopPropagation();
+                    document.getElementById("athleteModal").dataset.id = athlete.id;
                     document.getElementById("athleteModalTitle").textContent = "Excluir Atleta";
-                    document.getElementById("athleteName").value = athlete.name;
+                    document.getElementById("athleteName").value = athlete.nome;
                     document.getElementById("athleteEmail").value = athlete.email;
-                    document.getElementById("athleteSport").value = athlete.sport;
-                    document.getElementById("athleteAge").value = athlete.age.replace(" anos", "");
+                    document.getElementById("athleteSport").value = athlete.modalidade;
+                    document.getElementById("athleteAge").value = typeof athlete.idade === "string"
+                        ? athlete.idade.replace(" anos", "")
+                        : athlete.idade;
                     document.getElementById("athleteStatus").value = athlete.status;
-                    document.getElementById("athletePhone").value = athlete.phone;
-                    document.getElementById("athleteAddress").value = athlete.address;
-                    document.getElementById("athleteNotes").value = ""; // Limpar observações ao abrir para excluir
+                    document.getElementById("athletePhone").value = athlete.telefone;
+                    document.getElementById("athleteAddress").value = athlete.endereco;
+                    document.getElementById("athleteNotes").value = "";
                     document.getElementById("deleteAthleteBtn").style.display = "block";
                     document.getElementById("athleteModal").style.display = "flex";
                 };
+
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
 
                 actionsDiv.appendChild(editBtn);
@@ -3169,7 +3188,7 @@
                 actionsDiv.appendChild(deleteBtn);
                 actionsCell.appendChild(actionsDiv);
 
-                console.log(`✅ Botões criados para ${athlete.name}:`, {
+                console.log(`✅ Botões criados para ${athlete.nome}:`, {
                     editBtn: editBtn.outerHTML,
                     evaluateBtn: evaluateBtn.outerHTML,
                     deleteBtn: deleteBtn.outerHTML,
@@ -3192,18 +3211,19 @@
         }
 
         // Função para avaliar atleta
-        function avaliarAtleta(athlete) {
-            console.log('🔄 Redirecionando para avaliação do atleta:', athlete);
+        function avaliarAtleta(atleta) {
+            console.log('🔄 Redirecionando para avaliação do atleta:', atleta);
 
             // Criar um ID temporário baseado no nome se não existir
             // Usar apenas o ID numérico do atleta
-            if (!athlete.id) {
+            if (!atleta.id) {
                 alert('ID do atleta não encontrado. Não é possível avaliar este atleta.');
                 return;
             }
 
             // Redirecionar para a página de avaliação
-            window.location.href = `avaliar-atleta.html?id=${athlete.id}&nome=${encodeURIComponent(athlete.name)}&modalidade=${encodeURIComponent(athlete.sport)}`;
+            window.location.href = `/treinador/avaliaratleta?id=${atleta.id}&nome=${encodeURIComponent(atleta.nome)}&modalidade=${encodeURIComponent(atleta.modalidade)}`;
+
         }
 
         // Função para inicializar a página
