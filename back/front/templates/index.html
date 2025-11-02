@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Instituto Franciscani</title>
-    <link rel="shortcut icon" href="static/img/logo_if_icon.png" type="">
+    <link rel="icon" href="/static/img/logo_if_icon.png" type="image/png" />
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 
@@ -55,6 +55,34 @@
             });
         });
     </script>
-    
+
+
+    <script>
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('jwt_token='))
+            ?.split('=')[1];
+
+        if (token) {
+            localStorage.setItem("jwt_token", token);
+        }
+
+        const usuarioCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('usuario_info='))
+            ?.split('=')[1];
+
+        if (usuarioCookie) {
+            try {
+                const usuario = JSON.parse(decodeURIComponent(usuarioCookie));
+                localStorage.setItem("usuario_info", JSON.stringify(usuario));
+            } catch (e) {
+                console.warn("⚠️ Erro ao interpretar usuario_info:", e);
+            }
+        }
+
+    </script>
+
+
 </body>
 </html>

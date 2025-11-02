@@ -7,23 +7,27 @@ from dotenv import load_dotenv
 import os
 from database import get_db
 import models
+from fastapi import Request 
+
 
 # Carregar variáveis do .env
 load_dotenv()
 SECRET_KEY = os.getenv("APP_SECRET_KEY")
 ALGORITHM = "HS256"
-EXPIRATION_MINUTES = 60
+EXPIRATION_MINUTES = 200
 
 if not SECRET_KEY:
     raise RuntimeError("APP_SECRET_KEY não foi definido no .env")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def criar_token_acesso(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=EXPIRATION_MINUTES)
+    expire = datetime.utcnow() + timedelta(minutes=60)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 def get_usuario_logado(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:

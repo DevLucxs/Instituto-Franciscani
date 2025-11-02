@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time
+﻿from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
@@ -18,7 +18,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, nullable=False)
+    email = Column(String, unique=True, index=True)
     senha = Column(String(255), nullable=False)
     tipo = Column(Enum(UserType, native_enum=False), nullable=False)
     nome = Column(String(255), nullable=False)
@@ -48,7 +48,7 @@ class Feedback(Base):
     treinador_id = Column(Integer, ForeignKey("users.id"))
     texto = Column(Text, nullable=False)
     video_url = Column(String, nullable=True)
-    criado_em = Column(DateTime, default=datetime.utcnow)
+    criado_em = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     aluno = relationship("User", foreign_keys=[aluno_id])
     treinador = relationship("User", foreign_keys=[treinador_id])

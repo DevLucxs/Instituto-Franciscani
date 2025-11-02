@@ -2,19 +2,22 @@
 import shutil
 from fastapi import File, UploadFile
 import os
-from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, relationship, joinedload
 from database import SessionLocal, engine, Base, get_db
 import models
 from sqlalchemy import func
-from datetime import datetime, timedelta, date, time
+from datetime import datetime, timedelta, date, time, timezone
 from typing import List, Optional
 from pydantic import BaseModel
 from schema import FeedbackCreate, FeedbackOut
 from auth import criar_token_acesso, get_usuario_logado
 from fastapi import APIRouter, Depends
+from models import User, UserType, Feedback
+from urllib.parse import quote
+import json
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -39,6 +42,14 @@ app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 
 # Templates (HTML com Jinja2)
 templates = Jinja2Templates(directory="front/templates")
+
+
+UPLOAD_DIRECTORY = "/uploads/dietas" #Variável referente a dieta
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+VIDEO_UPLOAD_DIRECTORY = "/uploads/videos" #Variável referente aos vídeos
+os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
+
 
 # Função para popular usuários
 @app.on_event("startup")
@@ -79,6 +90,9 @@ def startup_event():
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
+
+
+
 # Página de login
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
@@ -92,15 +106,51 @@ async def login(request: Request, email: str = Form(...), senha: str = Form(...)
     db.close()
 
     if not user or user.senha != senha:
-        return templates.TemplateResponse(
-            "index.html",
-            {"request": request, "error": "Credenciais inválidas!"}
-        )
+        # Se for requisição via navegador (formulário), renderiza a página
+        if request.headers.get("accept", "").startswith("text/html"):
+            return templates.TemplateResponse(
+                "index.html",
+                {"request": request, "error": "Credenciais inválidas!"}
+            )
+        # Se for via fetch(), retorna JSON
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
-    if user.tipo.value == "aluno":
-        return RedirectResponse(url=f"/aluno/dashboard/{user.id}", status_code=303)
-    else:
-        return RedirectResponse(url=f"/treinador/dashboard/{user.id}", status_code=303)
+    # Gerar token JWT
+    token = criar_token_acesso({"sub": user.email})
+
+    usuario_info = {
+        "id": user.id,
+        "nome": user.nome,
+        "email": user.email,
+        "tipo": user.tipo.value
+    }
+
+    # Se for requisição via navegador (formulário), redireciona e salva cookies
+    if request.headers.get("accept", "").startswith("text/html"):
+        destino = f"/{user.tipo.value}/dashboard/{user.id}"
+        response = RedirectResponse(url=destino, status_code=303)
+        response.set_cookie(key="jwt_token", value=token, httponly=False)
+        response.set_cookie(
+            key="usuario_info",
+            value=quote(json.dumps(usuario_info)),
+            httponly=False
+        )
+        return response
+
+    # Se for via fetch(), retorna JSON para salvar no localStorage
+    return JSONResponse(content={
+        "token": token,
+        "usuario": usuario_info
+    })
+
+@app.get("/api/usuario/me")
+def usuario_logado(usuario = Depends(get_usuario_logado)):
+    return {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "tipo": usuario.tipo.value
+    }
 
 
 
@@ -146,6 +196,107 @@ async def api_desempenho(atleta_id: int):
     
     db.close()
     return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
+
+
+
+@app.get("/api/alunos/{aluno_id}/feedbacks")
+def listar_feedbacks_do_aluno(aluno_id: int, db: Session = Depends(get_db)):
+    feedbacks = db.query(models.Feedback)\
+        .filter(models.Feedback.aluno_id == aluno_id)\
+        .order_by(models.Feedback.criado_em.desc())\
+        .all()
+
+    resultado = []
+    for f in feedbacks:
+        resultado.append({
+            "id": f.id,
+            "texto": f.texto,
+            "criado_em": f.criado_em.isoformat(),
+            "treinador_nome": f.treinador.nome,  # ✅ inclui nome do treinador
+            "video_url": f.video_url
+        })
+
+    return resultado
+
+
+
+
+@app.get("/api/alunos/{aluno_id}")
+def get_aluno(aluno_id: int, db: Session = Depends(get_db), usuario: User = Depends(get_usuario_logado)):
+    if usuario.tipo != UserType.aluno or usuario.id != aluno_id:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+
+    aluno = db.query(models.User).filter(models.User.id == aluno_id).first()
+    if not aluno:
+        raise HTTPException(status_code=404, detail="Aluno não encontrado")
+
+    return {
+        "id": aluno.id,
+        "nome": aluno.nome,
+        "email": aluno.email,
+        "modalidade": aluno.modalidade,
+        "foco": aluno.foco
+    }
+
+
+
+@app.get("/api/alunos/{aluno_id}/feedbacks/ultimo")
+def feedback_mais_recente(aluno_id: int, db: Session = Depends(get_db), usuario: User = Depends(get_usuario_logado)):
+    if usuario.tipo != UserType.aluno or usuario.id != aluno_id:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+
+    feedback = (
+        db.query(models.Feedback)
+        .filter(models.Feedback.aluno_id == aluno_id)
+        .order_by(models.Feedback.criado_em.desc())
+        .first()
+    )
+
+    if not feedback:
+        return {"existe": False}
+
+    return {
+        "existe": True,
+        "texto": feedback.texto,
+        "data": feedback.data.isoformat(),
+        "treinador": feedback.treinador.nome,
+        "iniciais": "".join([n[0] for n in feedback.treinador.nome.split()]).upper()
+    }
+
+
+
+@app.get("/api/alunos/email/{email}")
+def buscar_aluno_por_email(
+    email: str,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_usuario_logado)
+):
+    try:
+        # Verifica se o usuário logado tem permissão
+        if usuario.tipo not in [models.UserType.aluno, models.UserType.treinador]:
+            raise HTTPException(status_code=403, detail="Acesso negado")
+
+        # Busca o aluno pelo e-mail
+        aluno = db.query(models.User).filter(models.User.email == email).first()
+        if not aluno:
+            raise HTTPException(status_code=404, detail="Aluno não encontrado")
+
+        # Retorna os dados
+        return {
+            "id": aluno.id,
+            "nome": aluno.nome,
+            "email": aluno.email,
+            "modalidade": aluno.modalidade,
+            "foco": aluno.foco
+        }
+
+    except Exception as e:
+        print("❌ Erro interno ao buscar aluno por e-mail:", e)
+        raise HTTPException(status_code=500, detail="Erro interno no servidor")
+
+
+
+
 
 # TREINADOR
 
@@ -290,42 +441,78 @@ async def calendario(request: Request, treinador_id: int):
     )
 
 
+@app.get("/treinador/avaliaratleta", response_class=HTMLResponse)
+async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str):
+    db = SessionLocal()
+    treinador = db.query(models.User).filter(models.User.tipo == models.UserType.treinador).first()
+    db.close()
+
+    return templates.TemplateResponse("pages/avaliar-atleta.html", {
+        "request": request,
+        "id": id,
+        "nome": nome,
+        "modalidade": modalidade,
+        "treinador": treinador
+    })
+
+
+
+
+
 @app.post("/api/feedbacks")
-async def criar_feedback(feedback: FeedbackCreate, usuario: models.User = Depends(get_usuario_logado)):
+async def criar_feedback(
+    feedback: FeedbackCreate,
+    usuario: User = Depends(get_usuario_logado),
+    db: Session = Depends(get_db)
+):
+    # ✅ Verificação corrigida
+    if usuario.tipo != UserType.treinador:
+        raise HTTPException(status_code=403, detail="Somente treinadores podem enviar feedback")
+
     try:
-        db = SessionLocal()
-        novo_feedback = models.Feedback(
+        novo_feedback = Feedback(
             texto=feedback.texto,
             video_url=feedback.video_url,
             treinador_id=usuario.id,
-            aluno_id=feedback.aluno_id
+            aluno_id=feedback.aluno_id,
+            criado_em=datetime.now(timezone.utc)
         )
         db.add(novo_feedback)
         db.commit()
         db.refresh(novo_feedback)
-        db.close()
         return {"sucesso": True, "mensagem": "Feedback criado com sucesso"}
     except Exception as e:
         db.rollback()
-        db.close()
         raise HTTPException(status_code=500, detail=f"Erro ao criar feedback: {str(e)}")
 
 
+
+
 @app.get("/api/alunos/{aluno_id}/feedbacks")
-def listar_feedbacks(aluno_id: int, db: Session = Depends(get_db)):
-    feedbacks = db.query(models.Feedback).filter(models.Feedback.aluno_id == aluno_id).all()
-    
+def listar_feedbacks(
+    aluno_id: int,
+    db: Session = Depends(get_db),
+    usuario=Depends(get_usuario_logado)
+):
+    # 🔒 Verifica se o usuário logado é o mesmo do aluno solicitado
+    if usuario.id != aluno_id:
+        raise HTTPException(status_code=403, detail="Acesso negado ao feedback de outro atleta")
+
+    feedbacks = db.query(models.Feedback)\
+        .filter(models.Feedback.aluno_id == aluno_id)\
+        .order_by(models.Feedback.criado_em.desc())\
+        .all()
+
     resultado = []
     for f in feedbacks:
         resultado.append({
             "id": f.id,
-            "aluno_id": f.aluno_id,
-            "treinador_id": f.treinador_id,
-            "treinador_nome": f.treinador.nome if f.treinador else "Treinador",
             "texto": f.texto,
-            "video_url": f.video_url,
-            "criado_em": f.criado_em
+            "criado_em": f.criado_em.isoformat(),
+            "treinador_nome": f.treinador.nome,
+            "video_url": f.video_url
         })
+
     return {"feedbacks": resultado}
 
 
