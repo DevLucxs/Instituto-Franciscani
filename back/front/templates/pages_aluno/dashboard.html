@@ -1790,41 +1790,49 @@
 
         // Função para carregar vídeos do atleta
         async function carregarVideosDoAtleta() {
-            try {
-                const token = localStorage.getItem('jwt_token');
-                const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+    try {
+        const token = localStorage.getItem('jwt_token');
+        const baseURL = window.location.origin; // Correção simples de URL
 
-                // Determinar ID do atleta logado
-                const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
-                const atletaId = 1; // Ana Mendonça tem atleta_id = 1
+        // Pega o ID do atleta DIRETAMENTE DA URL
+        const { atletaId } = getParametrosDaURL(); 
 
-                console.log('🎥 [VÍDEOS] Carregando vídeos para atleta:', atletaId);
-
-                const response = await fetch(`${baseURL}/api/atletas/${atletaId}/videos`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('🎥 [VÍDEOS] Resposta da API:', data);
-
-                if (data.sucesso) {
-                    atualizarListaVideos(data.videos);
-                } else {
-                    console.error('❌ [VÍDEOS] Erro na API:', data.erro);
-                }
-
-            } catch (error) {
-                console.error('❌ [VÍDEOS] Erro ao carregar vídeos:', error);
-            }
+        if (!atletaId || isNaN(parseInt(atletaId))) {
+            console.warn("⚠️ ID do atleta na URL é inválido. Vídeos não serão carregados.");
+            atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
+            return;
         }
+
+        console.log('🎥 [VÍDEOS] Carregando vídeos para atleta:', atletaId);
+
+        // Chama a rota correta da API
+        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/videos`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('🎥 [VÍDEOS] Resposta da API:', data);
+
+        if (data.sucesso) {
+            atualizarListaVideos(data.videos);
+        } else {
+            console.error('❌ [VÍDEOS] Erro na API:', data.erro);
+            atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
+        }
+
+    } catch (error) {
+        console.error('❌ [VÍDEOS] Erro ao carregar vídeos:', error);
+        atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
+    }
+}
 
         // Função para atualizar a lista de vídeos na interface
         function atualizarListaVideos(videos) {
@@ -1860,29 +1868,31 @@
 
         // Função para criar elemento de vídeo
         function criarElementoVideo(video) {
-            const videoDiv = document.createElement('div');
-            videoDiv.className = 'video-item';
-            videoDiv.onclick = () => visualizarVideo(video);
+    const videoDiv = document.createElement('div');
+    videoDiv.className = 'video-item';
+    videoDiv.onclick = () => visualizarVideo(video);
 
-            // Calcular tempo relativo e data completa
-            const dataUpload = new Date(video.data_upload);
-            const tempoRelativo = calcularTempoRelativo(dataUpload);
-            const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+    // Calcular tempo relativo e data completa
+    const dataUpload = new Date(video.data_upload);
+    const tempoRelativo = calcularTempoRelativo(dataUpload);
+    const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
-            videoDiv.innerHTML = `
-                      <div class="video-thumbnail">
-                        <i class="fas fa-play"></i>
-                      </div>
-                      <div class="video-info">
-                        <h4>${video.titulo}</h4>
-                        <p>${video.descricao || 'Vídeo de treinamento'}</p>
-                        <small>Postado por ${video.treinador_nome} • ${tempoRelativo}</small>
-                        <small class="video-datetime">${dataHoraCompleta}</small>
-                      </div>
-                    `;
+    // AQUI ESTÁ A CORREÇÃO: 
+    // Colocando o HTML da thumbnail de volta
+    videoDiv.innerHTML = `
+        <div class="video-thumbnail">
+            <i class="fas fa-play"></i>
+        </div>
+        <div class="video-info">
+            <h4>${video.titulo}</h4>
+            <p>${video.descricao || 'Vídeo de treinamento'}</p>
+            <small>Postado • ${tempoRelativo}</small>
+            <small class="video-datetime">${dataHoraCompleta}</small>
+        </div>
+    `;
 
-            return videoDiv;
-        }
+    return videoDiv;
+}
 
         // Função para calcular tempo relativo
         function calcularTempoRelativo(data) {
@@ -1949,80 +1959,76 @@
         }
 
         // Função para visualizar vídeo
-        function visualizarVideo(video) {
-            console.log('🎥 [VÍDEO] Iniciando visualização:', video);
+       function visualizarVideo(video) {
+    console.log('🎥 [VÍDEO] Iniciando visualização:', video);
 
-            // Preencher o modal de visualização
-            const videoElement = document.getElementById('videoPlayer');
-            const videoSource = document.getElementById('videoSource');
-            const videoTitle = document.getElementById('videoViewDetailsTitle');
-            const videoDescription = document.getElementById('videoViewDescription');
-            const videoDate = document.getElementById('videoViewDate');
-            const videoAthlete = document.getElementById('videoViewAthlete');
+    // Preencher o modal de visualização
+    const videoElement = document.getElementById('videoPlayer');
+    const videoSource = document.getElementById('videoSource');
+    const videoTitle = document.getElementById('videoViewDetailsTitle');
+    const videoDescription = document.getElementById('videoViewDescription');
+    const videoDate = document.getElementById('videoViewDate');
+    const videoAthlete = document.getElementById('videoViewAthlete');
 
-            if (!videoElement || !videoSource) {
-                console.error('❌ [VÍDEO] Elementos do player não encontrados');
-                alert('Erro: Player de vídeo não encontrado');
-                return;
-            }
+    if (!videoElement || !videoSource) {
+        console.error('❌ [VÍDEO] Elementos do player não encontrados');
+        alert('Erro: Player de vídeo não encontrado');
+        return;
+    }
 
-            // Verificar se a URL do vídeo é válida
-            if (!video.url_video || video.url_video.trim() === '') {
-                console.error('❌ [VÍDEO] URL do vídeo inválida:', video.url_video);
-                alert('Erro: URL do vídeo não disponível');
-                return;
-            }
+    // Verificar se a URL do vídeo é válida (ISSO DEVE VIR ANTES de usar a URL)
+    if (!video.url_video || video.url_video.trim() === '') {
+        console.error('❌ [VÍDEO] URL do vídeo inválida:', video.url_video);
+        alert('Erro: URL do vídeo não disponível');
+        return;
+    }
 
-            console.log('🎥 [VÍDEO] Configurando vídeo com URL:', video.url_video);
+    // 1. CONSTRUIR A URL CORRETA (USANDO A ORIGEM ATUAL)
+    const videoUrl = window.location.origin + video.url_video;
 
-            // Construir URL correta para arquivos locais
-            let videoUrl = video.url_video;
-            if (video.url_video.startsWith('/uploads/')) {
-                // Para arquivos locais, usar a rota do Flask
-                videoUrl = `http://localhost:5000${video.url_video}`;
-            }
+    // 2. REMOVEMOS O BLOCO DE CÓDIGO ANTIGO QUE USAVA "localhost:5000"
 
-            console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
+    console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
 
-            // Configurar o vídeo
-            videoSource.src = videoUrl;
-            videoElement.load(); // Recarregar o vídeo com a nova fonte
+    // Configurar o vídeo
+    videoSource.src = videoUrl;
+    videoElement.load(); // Recarregar o vídeo com a nova fonte
 
-            // Adicionar event listeners para debug
-            videoElement.addEventListener('loadstart', () => {
-                console.log('🎥 [VÍDEO] Iniciando carregamento...');
-            });
+    // Adicionar event listeners para debug
+    videoElement.addEventListener('loadstart', () => {
+        console.log('🎥 [VÍDEO] Iniciando carregamento...');
+    });
 
-            videoElement.addEventListener('canplay', () => {
-                console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
-            });
+    videoElement.addEventListener('canplay', () => {
+        console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
+    });
 
-            videoElement.addEventListener('error', (e) => {
-                console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
-                console.error('❌ [VÍDEO] Erro details:', videoElement.error);
-                alert('Erro ao carregar vídeo. Verifique a URL ou tente novamente.');
-            });
+    videoElement.addEventListener('error', (e) => {
+        console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
+        console.error('❌ [VÍDEO] Erro details:', videoElement.error);
+        alert('Erro ao carregar vídeo. Verifique a URL ou tente novamente.');
+    });
 
-            videoElement.addEventListener('loadeddata', () => {
-                console.log('✅ [VÍDEO] Dados do vídeo carregados');
-            });
+    videoElement.addEventListener('loadeddata', () => {
+        console.log('✅ [VÍDEO] Dados do vídeo carregados');
+    });
 
-            // Calcular tempo relativo e data completa
-            const dataUpload = new Date(video.data_upload);
-            const tempoRelativo = calcularTempoRelativo(dataUpload);
-            const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+    // Calcular tempo relativo e data completa
+    const dataUpload = new Date(video.data_upload);
+    const tempoRelativo = calcularTempoRelativo(dataUpload);
+    const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
-            // Preencher informações
-            videoTitle.textContent = video.titulo;
-            videoDescription.textContent = video.descricao || 'Sem descrição disponível';
-            videoDate.textContent = `${tempoRelativo} (${dataHoraCompleta})`;
-            videoAthlete.textContent = `Postado por ${video.treinador_nome}`;
+    // Preencher informações
+    videoTitle.textContent = video.titulo;
+    videoDescription.textContent = video.descricao || 'Sem descrição disponível';
+    videoDate.textContent = `${tempoRelativo} (${dataHoraCompleta})`;
+    videoAthlete.textContent = `Postado pelo seu treinador`;
 
-            console.log('🎥 [VÍDEO] Abrindo modal...');
+    console.log('🎥 [VÍDEO] Abrindo modal...');
 
-            // Abrir o modal
-            document.getElementById('videoViewModal').style.display = 'block';
-        }
+    // Abrir o modal
+    document.getElementById('videoViewModal').style.display = 'flex';
+}
 
         // Função para fechar o modal de visualização de vídeo
         function closeVideoViewModal() {

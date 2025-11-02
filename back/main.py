@@ -956,6 +956,44 @@ async def update_evento(evento_id: int, evento_data: EventoCreate, db: Session =
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao atualizar evento: {str(e)}")
+    
+#ROTA PARA RETORNAR VÍDEOS DE UM ALUNO ESPECÍFICO
+@app.get("/api/alunos/{aluno_id}/videos") 
+async def get_videos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
+    try:
+        # 1. Faz a query filtrando pelo ID do aluno
+        videos = db.query(models.Video)\
+                   .filter(models.Video.aluno_id == aluno_id)\
+                   .order_by(models.Video.data_upload.desc())\
+                   .all()
+        
+        videos_list = []
+        for v in videos:
+            # 2. (Lógica de limpeza de path que você já usa)
+            url_video_path = v.filepath 
+            if url_video_path: 
+                url_video_path = url_video_path.replace("\\", "/")
+                if url_video_path.startswith("./"):
+                    url_video_path = url_video_path[1:]
+            
+            # 3. Monta a lista de vídeos
+            videos_list.append({
+                "id": v.id,
+                "titulo": v.titulo,
+                "descricao": v.descricao,
+                "url_video": v.filepath, # Sua função JS de visualização já trata o caminho
+                "data_upload": v.data_upload.isoformat(),
+                "atleta_id": v.aluno_id,
+                
+                # NOTA: O seu modelo 'Video' não armazena qual
+                # treinador fez o upload. Vamos tratar isso no JS.
+            })
+        
+        return {"sucesso": True, "videos": videos_list}
+        
+    except Exception as e:
+        print(f"Erro ao buscar vídeos do aluno: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar vídeos do aluno")
 
 # Logout
 @app.get("/logout")
