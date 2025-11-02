@@ -1724,6 +1724,8 @@
 
         // Voltar para dados gerais
         function voltarParaDadosGerais() {
+            const usuario = JSON.parse(localStorage.getItem("usuario_info"));
+            const treinadorId = localStorage.getItem("treinadorId");
             window.location.href = "/treinador/dados/{{ treinador.id }}";
         }
 
