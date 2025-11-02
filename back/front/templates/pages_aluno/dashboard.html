@@ -2039,6 +2039,108 @@
             videoPlayer.currentTime = 0;
         }
 
+        // Função para CARREGAR as competições da API
+async function carregarCompeticoesDoAtleta() {
+    try {
+        const token = localStorage.getItem('jwt_token');
+        const baseURL = window.location.origin;
+        
+        // Pega o ID do atleta da URL da página
+        const { atletaId } = getParametrosDaURL(); 
+
+        if (!atletaId || isNaN(parseInt(atletaId))) {
+            console.warn("⚠️ ID do atleta na URL é inválido. Competições não serão carregadas.");
+            atualizarListaCompeticoes([]);
+            return;
+        }
+
+        console.log('🏆 [COMPETICOES] Carregando competições para atleta:', atletaId);
+
+        // Chama a nova rota que criamos no main.py
+        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/eventos`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.sucesso) {
+            atualizarListaCompeticoes(data.eventos);
+        } else {
+            console.error('❌ [COMPETICOES] Erro na API:', data.detail);
+            atualizarListaCompeticoes([]);
+        }
+
+    } catch (error) {
+        console.error('❌ [COMPETICOES] Erro ao carregar competições:', error);
+        atualizarListaCompeticoes([]);
+    }
+}
+
+// Função para RENDERIZAR as competições no HTML
+function atualizarListaCompeticoes(eventos) {
+    const container = document.querySelector('.card.competitions .eventos-proximos');
+    if (!container) {
+        console.error("❌ [COMPETICOES] Container .eventos-proximos não encontrado.");
+        return;
+    }
+
+    container.innerHTML = ''; // Limpa qualquer conteúdo (ex: "carregando")
+
+    if (!eventos || eventos.length === 0) {
+        // Mensagem de "Nenhuma competição"
+        container.innerHTML = `
+            <div class="sem-dados" style="padding: 10px 0;">
+                <i class="fas fa-calendar-times" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p style="font-size: 14px; color: #555;">Nenhuma competição futura</p>
+                <small style="font-size: 12px;">Seu treinador não agendou nada ainda.</small>
+            </div>
+        `;
+        return;
+    }
+
+    // Cria o HTML para cada evento
+    eventos.forEach(ev => {
+        // Formata a data (ex: 25 OUT)
+        const dataObj = new Date(ev.data + 'T00:00:00'); // Trata como data local
+        const dia = dataObj.getDate();
+        const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
+        
+        // Formata a hora (ex: 10:30h)
+        let horaFormatada = '';
+        if (ev.hora) {
+            try {
+                const [h, m] = ev.hora.split(':');
+                horaFormatada = ` - ${h}:${m}h`;
+            } catch (e) { /* ignora erro de hora */ }
+        }
+
+        // Define um ícone baseado no tipo de evento
+        const tipoIcone = ev.tipo === 'competicao' ? '🏆' : '📅';
+
+        const eventoHtml = `
+            <div class="competition-item">
+                <div class="competition-date">
+                    <div class="day">${dia}</div>
+                    <div class="month">${mes}</div>
+                </div>
+                <div class="competition-details">
+                    <h4>${tipoIcone} ${ev.titulo}</h4>
+                    <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
+                </div>
+            </div>
+        `;
+        container.innerHTML += eventoHtml;
+    });
+}
+
         // Event listener para fechar modal ao clicar fora dele
         window.addEventListener('click', function (event) {
             const videoModal = document.getElementById('videoViewModal');
@@ -2054,6 +2156,8 @@
 
             // Carregar vídeos do atleta
             carregarVideosDoAtleta();
+            // Carregar competições do atleta
+            carregarCompeticoesDoAtleta();
         });
 
         // Fallback: se o DOM já estiver carregado, executar imediatamente
@@ -2064,6 +2168,7 @@
             console.log('🚀 DOM já carregado, carregando feedback automaticamente...');
             carregarFeedbackDoTreinador();
             carregarVideosDoAtleta();
+            carregarCompeticoesDoAtleta();
         }
 
         // Sistema de calendário integrado com dashboard-aluno.js

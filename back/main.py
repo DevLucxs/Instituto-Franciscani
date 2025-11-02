@@ -994,6 +994,39 @@ async def get_videos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Erro ao buscar vídeos do aluno: {e}")
         raise HTTPException(status_code=500, detail="Erro ao buscar vídeos do aluno")
+    
+#Buscar competições futuras por ID de aluno
+@app.get("/api/alunos/{aluno_id}/eventos")
+async def get_eventos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
+    try:
+        # Pega a data de hoje
+        hoje = date.today()
+        
+        # 1. Busca eventos...
+        eventos = db.query(models.Evento)\
+                    .join(models.evento_alunos_association)\
+                    .filter(models.evento_alunos_association.c.aluno_id == aluno_id)\
+                    .filter(models.Evento.data >= hoje)\
+                    .order_by(models.Evento.data.asc())\
+                    .all()
+        
+        # 2. Formata a lista para enviar ao frontend
+        eventos_list = []
+        for ev in eventos:
+            eventos_list.append({
+                "id": ev.id,
+                "titulo": ev.titulo,
+                "data": ev.data.isoformat(),
+                "hora": ev.hora.isoformat() if ev.hora else None,
+                "local": ev.local,
+                "tipo": ev.tipo,
+            })
+        
+        return {"sucesso": True, "eventos": eventos_list}
+
+    except Exception as e:
+        print(f"Erro ao buscar eventos do aluno: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar eventos do aluno")
 
 # Logout
 @app.get("/logout")
