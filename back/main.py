@@ -12,11 +12,9 @@ from sqlalchemy import func
 from datetime import datetime, timedelta, date, time
 from typing import List, Optional
 from pydantic import BaseModel
-from pydantic import BaseModel
 from schema import FeedbackCreate, FeedbackOut
 from auth import criar_token_acesso, get_usuario_logado
 from fastapi import APIRouter, Depends
-
 
 
 UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
@@ -24,6 +22,11 @@ os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 VIDEO_UPLOAD_DIRECTORY = "./uploads/videos" #Variável referente aos vídeos
 os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
+
+class VideoUpdate(BaseModel):
+    titulo: str
+    descricao: Optional[str] = None
+    aluno_id: Optional[int] = None
 
 # Cria tabelas se não existirem
 Base.metadata.create_all(bind=engine)
@@ -551,6 +554,7 @@ async def get_videos(db: Session = Depends(get_db)):
         print(f"Erro ao buscar vídeos: {e}")
         raise HTTPException(status_code=500, detail="Erro ao buscar vídeos")
 
+#ROTA DE DELEÇÃO DE VÍDEOS
 @app.delete("/api/treinador/videos/{video_id}", status_code=200)
 async def delete_video_route(video_id: int, db: Session = Depends(get_db)):
     try:
@@ -590,6 +594,36 @@ async def delete_video_route(video_id: int, db: Session = Depends(get_db)):
         db.rollback()
         print(f"Erro ao excluir vídeo: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao excluir o vídeo.")
+
+# ROTA DE ATUALIZAÇÃO DE VÍDEOS
+@app.put("/api/treinador/videos/{video_id}")
+async def update_video(
+    video_id: int, 
+    video_update: VideoUpdate, 
+    db: Session = Depends(get_db)
+):
+    try:
+        # 1. Encontrar o vídeo no banco
+        video = db.query(models.Video).filter(models.Video.id == video_id).first()
+        
+        if not video:
+            raise HTTPException(status_code=404, detail="Vídeo não encontrado")
+        
+        # 2. Atualizar os campos com os dados recebidos
+        video.titulo = video_update.titulo
+        video.descricao = video_update.descricao
+        video.aluno_id = video_update.aluno_id # No frontend é 'atleta_id', mas no DB é 'aluno_id'
+        
+        # 3. Salvar as mudanças
+        db.commit()
+        db.refresh(video)
+        
+        return {"sucesso": True, "message": "Vídeo atualizado com sucesso!"}
+
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao atualizar vídeo: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao atualizar o vídeo.")
 
 # Buscar todos os eventos
 @app.get("/api/eventos")

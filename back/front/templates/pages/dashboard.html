@@ -589,14 +589,16 @@
         color: var(--dark-color);
       }
 
-      .form-group select,
-      .form-group input[type="file"] {
-        width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 15px;
-      }
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select,
+    .form-group input[type="file"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+}
 
       .modal-actions {
         display: flex;
@@ -1508,6 +1510,34 @@
               </div>
             </form>
           </div>
+          <div class="upload-video" id="editVideo" style="display: none;">
+    <h3>Editar Vídeo</h3>
+    <form id="editVideoForm">
+        <input type="hidden" id="editVideoId">
+        
+        <div class="form-group">
+            <label for="editVideoTitle">Título do Vídeo</label>
+            <input type="text" id="editVideoTitle" required>
+        </div>
+        <div class="form-group">
+            <label for="editVideoDescription">Descrição</label>
+            <textarea id="editVideoDescription" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="editVideoAthleteSelect">Atleta (opcional)</label>
+            <select id="editVideoAthleteSelect"> 
+                <option value="">Selecione um atleta</option>
+                {% for aluno in alunos %}
+                    <option value="{{ aluno.id }}">{{ aluno.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-outline" onclick="fecharModalEdicao()">Cancelar</button>
+            <button type="submit" id="saveVideoBtn" class="btn btn-primary">Salvar Alterações</button>
+        </div>
+    </form>
+</div>
         </div>
       </div>
     </div>
@@ -1570,12 +1600,6 @@
         </div>
       </div>
     </div>
-    <!-- Scripts da API -->
-    <script src="/static/js/frontend-config.js"></script>
-    <script src="/static/js/dashboard-treinador.js"></script>
-    <script src="/static/js/personalizar-usuario.js"></script>
-    <script src="/static/js/notificacoes.js"></script>
-    <script src="/static/js/traducoes.js"></script>
 
     <script>
       //retornar próximos eventos
@@ -2558,6 +2582,7 @@
       function openVideosList() {
         document.getElementById("videosList").style.display = "block";
         document.getElementById("uploadVideo").style.display = "none";
+        document.getElementById("editVideo").style.display = "none";
         carregarListaVideos();
       }
 
@@ -2738,13 +2763,109 @@
         document.getElementById('videoViewAthlete').textContent = atletaNome || '';
         
         // Abrir o modal
-        document.getElementById('videoViewModal').style.display = 'block';
+        document.getElementById('videoViewModal').style.display = 'flex';
       }
 
-      // Função para editar vídeo (placeholder)
-      function editarVideo(videoId) {
-        alert(`Funcionalidade de edição será implementada para o vídeo ID: ${videoId}`);
-      }
+      // Função para editar vídeo 
+      async function editarVideo(videoId) {
+    console.log(`[EDIT] Abrindo modal para vídeo ID: ${videoId}`);
+    
+    try {
+        // 1. Buscar os dados ATUAIS de TODOS os vídeos
+        // (É mais simples do que criar outro endpoint só para 1 vídeo)
+        const absoluteUrl = window.location.origin + `/api/treinador/videos`;
+        const token = localStorage.getItem('jwt_token');
+        
+        const response = await fetch(absoluteUrl, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const data = await response.json();
+
+        if (!data.sucesso) throw new Error("Não foi possível carregar dados dos vídeos.");
+
+        // 2. Encontrar o vídeo específico que queremos editar
+        const video = data.videos.find(v => v.id === videoId);
+
+        if (!video) {
+            alert('Erro: Vídeo não encontrado.');
+            return;
+        }
+
+        // 3. Popular o formulário de EDIÇÃO com os dados
+        document.getElementById('editVideoId').value = video.id;
+        document.getElementById('editVideoTitle').value = video.titulo;
+        document.getElementById('editVideoDescription').value = video.descricao || '';
+        document.getElementById('editVideoAthleteSelect').value = video.atleta_id || ''; // 'atleta_id' é o que a API retorna
+
+        // 4. Mostrar o modal de EDIÇÃO e esconder os outros
+        document.getElementById('uploadVideo').style.display = 'none';
+        document.getElementById('videosList').style.display = 'none';
+        document.getElementById('editVideo').style.display = 'block'; // <-- Mostra o novo modal
+
+    } catch (error) {
+        console.error('Erro ao buscar dados do vídeo:', error);
+        alert('Erro ao carregar dados para edição.');
+    }
+}
+
+function fecharModalEdicao() {
+    document.getElementById('editVideo').style.display = 'none';
+    document.getElementById('editVideoForm').reset();
+    // Volta para a lista de vídeos
+    openVideosList(); 
+}
+
+// Event listener para o SUBMIT do formulário de EDIÇÃO
+document.getElementById('editVideoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Pegar os dados do formulário
+    const videoId = document.getElementById('editVideoId').value;
+    const titulo = document.getElementById('editVideoTitle').value;
+    const descricao = document.getElementById('editVideoDescription').value;
+    const atletaId = document.getElementById('editVideoAthleteSelect').value;
+
+    const btn = document.getElementById('saveVideoBtn');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    try {
+        const absoluteUrl = window.location.origin + `/api/treinador/videos/${videoId}`;
+        const token = localStorage.getItem('jwt_token');
+
+        const response = await fetch(absoluteUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                titulo: titulo,
+                descricao: descricao,
+                aluno_id: atletaId ? parseInt(atletaId) : null // Envia 'aluno_id' para o backend
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.sucesso) {
+            alert('Vídeo atualizado com sucesso!');
+            fecharModalEdicao(); // Fecha o modal de edição
+            // A função fecharModalEdicao() já chama openVideosList(), 
+            // que por sua vez chama carregarListaVideos()
+        } else {
+            throw new Error(data.detail || data.message || 'Erro desconhecido');
+        }
+
+    } catch (error) {
+        console.error('Erro ao salvar alterações:', error);
+        alert(`Erro ao salvar: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Salvar Alterações';
+    }
+});
 
       // Função para excluir vídeo (placeholder)
       function excluirVideo(videoId) {
@@ -2831,7 +2952,7 @@
           videoPlayer.load(); // Recarregar o vídeo com a nova fonte
           
           // Mostrar o modal
-          document.getElementById('videoViewModal').style.display = 'block';
+          document.getElementById('videoViewModal').style.display = 'flex';
         } else {
           alert('Vídeo não encontrado!');
         }
