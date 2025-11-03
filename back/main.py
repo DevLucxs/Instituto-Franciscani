@@ -999,16 +999,13 @@ async def get_videos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
 @app.get("/api/alunos/{aluno_id}/eventos")
 async def get_eventos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
     try:
-        # Pega a data de hoje
-        hoje = date.today()
         
-        # 1. Busca eventos...
+        # 1. Busca TODOS os eventos (passados e futuros) do aluno
         eventos = db.query(models.Evento)\
-                    .join(models.evento_alunos_association)\
-                    .filter(models.evento_alunos_association.c.aluno_id == aluno_id)\
-                    .filter(models.Evento.data >= hoje)\
-                    .order_by(models.Evento.data.asc())\
-                    .all()
+            .join(models.evento_alunos_association)\
+            .filter(models.evento_alunos_association.c.aluno_id == aluno_id)\
+            .order_by(models.Evento.data.desc())\
+            .all()
         
         # 2. Formata a lista para enviar ao frontend
         eventos_list = []
