@@ -726,16 +726,7 @@
           <div class="form-group">
             <label for="athlete">Atleta</label>
             <select id="athlete" required>
-              <option value="">Selecione um atleta</option>
-              <option value="Ana Mendonça">Ana Mendonça - Natação</option>
-              <option value="Pedro Silva">Pedro Silva - Atletismo</option>
-              <option value="Carolina Rodrigues">
-                Carolina Rodrigues - Ginástica
-              </option>
-              <option value="Lucas Santos">Lucas Santos - Vôlei</option>
-              <option value="Mariana Ferreira">
-                Mariana Ferreira - Natação
-              </option>
+              <option value="">Carregando atletas...</option>
             </select>
           </div>
 
@@ -743,12 +734,16 @@
             <label for="trainingDate">Data do Treino</label>
             <input type="date" id="trainingDate" required />
           </div>
-
+          <!-- NOVO CAMPO DE HORA -->
+          <div class="form-group">
+            <label for="trainingHour">Hora do Treino</label>
+            <input type="time" id="trainingHour" required />
+          </div>
           <div class="form-group">
             <label for="trainingTime">Tempo de Treino (minutos)</label>
             <input type="number" id="trainingTime" min="1" required />
           </div>
-
+          
           <div class="form-group">
             <label for="trainingType">Tipo de Treino</label>
             <div
@@ -804,54 +799,47 @@
     </div>
 
     <script>
-      // Dados iniciais de exemplo
-      const sampleTrainings = [
-        {
-          id: 1,
-          athlete: "Ana Mendonça",
-          date: "2023-09-18",
-          time: 90,
-          type: "Aeróbico",
-          load: 0,
-          deadline: "2023-09-25",
-          completed: true,
-        },
-        {
-          id: 2,
-          athlete: "Pedro Silva",
-          date: "2023-09-18",
-          time: 120,
-          type: "Força",
-          load: 85,
-          deadline: "2023-09-30",
-          completed: false,
-        },
-        {
-          id: 3,
-          athlete: "Carolina Rodrigues",
-          date: "2023-09-19",
-          time: 60,
-          type: "Técnico",
-          load: 0,
-          deadline: "2023-09-26",
-          completed: false,
-        },
-        {
-          id: 4,
-          athlete: "Lucas Santos",
-          date: "2023-09-20",
-          time: 150,
-          type: "Resistência",
-          load: 70,
-          deadline: "2023-10-05",
-          completed: true,
-        },
-      ];
+      // Função auxiliar para formatar data no formato YYYY-MM-DD
+    function formatDate(date) {
+      return date.toISOString().split("T")[0];
+    }
 
       // Função para renderizar a semana atual
       function renderWeek() {
         const weekContainer = document.getElementById("weekContainer");
         weekContainer.innerHTML = "";
+      }
+      // Função auxiliar para pegar o token JWT (assuma que é salvo no login, ex: localStorage.setItem('token', token))
+      function getAuthToken() {
+        return localStorage.getItem('token');  // Ajuste se o token for salvo de outra forma
+      }
+      
+      // Função para carregar treinamentos do back-end
+      async function loadTrainings() {
+        try {
+          const token = localStorage.getItem("token") || localStorage.getItem("jwt_token");
+          const response = await fetch('/api/treinamentos', {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+          
+          if (!response.ok) {
+            if (response.status === 401) {
+              alert('Sessão expirada. Por favor, faça login novamente.');
+              window.location.href = '/';
+              return;
+            }
+            throw new Error('Erro ao carregar treinamentos');
+          }
+          const trainings = await response.json();
+          renderTrainings(trainings);  // Renderiza com os dados do BD
+        } catch (error) {
+          console.error('Erro:', error);
+          alert('Erro ao carregar treinamentos. Verifique sua conexão ou login.');
+        }
+      }
 
         // Obter os dias da semana atual
         const today = new Date();
@@ -887,11 +875,11 @@
         }
 
         // Renderizar os treinos
-        renderTrainings();
+        //loadTrainings();
 
         // Configurar funcionalidade de arrastar
         setupDragAndDrop();
-      }
+      
 
       // Função para formatar data como YYYY-MM-DD
       function formatDate(date) {
@@ -922,81 +910,64 @@
         return days[dayIndex];
       }
 
-      // Função para renderizar os treinos
-      function renderTrainings() {
-        // Limpar todos os treinos existentes
-        const allTrainingLists = document.querySelectorAll(".trainings-list");
-        allTrainingLists.forEach((list) => {
-          list.innerHTML = "";
-        });
+      // =====================================================
+// RENDERIZAÇÃO DOS TREINAMENTOS
+// =====================================================
 
-        // Obter treinos do localStorage ou usar os de exemplo
-        let trainings =
-          JSON.parse(localStorage.getItem("trainings")) || sampleTrainings;
+// Função para renderizar os treinamentos nos dias da semana
+function renderTrainings(trainings = []) {
+  // Limpar listas existentes
+  document.querySelectorAll(".trainings-list").forEach((list) => {
+    list.innerHTML = "";
+  });
 
-        // Adicionar cada treino ao dia correspondente
-        trainings.forEach((training) => {
-          const trainingList = document.querySelector(
-            `.trainings-list[data-date="${training.date}"]`
-          );
+  if (trainings.length === 0) {
+    document.querySelectorAll(".trainings-list").forEach((list) => {
+      list.innerHTML = '<p class="empty-day">Nenhum treinamento agendado</p>';
+    });
+    return;
+  }
 
-          if (trainingList) {
-            const trainingElement = document.createElement("div");
-            trainingElement.className = "training-item";
-            trainingElement.setAttribute("draggable", "true");
-            trainingElement.setAttribute("data-id", training.id);
+  trainings.forEach((training) => {
+    const dayElement = document.querySelector(
+      `.day-column[data-date="${training.data}"]`  // Note: Use 'data' em vez de 'date' para matching com o modelo BD
+    );
+    if (dayElement) {
+      const trainingElement = document.createElement("div");
+      trainingElement.className = "training-item";
+      trainingElement.draggable = true;
+      trainingElement.setAttribute("data-id", training.id);
 
-            trainingElement.innerHTML = `
-                        <div class="training-athlete">${training.athlete}</div>
-                        ${
-                          training.type === "Técnico" && training.description
-                            ? `<div class="training-description">${training.description}</div>`
-                            : ""
-                        }
-                        <div class="training-details">
-                            <span>${training.time} min</span>
-                            <span>${training.type}</span>
-                        </div>
-                        <div class="training-details">
-                            <span>Carga: ${training.load} kg</span>
-                            <span>Prazo: ${formatDateDisplay(
-                              new Date(training.deadline)
-                            )}</span>
-                        </div>
-                        <div class="training-actions">
-                            <div class="training-check">
-                                <input type="checkbox" id="check-${
-                                  training.id
-                                }" ${training.completed ? "checked" : ""}>
-                                <label for="check-${
-                                  training.id
-                                }">Concluído</label>
-                            </div>
-                            <div class="training-delete" data-id="${
-                              training.id
-                            }">
-                                <i class="fas fa-trash"></i>
-                            </div>
-                        </div>
-                    `;
+      trainingElement.innerHTML = `
+        <div class="training-athlete">${training.atleta_nome || 'Atleta Desconhecido'}</div>  <!-- Assuma que a API retorna o atleta com nome via relationship -->
+        <div class="training-details">
+          <span>${training.tipo}</span>
+          <span>${training.hora}</span>  <!-- Ajuste formato se necessário, ex: min -->
+        </div>
+        <div class="training-actions">
+          <div class="training-check">
+            <input type="checkbox" id="complete-${training.id}" ${training.completed ? 'checked' : ''}>
+            <label for="complete-${training.id}">Concluído</label>
+          </div>
+          <i class="fas fa-trash training-delete" onclick="deleteTraining(${training.id})"></i>
+        </div>
+      `;
 
-            trainingList.appendChild(trainingElement);
-          }
-        });
+      // Evento para marcar como concluído (atualiza no BD)
+      const checkbox = trainingElement.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener('change', () => updateTrainingCompletion(training.id, checkbox.checked));
 
-        // Adicionar mensagem para dias sem treinos
-        const allTrainingListsAfter =
-          document.querySelectorAll(".trainings-list");
-        allTrainingListsAfter.forEach((list) => {
-          if (list.children.length === 0) {
-            list.innerHTML =
-              '<div class="empty-day">Nenhum treinamento agendado</div>';
-          }
-        });
+      // Eventos de drag
+      trainingElement.addEventListener("dragstart", handleDragStart);
+
+      dayElement.querySelector(".trainings-list").appendChild(trainingElement);
+    }
+  });
+}
 
         // Adicionar event listeners para checkboxes e botões de exclusão
         addTrainingEventListeners();
-      }
+      
 
       // Função para configurar arrastar e soltar
       function setupDragAndDrop() {
@@ -1016,52 +987,39 @@
         });
       }
 
-      // Manipuladores de eventos de arrastar e soltar
-      function handleDragStart(e) {
-        this.classList.add("dragging");
-        e.dataTransfer.setData("text/plain", this.getAttribute("data-id"));
-      }
+      // =====================================================
+// MANIPULAÇÃO DE DRAG AND DROP (MANTER SE NECESSÁRIO)
+// =====================================================
 
-      function handleDragEnd() {
-        this.classList.remove("dragging");
-      }
+// Função para iniciar drag
 
-      function handleDragOver(e) {
-        e.preventDefault();
-      }
+function handleDragStart(e) {
+  e.dataTransfer.setData("text/plain", e.target.dataset.id);
+  e.target.classList.add("dragging");
+}
+function handleDragOver(e) {
+  
+}
+function handleDragEnter(e) {
+  
+}
+function handleDragLeave(e) {
+  
+}
 
-      function handleDragEnter(e) {
-        e.preventDefault();
-        this.style.backgroundColor = "#e9ecef";
-      }
+// Função para drop (atualiza data no BD)
+async function handleDrop(e) {
+  e.preventDefault();
+  const id = e.dataTransfer.getData("text/plain");
+  const item = document.querySelector(`[data-id="${id}"]`);
+  const newDate = e.currentTarget.dataset.date;
 
-      function handleDragLeave() {
-        this.style.backgroundColor = "#f8f9fa";
-      }
-
-      function handleDrop(e) {
-        e.preventDefault();
-        this.style.backgroundColor = "#f8f9fa";
-
-        const trainingId = e.dataTransfer.getData("text/plain");
-        const newDate = this.getAttribute("data-date");
-
-        // Atualizar a data do treino
-        updateTrainingDate(trainingId, newDate);
-      }
-
-      // Função para atualizar a data de um treino
-      function updateTrainingDate(trainingId, newDate) {
-        let trainings =
-          JSON.parse(localStorage.getItem("trainings")) || sampleTrainings;
-
-        const trainingIndex = trainings.findIndex((t) => t.id == trainingId);
-        if (trainingIndex !== -1) {
-          trainings[trainingIndex].date = newDate;
-          localStorage.setItem("trainings", JSON.stringify(trainings));
-          renderTrainings();
-        }
-      }
+  if (item && newDate) {
+    // Atualiza no BD
+    await updateTraining(id, { data: newDate });
+    item.classList.remove("dragging");
+  }
+}
 
       // Função para obter ID correto do treinamento
       function obterIdCorretoTreinamento(trainingId) {
@@ -1671,7 +1629,11 @@
         }
       }
 
-      // Função para abrir o modal de adicionar treino
+      // =====================================================
+      // MODAL E FORMULÁRIO
+      // =====================================================
+
+      // Função para abrir o modal de adicionar treinamento
       function openAddTrainingModal() {
         const modal = document.getElementById("trainingModal");
         modal.style.display = "flex";
@@ -1689,62 +1651,98 @@
         document.getElementById("trainingForm").reset();
       }
 
-      // Função para adicionar um novo treino
-      function addNewTraining(e) {
-        e.preventDefault();
+      // =====================================================
+    // OPERAÇÕES CRUD
+    // =====================================================
 
-        // Obter valores do formulário
-        const athlete = document.getElementById("athlete").value;
-        const date = document.getElementById("trainingDate").value;
-        const time = document.getElementById("trainingTime").value;
-        const type = document.getElementById("trainingType").value;
-        const load = document.getElementById("trainingLoad").value || 0;
-        const deadline =
-          document.getElementById("trainingDeadline").value || date;
+    // Função para adicionar novo treinamento
+    async function addNewTraining(e) {
+      e.preventDefault();
 
-        // Validar campos obrigatórios
-        if (!athlete || !date || !time || !type) {
-          alert("Por favor, preencha todos os campos obrigatórios.");
-          return;
-        }
+      const athlete = document.getElementById("athlete").value;
+      const date = document.getElementById("trainingDate").value;
+      const time = document.getElementById("trainingTime").value;
+      const type = document.getElementById("trainingType").value;
+      const load = parseFloat(document.getElementById("trainingLoad").value) || 0;
+      const deadline = document.getElementById("trainingDeadline").value || date;
+      const description = document.getElementById("technicalDescription").value;
 
-        // Criar novo treino
-        let trainings =
-          JSON.parse(localStorage.getItem("trainings")) || sampleTrainings;
-
-        // Gerar ID único
-        const newId =
-          trainings.length > 0
-            ? Math.max(...trainings.map((t) => t.id)) + 1
-            : 1;
-
-        const description = document.getElementById(
-          "technicalDescription"
-        ).value;
-
-        const newTraining = {
-          id: newId,
-          athlete,
-          date,
-          time: parseInt(time),
-          type,
-          load: parseFloat(load),
-          deadline,
-          completed: false,
-          description: type === "Técnico" ? description : "", // só guarda se for técnico
-        };
-
-        // Adicionar ao array e salvar
-        trainings.push(newTraining);
-        localStorage.setItem("trainings", JSON.stringify(trainings));
-
-        // Fechar modal e recarregar treinos
-        closeModal();
-        renderTrainings();
-        
-        // Atualizar gráfico de horas
-        atualizarGraficoHorasTreinamento();
+      if (!athlete || !date || !time || !type) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
       }
+
+      const newTraining = {
+        atleta_id: parseInt(athlete),  // ID do atleta selecionado
+        tipo: type,
+        data: date,
+        hora: time,
+        carga: load,
+        deadline: deadline,
+        descricao: type === "Técnico" ? description : "",
+        completed: false
+      };
+
+      try {
+        const response = await fetch('/api/treinamentos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify(newTraining)
+        });
+        if (!response.ok) throw new Error('Erro ao criar treinamento');
+        closeModal();
+        loadTrainings();  // Recarrega do BD
+        // atualizarGraficoHorasTreinamento();  // Mantenha se existir
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao adicionar treinamento.');
+      }
+    }
+
+    // Função para atualizar treinamento (geral)
+    async function updateTraining(id, updatedData) {
+      try {
+        const response = await fetch(`/api/treinamentos/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify(updatedData)
+        });
+        if (!response.ok) throw new Error('Erro ao atualizar');
+        loadTrainings();  // Recarrega
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar treinamento.');
+      }
+    }
+
+    // Função específica para atualizar completion (chamada no checkbox)
+    async function updateTrainingCompletion(id, completed) {
+      await updateTraining(id, { completed });
+    }
+
+    // Função para deletar treinamento
+    async function deleteTraining(id) {
+      if (!confirm('Tem certeza que deseja deletar este treinamento?')) return;
+      try {
+        const response = await fetch(`/api/treinamentos/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          }
+        });
+        if (!response.ok) throw new Error('Erro ao deletar');
+        loadTrainings();  // Recarrega
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao deletar treinamento.');
+      }
+    }
 
       // Função de logout
       function logout() {
@@ -1816,10 +1814,14 @@
         });
       }
 
+      // =====================================================
+      // EVENT LISTENERS
+      // =====================================================
+
       // Inicializar a página quando carregada
       document.addEventListener("DOMContentLoaded", function () {
         // Renderizar a semana
-        renderWeek();
+        //renderWeek();
 
         // Configurar event listeners para o modal
         document
@@ -1842,6 +1844,9 @@
             closeModal();
           }
         });
+
+        // Carregar treinamentos do BD
+        loadTrainings();
       });
 
       // Mostrar/ocultar campo de descrição dependendo do tipo
@@ -1919,5 +1924,108 @@
       };
       document.head.appendChild(script);
     </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const addBtn = document.getElementById("addTrainingBtn");
+      const modal = document.getElementById("trainingModal");
+      const closeBtn = document.querySelector(".close-modal");
+      const cancelBtn = document.getElementById("cancelTrainingBtn");
+
+      if (addBtn && modal) {
+        addBtn.addEventListener("click", () => {
+          modal.style.display = "flex"; // mostra o modal
+        });
+      }
+
+      function closeModal() {
+        modal.style.display = "none";
+      }
+
+      closeBtn?.addEventListener("click", closeModal);
+      cancelBtn?.addEventListener("click", closeModal);
+
+      // Fecha modal ao clicar fora
+      modal?.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+    });
+  </script>
+
+  <script>
+  document.getElementById("trainingForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const atletaId = document.getElementById("athlete").value;
+    const dataTreino = document.getElementById("trainingDate").value;
+    const horaTreino = document.getElementById("trainingHour").value;
+    const tipo = document.getElementById("trainingType").value;
+    const carga = parseFloat(document.getElementById("trainingLoad").value) || 0;
+    const deadline = document.getElementById("trainingDeadline").value;
+    const descricao = document.getElementById("technicalDescription").value;
+
+    const novoTreino = {
+      atleta_id: atletaId,
+      tipo,
+      data: dataTreino,
+      hora: horaTreino,
+      carga,
+      deadline,
+      descricao,
+    };
+
+    const response = await fetch("/api/treinamentos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(novoTreino),
+    });
+
+    if (response.ok) {
+      alert("✅ Treinamento adicionado com sucesso!");
+      document.getElementById("trainingModal").style.display = "none";
+    } else {
+      const err = await response.json();
+      alert("❌ Erro ao adicionar treino: " + err.detail);
+    }
+  });
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const selectAtleta = document.getElementById("athlete");
+
+    async function carregarAlunos() {
+      try {
+        const response = await fetch("/api/alunos");
+        if (!response.ok) {
+          throw new Error("Erro ao buscar alunos");
+        }
+
+        const alunos = await response.json();
+        selectAtleta.innerHTML = '<option value="">Selecione um atleta</option>';
+
+        if (alunos.length === 0) {
+          const opt = document.createElement("option");
+          opt.textContent = "Nenhum atleta cadastrado";
+          opt.disabled = true;
+          selectAtleta.appendChild(opt);
+          return;
+        }
+
+        alunos.forEach((aluno) => {
+          const option = document.createElement("option");
+          option.value = aluno.id; // ID numérico do banco
+          option.textContent = `${aluno.nome} ${aluno.modalidade ? '- ' + aluno.modalidade : ''}`;
+          selectAtleta.appendChild(option);
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar alunos:", error);
+        selectAtleta.innerHTML = '<option value="">Erro ao carregar atletas</option>';
+      }
+    }
+
+    await carregarAlunos();
+  });
+  </script>
+
   </body>
 </html>

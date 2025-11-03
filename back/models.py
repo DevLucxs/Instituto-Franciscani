@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time
+﻿from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time, Boolean, timezone
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
@@ -105,3 +105,22 @@ Video.aluno = relationship("User", back_populates="videos")
 
 # Adicionar no User o relacionamento inverso
 User.desempenhos = relationship("Desempenho", back_populates="atleta")
+
+class Treinamento(Base):
+    __tablename__ = "treinamentos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    atleta_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Associação com o atleta (aluno)
+    tipo = Column(String(50), nullable=False)  # Ex: "Técnico", "Aeróbico", etc.
+    data = Column(Date, nullable=False)
+    hora = Column(Time, nullable=False)
+    carga = Column(Float, default=0.0)  # Carga em horas ou minutos, como no seu front
+    deadline = Column(Date, nullable=True)  # Prazo para conclusão
+    completed = Column(Boolean, default=False)  # Se foi concluído
+    descricao = Column(String(1024), nullable=True)  # Descrição técnica, se aplicável
+
+    # Relacionamento com o User (atleta)
+    atleta = relationship("User", back_populates="treinamentos")
+
+# Adicione o relacionamento inverso no User (depois da classe User existente)
+User.treinamentos = relationship("Treinamento", back_populates="atleta")

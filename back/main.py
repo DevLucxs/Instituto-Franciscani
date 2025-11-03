@@ -428,6 +428,25 @@ async def treinamentos(request: Request, treinador_id: int):
         "pages/treinamentos.html", 
         {"request": request, "treinador": treinador}
     )
+    
+class TreinamentoBase(BaseModel):
+    atleta_id: int
+    tipo: str
+    data: date
+    hora: time
+    carga: float = 0.0
+    deadline: date | None = None
+    completed: bool = False
+    descricao: str | None = None
+
+class TreinamentoCreate(TreinamentoBase):
+    pass
+
+class TreinamentoOut(TreinamentoBase):
+    id: int
+
+    class Config:
+        from_attributes = True  # Para compatibilidade com SQLAlchemy
 
 # Página de Calendário
 @app.get("/treinador/calendario/{treinador_id}", response_class=HTMLResponse)
@@ -643,6 +662,84 @@ async def adicionar_desempenho(desempenho: dict = Body(...)):
         "tempo": novo_desempenho.tempo,
         "distancia": novo_desempenho.distancia,
     }
+
+# ==========================================
+# ROTAS DE TREINAMENTOS
+# ==========================================
+
+from fastapi import HTTPException
+
+@app.get("/api/treinamentos", response_class=JSONResponse)
+def listar_treinamentos(db: Session = Depends(get_db)):
+    treinamentos = db.query(models.Treinamento).all()
+    result = []
+    for t in treinamentos:
+        result.append({
+            "id": t.id,
+            "atleta_id": t.atleta_id,
+            "atleta_nome": t.atleta.nome if t.atleta else None,
+            "tipo": t.tipo,
+            "data": t.data.isoformat(),
+            "hora": t.hora.isoformat(),
+            "carga": t.carga,
+            "deadline": t.deadline.isoformat() if t.deadline else None,
+            "completed": t.completed,
+            "descricao": t.descricao,
+        })
+    return result
+
+
+@app.post("/api/treinamentos", response_class=JSONResponse)
+def criar_treinamento(dados: dict = Body(...), db: Session = Depends(get_db)):
+    try:
+        novo = models.Treinamento(
+            atleta_id=dados.get("atleta_id"),
+            tipo=dados.get("tipo"),
+            data=datetime.strptime(dados.get("data"), "%Y-%m-%d").date(),
+            hora=datetime.strptime(dados.get("hora"), "%H:%M").time(),
+            carga=dados.get("carga", 0.0),
+            deadline=datetime.strptime(dados.get("deadline"), "%Y-%m-%d").date()
+                     if dados.get("deadline") else None,
+            descricao=dados.get("descricao"),
+        )
+        db.add(novo)
+        db.commit()
+        db.refresh(novo)
+        return {"message": "Treinamento criado com sucesso", "id": novo.id}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.put("/api/treinamentos/{treino_id}/concluir", response_class=JSONResponse)
+def marcar_treino_concluido(treino_id: int, db: Session = Depends(get_db)):
+    treino = db.query(models.Treinamento).filter(models.Treinamento.id == treino_id).first()
+    if not treino:
+        raise HTTPException(status_code=404, detail="Treinamento não encontrado")
+    treino.completed = True
+    db.commit()
+    return {"message": "Treinamento marcado como concluído"}
+
+
+@app.put("/api/treinamentos/{treino_id}/pendente", response_class=JSONResponse)
+def marcar_treino_pendente(treino_id: int, db: Session = Depends(get_db)):
+    treino = db.query(models.Treinamento).filter(models.Treinamento.id == treino_id).first()
+    if not treino:
+        raise HTTPException(status_code=404, detail="Treinamento não encontrado")
+    treino.completed = False
+    db.commit()
+    return {"message": "Treinamento marcado como pendente"}
+
+
+@app.delete("/api/treinamentos/{treino_id}", response_class=JSONResponse)
+def deletar_treinamento(treino_id: int, db: Session = Depends(get_db)):
+    treino = db.query(models.Treinamento).filter(models.Treinamento.id == treino_id).first()
+    if not treino:
+        raise HTTPException(status_code=404, detail="Treinamento não encontrado")
+    db.delete(treino)
+    db.commit()
+    return {"message": "Treinamento removido com sucesso"}
+
 
 # Diretório para salvar as dietas enviadas aos atletas
 @app.post("/api/dieta/{atleta_id}")
@@ -1024,6 +1121,54 @@ async def get_eventos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Erro ao buscar eventos do aluno: {e}")
         raise HTTPException(status_code=500, detail="Erro ao buscar eventos do aluno")
+    
+# Rotas para Treinamentos (CRUD)
+@app.get("/api/treinamentos", response_model=List[TreinamentoOut])
+async def get_treinamentos(db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
+    # Lista todos os treinamentos (pode filtrar por treinador ou atleta se quiser)
+    treinamentos = db.query(models.Treinamento).all()
+    return treinamentos
+
+@app.post("/api/treinamentos", response_model=TreinamentoOut)
+async def create_treinamento(treinamento_data: TreinamentoCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
+    # Verifica se o usuário é treinador
+    if current_user.tipo != models.UserType.treinador:
+        raise HTTPException(status_code=403, detail="Apenas treinadores podem criar treinamentos")
+    
+    novo_treinamento = models.Treinamento(**treinamento_data.dict())
+    db.add(novo_treinamento)
+    db.commit()
+    db.refresh(novo_treinamento)
+    return novo_treinamento
+
+@app.put("/api/treinamentos/{treinamento_id}", response_model=TreinamentoOut)
+async def update_treinamento(treinamento_id: int, treinamento_data: TreinamentoCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
+    if current_user.tipo != models.UserType.treinador:
+        raise HTTPException(status_code=403, detail="Apenas treinadores podem atualizar treinamentos")
+    
+    db_treinamento = db.query(models.Treinamento).filter(models.Treinamento.id == treinamento_id).first()
+    if not db_treinamento:
+        raise HTTPException(status_code=404, detail="Treinamento não encontrado")
+    
+    for key, value in treinamento_data.dict().items():
+        setattr(db_treinamento, key, value)
+    
+    db.commit()
+    db.refresh(db_treinamento)
+    return db_treinamento
+
+@app.delete("/api/treinamentos/{treinamento_id}", status_code=200)
+async def delete_treinamento(treinamento_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
+    if current_user.tipo != models.UserType.treinador:
+        raise HTTPException(status_code=403, detail="Apenas treinadores podem deletar treinamentos")
+    
+    db_treinamento = db.query(models.Treinamento).filter(models.Treinamento.id == treinamento_id).first()
+    if not db_treinamento:
+        raise HTTPException(status_code=404, detail="Treinamento não encontrado")
+    
+    db.delete(db_treinamento)
+    db.commit()
+    return {"message": "Treinamento deletado com sucesso"}
 
 #Buscar o caminho da dieta do aluno
 @app.get("/api/alunos/{aluno_id}/dieta")
