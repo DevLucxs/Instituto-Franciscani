@@ -1465,15 +1465,69 @@
         }
 
         // Adicionar funcionalidade aos botões do modal de dieta
-        document.querySelector('.modal-actions .btn-outline').addEventListener('click', function () {
-            alert('Visualizando dieta online...');
-            document.getElementById('dietModal').style.display = 'none';
+       document.querySelector('.modal-actions .btn-outline').addEventListener('click', () => {
+    // Chama a nova função com a ação 'view'
+    abrirArquivoDieta('view'); 
+});
+
+document.querySelector('.modal-actions .btn-primary').addEventListener('click', () => {
+    // Chama a nova função com a ação 'download'
+    abrirArquivoDieta('download'); 
+});
+
+// Nova função para buscar e abrir a dieta
+async function abrirArquivoDieta(action) {
+    const { atletaId } = getParametrosDaURL();
+    if (!atletaId) {
+        alert('Erro: Não foi possível identificar o ID do atleta.');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('jwt_token');
+        const baseURL = window.location.origin;
+        
+        // 1. Chama a nova rota da API que criamos no main.py
+        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/dieta`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
 
-        document.querySelector('.modal-actions .btn-primary').addEventListener('click', function () {
-            alert('Download do PDF iniciado...');
-            document.getElementById('dietModal').style.display = 'none';
-        });
+        const data = await response.json();
+
+        // 2. Se a API retornar um erro (como 404), mostra o erro
+        if (!response.ok || !data.sucesso) {
+            throw new Error(data.detail || 'Arquivo da dieta não encontrado.');
+        }
+        
+        const filePath = data.filepath; // Ex: /uploads/dietas/dieta_5_...
+        const fileUrl = baseURL + filePath; // Ex: http://127.0.0.1:8000/uploads/dietas/...
+
+        if (action === 'view') {
+            // 3. 'Visualizar Online': Abre o arquivo em uma nova aba
+            window.open(fileUrl, '_blank');
+        
+        } else if (action === 'download') {
+            // 4. 'Baixar PDF': Cria um link temporário e simula o clique para baixar
+            const a = document.createElement('a');
+            a.href = fileUrl;
+            // Pega só o nome do arquivo da URL (ex: dieta_5_Curriculo_David...pdf)
+            a.download = filePath.split('/').pop(); 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // 5. Fecha o modal após a ação
+        document.getElementById('dietModal').style.display = 'none';
+
+    } catch (error) {
+        // 6. Mostra qualquer erro no processo (ex: "Nenhuma dieta foi enviada...")
+        console.error('❌ Erro ao buscar dieta:', error);
+        alert(`Erro: ${error.message}`);
+    }
+}
 
         document.addEventListener("DOMContentLoaded", () => {
             carregarUsuarioLogado();

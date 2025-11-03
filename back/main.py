@@ -1028,6 +1028,40 @@ async def get_eventos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
         print(f"Erro ao buscar eventos do aluno: {e}")
         raise HTTPException(status_code=500, detail="Erro ao buscar eventos do aluno")
 
+#Buscar o caminho da dieta do aluno
+@app.get("/api/alunos/{aluno_id}/dieta")
+async def get_dieta_aluno(aluno_id: int, db: Session = Depends(get_db)):
+    try:
+        # Busca o aluno no banco
+        aluno = db.query(models.User).filter(
+            models.User.id == aluno_id, 
+            models.User.tipo == 'aluno'
+        ).first()
+        
+        if not aluno:
+            raise HTTPException(status_code=404, detail="Aluno não encontrado")
+        
+        # Verifica se o aluno tem um arquivo de dieta
+        if not aluno.dieta_filepath:
+            raise HTTPException(status_code=404, detail="Nenhuma dieta foi enviada para este aluno ainda.")
+
+        # Limpa o 'filepath' para ser uma URL relativa
+        # Remove "./" do início e troca barras invertidas
+        file_path = aluno.dieta_filepath.replace("\\", "/")
+        if file_path.startswith("./"):
+            file_path = file_path[1:] # Remove o "./"
+        
+        # Retorna o caminho limpo para o frontend
+        return {"sucesso": True, "filepath": file_path}
+
+    except HTTPException as http_exc:
+        # Re-lança a exceção HTTP (como 404) para que o FastAPI a trate
+        raise http_exc
+    except Exception as e:
+        # Pega qualquer outro erro
+        print(f"Erro ao buscar dieta do aluno: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao buscar dieta")
+
 # Logout
 @app.get("/logout")
 async def logout():
