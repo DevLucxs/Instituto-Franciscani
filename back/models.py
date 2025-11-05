@@ -1,8 +1,10 @@
-﻿from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time, Boolean, timezone
+﻿from sqlalchemy import Column, Integer, String, Enum, Float, ForeignKey, func, DateTime, Text, Table, Date, Time, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 import enum
 from database import Base
 from datetime import datetime
+from datetime import timezone
+
 
 class UserType(enum.Enum):
     aluno = "aluno"

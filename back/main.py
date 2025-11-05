@@ -175,28 +175,45 @@ async def aluno_dashboard(request: Request, aluno_id: int):
 
 @app.get("/api/atletas/{atleta_id}/desempenho", response_class=JSONResponse)
 async def api_desempenho(atleta_id: int):
-    db = SessionLocal()
+    db: Session = SessionLocal()
+
     atleta = db.query(models.User).filter(
         models.User.id == atleta_id,
         models.User.tipo == models.UserType.aluno
     ).first()
-    
+
     if not atleta:
         db.close()
         return JSONResponse(status_code=404, content={"error": "Atleta não encontrado"})
-    
-    registros = []
-    for d in atleta.desempenhos:
-        registros.append({
-            "id": d.id,
-            "treino": d.treino,
-            "tempo": d.tempo,
-            "distancia": d.distancia
-        })
-    
-    db.close()
-    return {"atleta": {"id": atleta.id, "nome": atleta.nome}, "desempenho": registros}
 
+    categorias = {}
+    ultima_data = None
+
+    for d in atleta.desempenhos:
+        categorias[d.treino] = {
+            "esperado": d.tempo_esperado,
+            "atingido": d.tempo,
+            "distancia": d.distancia,
+            "ultima_atualizacao": d.data_atualizacao.isoformat() if d.data_atualizacao else None
+        }
+
+        if d.data_atualizacao:
+            if not ultima_data or d.data_atualizacao > ultima_data:
+                ultima_data = d.data_atualizacao
+
+    db.close()
+
+    return {
+        "sucesso": True,
+        "atleta": {
+            "id": atleta.id,
+            "nome": atleta.nome
+        },
+        "desempenho": {
+            "categorias": categorias,
+            "ultima_atualizacao": ultima_data.isoformat() if ultima_data else None
+        }
+    }
 
 
 @app.get("/api/alunos/{aluno_id}/feedbacks")

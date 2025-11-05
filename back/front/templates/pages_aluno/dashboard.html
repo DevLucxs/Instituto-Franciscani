@@ -1540,98 +1540,111 @@ async function abrirArquivoDieta(action) {
 
         // Função para carregar dados de desempenho do servidor
         async function carregarDesempenhoDoServidor() {
+            const token = localStorage.getItem("jwt_token");
+
+            // 🔍 Obter o ID do atleta corretamente
+            let atletaId = new URLSearchParams(window.location.search).get("id");
+            if (!atletaId) {
+                const el = document.getElementById("painel-atleta");
+                atletaId = el?.dataset.atletaId;
+            }
+
+            if (!atletaId) {
+                console.error("❌ ID do atleta não encontrado");
+                return;
+            }
+
+            console.log("🔍 atletaId:", atletaId);
+            console.log("🔍 Token:", token);
+
             try {
-                const token = localStorage.getItem('jwt_token');
-                const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
-
-                // Determinar ID do atleta logado
-                const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
-                // Para Ana Mendonça, usar ID 1 (que é o ID do atleta na tabela atletas)
-                const atletaId = 1; // Ana Mendonça tem atleta_id = 1
-
-                console.log('📊 [SINCRONIZAÇÃO] Carregando desempenho do servidor para atleta:', atletaId);
-
-                const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
-                    method: 'GET',
+                const response = await fetch(`/api/atletas/${atletaId}/desempenho`, {
+                    method: "GET",
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     }
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.sucesso && data.desempenho) {
-                        console.log('✅ [SINCRONIZAÇÃO] Desempenho carregado do servidor:', data.desempenho);
+                if (!response.ok) throw new Error("Erro ao buscar desempenho");
 
-                        // Verificar se houve mudanças comparando com localStorage
-                        const dadosAnteriores = localStorage.getItem(`desempenho_${atletaId}`);
-                        let houveMudanca = true;
+                const dados = await response.json();
+                const categorias = dados.desempenho.categorias;
 
-                        if (dadosAnteriores) {
-                            try {
-                                const dadosAnt = JSON.parse(dadosAnteriores);
-                                const ultimaAtualizacaoAnterior = dadosAnt.ultima_atualizacao;
-                                const ultimaAtualizacaoAtual = data.desempenho.ultima_atualizacao;
-
-                                if (ultimaAtualizacaoAnterior === ultimaAtualizacaoAtual) {
-                                    houveMudanca = false;
-                                    console.log('📊 [SINCRONIZAÇÃO] Nenhuma mudança detectada');
-                                } else {
-                                    console.log('🔄 [SINCRONIZAÇÃO] Mudança detectada!');
-                                    console.log('📊 [SINCRONIZAÇÃO] Anterior:', ultimaAtualizacaoAnterior);
-                                    console.log('📊 [SINCRONIZAÇÃO] Atual:', ultimaAtualizacaoAtual);
-                                }
-                            } catch (error) {
-                                console.log('⚠️ [SINCRONIZAÇÃO] Erro ao comparar dados anteriores:', error);
-                            }
-                        }
-
-                        // Atualizar gráfico apenas se houve mudança
-                        if (houveMudanca) {
-                            console.log('🔄 [SINCRONIZAÇÃO] Atualizando gráfico com novos dados...');
-
-                            // Atualizar gráfico de desempenho se existir
-                            if (window.atualizarGraficoDesempenho) {
-                                window.atualizarGraficoDesempenho(data.desempenho.categorias);
-                            }
-
-                            // Mostrar notificação de atualização
-                            const notification = document.createElement('div');
-                            notification.style.cssText = `
-                              position: fixed;
-                              top: 20px;
-                              right: 20px;
-                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                              color: white;
-                              padding: 15px 20px;
-                              border-radius: 8px;
-                              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                              z-index: 9999;
-                              font-weight: 500;
-                            `;
-                            notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
-
-                            document.body.appendChild(notification);
-
-                            setTimeout(() => {
-                                notification.remove();
-                            }, 3000);
-                        }
-
-                        // Salvar no localStorage para cache
-                        localStorage.setItem(`desempenho_${atletaId}`, JSON.stringify(data.desempenho));
-
-                        return data.desempenho;
+                const labels = Object.keys(categorias).map(key => {
+                    switch (key) {
+                        case "100m_livre": return "100m Livre";
+                        case "200m_livre": return "200m Livre";
+                        case "resistencia": return "Resistência";
+                        case "tecnica": return "Técnica";
+                        case "forca": return "Força";
+                        default: return key;
                     }
-                } else {
-                    console.error('❌ [SINCRONIZAÇÃO] Erro ao carregar desempenho:', response.status);
+                });
+
+                const esperadoData = Object.values(categorias).map(cat => cat.esperado);
+                const atingidoData = Object.values(categorias).map(cat => cat.atingido);
+
+                const canvas = document.getElementById("performanceChart");
+                const ctx = canvas.getContext("2d");
+
+                if (window.performanceChart) {
+                    window.performanceChart.destroy();
                 }
+
+                window.performanceChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Desempenho Esperado",
+                                data: esperadoData,
+                                backgroundColor: "rgba(102, 126, 234, 0.8)",
+                                borderColor: "rgba(102, 126, 234, 1)",
+                                borderWidth: 1
+                            },
+                            {
+                                label: "Desempenho Atingido",
+                                data: atingidoData,
+                                backgroundColor: "rgba(46, 204, 113, 0.8)",
+                                borderColor: "rgba(46, 204, 113, 1)",
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: "top"
+                            },
+                            title: {
+                                display: true,
+                                text: "Desempenho - Natação"
+                            }
+                        }
+                    }
+                });
+
+                console.log("✅ Gráfico renderizado com sucesso");
             } catch (error) {
-                console.error('❌ [SINCRONIZAÇÃO] Erro na requisição:', error);
+                console.error("❌ Erro ao carregar desempenho:", error);
             }
-            return null;
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarDesempenhoDoServidor();
 
         // Função para atualizar gráfico de desempenho
         function atualizarGraficoDesempenho(categorias) {
