@@ -6,7 +6,7 @@
     <title>Treinamentos | Instituto Franciscani</title>
     <link
       rel="shortcut icon"
-      href="/static/img/logo_if_icon.ico"
+      href="/static/img/logo_if_icon.png"
       type="image/x-icon"
     />
     <link
@@ -736,8 +736,9 @@
           </div>
           <!-- NOVO CAMPO DE HORA -->
           <div class="form-group">
-            <label for="trainingHour">Hora do Treino</label>
-            <input type="time" id="trainingHour" required />
+              <label for="trainingHour">Hora do Treino</label>
+              <input type="time" id="trainingTime" required />
+
           </div>
           <div class="form-group">
             <label for="trainingTime">Tempo de Treino (minutos)</label>
@@ -810,36 +811,45 @@
         weekContainer.innerHTML = "";
       }
       // Função auxiliar para pegar o token JWT (assuma que é salvo no login, ex: localStorage.setItem('token', token))
-      function getAuthToken() {
-        return localStorage.getItem('token');  // Ajuste se o token for salvo de outra forma
-      }
+        function getAuthToken() {
+            return localStorage.getItem('token') || localStorage.getItem('jwt_token');
+        }
       
       // Função para carregar treinamentos do back-end
-      async function loadTrainings() {
-        try {
-          const token = localStorage.getItem("token") || localStorage.getItem("jwt_token");
-          const response = await fetch('/api/treinamentos', {
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
+        async function loadTrainings() {
+            try {
+                const token = getAuthToken();
+                if (!token) {
+                    alert('Sessão expirada. Faça login novamente.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                const response = await fetch('/api/treinamentos', {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.status === 401) {
+                    alert('Sessão expirada. Por favor, faça login novamente.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Erro ao carregar treinamentos');
+
+                const trainings = await response.json();
+                renderTrainings(trainings);
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar treinamentos. Verifique sua conexão ou login.');
             }
-          });
-          
-          if (!response.ok) {
-            if (response.status === 401) {
-              alert('Sessão expirada. Por favor, faça login novamente.');
-              window.location.href = '/';
-              return;
-            }
-            throw new Error('Erro ao carregar treinamentos');
-          }
-          const trainings = await response.json();
-          renderTrainings(trainings);  // Renderiza com os dados do BD
-        } catch (error) {
-          console.error('Erro:', error);
-          alert('Erro ao carregar treinamentos. Verifique sua conexão ou login.');
+
+
         }
-      }
+
 
         // Obter os dias da semana atual
         const today = new Date();
@@ -1063,7 +1073,7 @@ async function handleDrop(e) {
           
           console.log('🔄 Atualizando estatísticas dos treinos...');
           
-          const response = await fetch('http://localhost:5000/api/debug/treinamentos', {
+          const response = await fetch('http://localhost:8000/api/treinamentos', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -1320,8 +1330,8 @@ async function handleDrop(e) {
             // Tentar buscar todos os treinamentos disponíveis para debug
             try {
               // Usar URL completa para evitar problemas de CORS
-              const baseUrl = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
-              const debugResponse = await fetch(`${baseUrl}/api/debug/treinamentos`);
+              const baseUrl = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
+              const debugResponse = await fetch(`${baseUrl}/api/treinamentos`);
               if (debugResponse.ok) {
                 const debugData = await debugResponse.json();
                 console.log('📊 Treinamentos disponíveis:', debugData);
@@ -1472,13 +1482,13 @@ async function handleDrop(e) {
           // Tentar obter dados do banco também
           let treinosBanco = [];
           try {
-            const response = await fetch('http://localhost:5000/api/debug/treinamentos');
+            const response = await fetch('http://localhost:8000/api/treinamentos');
             if (response.ok) {
               const data = await response.json();
               treinosBanco = data.treinamentos || [];
               console.log('📊 Treinos encontrados no banco:', treinosBanco);
             }
-          } catch (error) {
+          } catch (error) { 
             console.log('⚠️ Não foi possível buscar dados do banco:', error);
           }
           
@@ -1573,7 +1583,7 @@ async function handleDrop(e) {
           
           // Buscar treinos reais do banco para calcular estatísticas corretas
           try {
-            const responseTreinos = await fetch('/api/debug/treinamentos', {
+            const responseTreinos = await fetch('/api/treinamentos', {
               headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -1680,51 +1690,89 @@ async function handleDrop(e) {
         carga: load,
         deadline: deadline,
         descricao: type === "Técnico" ? description : "",
-        completed: false
       };
 
-      try {
-        const response = await fetch('/api/treinamentos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-          },
-          body: JSON.stringify(newTraining)
-        });
-        if (!response.ok) throw new Error('Erro ao criar treinamento');
-        closeModal();
-        loadTrainings();  // Recarrega do BD
-        // atualizarGraficoHorasTreinamento();  // Mantenha se existir
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao adicionar treinamento.');
-      }
+        try {
+            const response = await fetch('/api/treinamentos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: JSON.stringify(newTraining)
+            });
+
+            const resultado = await response.json();
+
+            if (!response.ok) {
+                console.error("❌ Erro da API:", resultado);
+                throw new Error(resultado.detail || "Erro ao criar treinamento");
+            }
+
+            console.log("✅ Treinamento criado:", resultado);
+            closeModal();
+            loadTrainings();
+        } catch (error) {
+            console.error("❌ Erro no frontend:", error);
+            alert(error.message || "Erro ao adicionar treinamento.");
+        }
+
     }
 
     // Função para atualizar treinamento (geral)
-    async function updateTraining(id, updatedData) {
-      try {
-        const response = await fetch(`/api/treinamentos/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-          },
-          body: JSON.stringify(updatedData)
-        });
-        if (!response.ok) throw new Error('Erro ao atualizar');
-        loadTrainings();  // Recarrega
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao atualizar treinamento.');
-      }
-    }
+        async function updateTraining(id, updatedData) {
+            try {
+                const response = await fetch(`/api/treinamentos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.status === 401) {
+                    alert("Sessão expirada. Faça login novamente.");
+                    window.location.href = "/";
+                    return;
+                }
+
+                if (!response.ok) {
+                    const erro = await response.json();
+                    throw new Error(erro.detail || "Erro ao atualizar");
+                }
+
+                loadTrainings();  // Recarrega
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                alert(error.message || 'Erro ao atualizar treinamento.');
+            }
+        }
+
 
     // Função específica para atualizar completion (chamada no checkbox)
-    async function updateTrainingCompletion(id, completed) {
-      await updateTraining(id, { completed });
-    }
+        async function updateTrainingCompletion(id, completed) {
+            const token = getAuthToken();
+            const url = completed
+                ? `/api/treinamentos/${id}/concluir`
+                : `/api/treinamentos/${id}/pendente`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) throw new Error("Erro ao atualizar status");
+                loadTrainings();
+            } catch (error) {
+                console.error("❌ Erro:", error);
+                alert(error.message || "Erro ao atualizar status do treinamento.");
+            }
+        }
 
     // Função para deletar treinamento
     async function deleteTraining(id) {

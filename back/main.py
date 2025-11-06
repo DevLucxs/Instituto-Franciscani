@@ -20,10 +20,10 @@ from urllib.parse import quote
 import json
 
 
-UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
+UPLOAD_DIRECTORY = "/static/uploads/dietas" #Variável referente a dieta
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-VIDEO_UPLOAD_DIRECTORY = "./uploads/videos" #Variável referente aos vídeos
+VIDEO_UPLOAD_DIRECTORY = "/static/uploads/videos" #Variável referente aos vídeos
 os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
 
 class VideoUpdate(BaseModel):
@@ -684,7 +684,6 @@ async def adicionar_desempenho(desempenho: dict = Body(...)):
 # ROTAS DE TREINAMENTOS
 # ==========================================
 
-from fastapi import HTTPException
 
 @app.get("/api/treinamentos", response_class=JSONResponse)
 def listar_treinamentos(db: Session = Depends(get_db)):

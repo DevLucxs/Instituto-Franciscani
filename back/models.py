@@ -41,6 +41,8 @@ class User(Base):
         secondary=evento_alunos_association,
         back_populates="participantes")
 
+    desempenhos = relationship("Desempenho", back_populates="atleta")
+
 
 class Feedback(Base):
     __tablename__ = "feedbacks"
@@ -57,14 +59,18 @@ class Feedback(Base):
 
 class Desempenho(Base):
     __tablename__ = "desempenhos"
-    
-    id = Column(Integer, primary_key=True, index=True)
+
+    id = Column(Integer, primary_key=True)
     atleta_id = Column(Integer, ForeignKey("users.id"))
-    treino = Column(String(255), nullable=False)
-    tempo = Column(Float)      # tempo em segundos
-    distancia = Column(Float)  # distância em metros
+    treino = Column(String)
+    tempo = Column(Float)
+    distancia = Column(Integer)
+    data_atualizacao = Column(DateTime, default=datetime.utcnow)
+    tempo_esperado = Column(Float)
 
     atleta = relationship("User", back_populates="desempenhos")
+
+
 
 class Video(Base):
     __tablename__ = "videos"

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendário | Instituto Franciscani</title>
-    <link rel="shortcut icon" href="/static/img/logo_if_icon.ico" type="" />
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -899,174 +899,174 @@
 
 /* Se você adicionou o botão dentro de .view-options */
 /* Ou se precisar que ele fique agrupado com os botões de view-options */
-.calendar-header .view-options {
-    display: flex; /* Para os botões de Mês, Semana, etc. */
-    gap: 5px;
+        .calendar-header .view-options {
+            display: flex; /* Para os botões de Mês, Semana, etc. */
+            gap: 5px;
+            
+
+       
+
+
+
+
 }
     </style>
   </head>
   <body data-treinador-id="{{ treinador.id }}">
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div>
-        <div class="sidebar-header">
-          <img src="/static/img/logo_if.png" alt="" width="230px">
-        </div>
-        <ul class="menu-items">
-            <li>
-                <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
-            </li>
-            <li>
-                <a href="/treinador/dados/{{ treinador.id }}"><i class="fas fa-chart-bar"></i> <span>Dados Gerais</span></a>
-            </li>
-            <li>
-                <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span>Treinamentos</span></a>
-            </li>
-            <li>
-                <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span>Calendário</span></a>
-            </li>
-        </ul>
+      <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+      <!-- Sidebar -->
+      <aside class="sidebar">
+          <div>
+              <div class="sidebar-header">
+                  <img src="/static/img/logo_if.png" alt="" width="230px">
+              </div>
+              <ul class="menu-items">
+                  <li>
+                      <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+                  </li>
+                  <li>
+                      <a href="/treinador/dados/{{ treinador.id }}"><i class="fas fa-chart-bar"></i> <span>Dados Gerais</span></a>
+                  </li>
+                  <li>
+                      <a href="/treinador/treinamentos/{{ treinador.id }}"><i class="fas fa-running"></i> <span>Treinamentos</span></a>
+                  </li>
+                  <li>
+                      <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span>Calendário</span></a>
+                  </li>
+              </ul>
+          </div>
+          <div class="sidebar-footer">
+              <a href="https://forms.office.com/"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+              <a href="/logout"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a>
+          </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+          <!-- Header -->
+          <header class="header">
+              <div class="user-info">
+                  <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
+                  <div class="user-details">
+                      <h4>{{ treinador.nome }}</h4>
+                      <p>{{ treinador.cargos}}</p>
+                  </div>
+              </div>
+
+              <div class="search-bar">
+                  <i class="fas fa-search"></i>
+                  <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
+                  <div id="suggestionsBox"></div>
+              </div>
+
+
+
+              <div class="header-actions">
+                  <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
+                      <i class="fas fa-bell"></i>
+                  </div>
+                  <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
+                      <i class="fas fa-cog"></i>
+                  </div>
+              </div>
+          </header>
+
+          <!-- Calendário -->
+          <div class="calendar-container">
+              <div class="calendar-header">
+                  <div class="calendar-nav">
+                      <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                      <h2 class="calendar-title">Setembro 2023</h2>
+                      <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                  </div> <button id="addEventBtn" class="btn-add-evento">
+                      <i class="fas fa-plus"></i> Adicionar Evento
+                  </button>
+              </div>
+
+
+              <div class="calendar-weekdays">
+                  <div>Dom</div>
+                  <div>Seg</div>
+                  <div>Ter</div>
+                  <div>Qua</div>
+                  <div>Qui</div>
+                  <div>Sex</div>
+                  <div>Sáb</div>
+              </div>
+
+              <div class="calendar-grid" id="calendarGrid">
+              </div>
+
+          </div> <div class="calendar-container events-list">
+              <h3>Próximos Eventos</h3>
+              <div id="upcoming-events-items">
+              </div>
+          </div>
+      </main>
+
+      <!-- Modal de Evento -->
+      <div class="modal" id="eventModal">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h2>Adicionar Evento</h2>
+                  <button class="close-modal">&times;</button>
+              </div>
+              <form id="eventForm">
+                  <div class="form-group">
+                      <label for="eventTitle">Título do Evento</label>
+                      <input type="text"
+                             id="eventTitle"
+                             required
+                             placeholder="Ex: Campeonato Estadual" />
+                  </div>
+                  <div class="form-row">
+                      <div class="form-group">
+                          <label for="eventDate">Data</label>
+                          <input type="date" id="eventDate" required />
+                      </div>
+                      <div class="form-group">
+                          <label for="eventTime">Hora</label>
+                          <input type="time" id="eventTime" />
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      <label for="eventLocation">Local</label>
+                      <input type="text"
+                             id="eventLocation"
+                             placeholder="Ex: Estádio Municipal" />
+                  </div>
+                  <div class="form-group">
+                      <label for="eventType">Tipo de Evento</label>
+                      <select id="eventType">
+                          <option value="competition">Competição</option>
+                          <option value="training">Treinamento</option>
+                          <option value="meeting">Reunião</option>
+                          <option value="other">Outro</option>
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="eventDescription">Descrição</label>
+                      <textarea id="eventDescription"
+                                placeholder="Detalhes do evento..."></textarea>
+                  </div>
+                  <div class="form-group">
+                      <label for="eventAlunos">Atribuir a Alunos (opcional)</label>
+                      <select id="eventAlunos" multiple placeholder="Digite para pesquisar alunos...">
+                      </select>
+                  </div>
+                  <div class="modal-actions">
+                      <button type="button" class="btn btn-outline" id="cancelEvent">
+                          Cancelar
+                      </button>
+                      <button type="submit" id="saveEventBtn">Salvar Evento</button>
+                  </div>
+              </form>
+          </div>
       </div>
-      <div class="sidebar-footer">
-        <a href="https://forms.office.com/"
-          ><i class="fas fa-question-circle"></i> <span>Ajuda</span></a
-        >
-        <a href="/logout"
-          ><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a
-        >
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Header -->
-        <header class="header">
-            <div class="user-info">
-                <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
-                <div class="user-details">
-                    <h4>{{ treinador.nome }}</h4>
-                    <p>{{ treinador.cargos}}</p>
-                </div>
-            </div>
-          
-          <div class="search-bar">
-              <i class="fas fa-search"></i>
-              <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
-              <div id="suggestionsBox"></div> 
-            </div>
-            
-            
-
-            <div class="header-actions">
-                <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="action-icon" onclick="showSettings()" title="Configurações" aria-label="Abrir configurações">
-                    <i class="fas fa-cog"></i>
-                </div>
-            </div>
-        </header>
-
-      <!-- Calendário -->
-      <div class="calendar-container"> <div class="calendar-header">
-        <div class="calendar-nav">
-          <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-          <h2 class="calendar-title">Setembro 2023</h2>
-          <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-          </div> <button id="addEventBtn" class="btn-add-evento">
-          <i class="fas fa-plus"></i> Adicionar Evento
-      </button>
-        </div>
-      
-
-      <div class="calendar-weekdays">
-        <div>Dom</div>
-        <div>Seg</div>
-        <div>Ter</div>
-        <div>Qua</div>
-        <div>Qui</div>
-        <div>Sex</div>
-        <div>Sáb</div>
-      </div>
-
-      <div class="calendar-grid" id="calendarGrid">
-        </div>
-
-    </div> <div class="calendar-container events-list"> <h3>Próximos Eventos</h3>
-      <div id="upcoming-events-items">
-        </div>
-    </div>
-    </main>
-
-    <!-- Modal de Evento -->
-    <div class="modal" id="eventModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Adicionar Evento</h2>
-          <button class="close-modal">&times;</button>
-        </div>
-        <form id="eventForm">
-          <div class="form-group">
-            <label for="eventTitle">Título do Evento</label>
-            <input
-              type="text"
-              id="eventTitle"
-              required
-              placeholder="Ex: Campeonato Estadual"
-            />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="eventDate">Data</label>
-              <input type="date" id="eventDate" required />
-            </div>
-            <div class="form-group">
-              <label for="eventTime">Hora</label>
-              <input type="time" id="eventTime" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="eventLocation">Local</label>
-            <input
-              type="text"
-              id="eventLocation"
-              placeholder="Ex: Estádio Municipal"
-            />
-          </div>
-          <div class="form-group">
-            <label for="eventType">Tipo de Evento</label>
-            <select id="eventType">
-              <option value="competition">Competição</option>
-              <option value="training">Treinamento</option>
-              <option value="meeting">Reunião</option>
-              <option value="other">Outro</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="eventDescription">Descrição</label>
-            <textarea
-              id="eventDescription"
-              placeholder="Detalhes do evento..."
-            ></textarea>
-          </div>
-    <div class="form-group">
-    <label for="eventAlunos">Atribuir a Alunos (opcional)</label>
-    <select id="eventAlunos" multiple placeholder="Digite para pesquisar alunos...">
-    </select>
-</div>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-outline" id="cancelEvent">
-              Cancelar
-            </button>
-            <button type="submit" id="saveEventBtn">Salvar Evento</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
       <script src="/static/js/calendario.js"></script>
       <script src="/static/js/dashboard.js"></script>
+      <script src="/static/js/settings.js"></script>
 
-      </body>
+  </body>
 </html>

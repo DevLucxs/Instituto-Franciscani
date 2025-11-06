@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dados Gerais | Instituto Franciscani</title>
-    <link rel="icon" href="/static/img/logo_if_icon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="image/x-icon" />
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -729,39 +729,35 @@
 
         /* Estilos para configurações */
         .settings-content {
-            padding: 25px;
-        }
-
-        .form-group {
             margin-bottom: 20px;
         }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 8px;
-                font-weight: 500;
-                color: var(--dark-color);
+            .settings-content .form-group {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
             }
 
-            .form-group input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                margin-right: 10px;
-            }
-
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 2px solid #e9ecef;
-                border-radius: 8px;
-                font-size: 0.9rem;
-                transition: var(--transition);
-            }
-
-                .form-group select:focus {
-                    outline: none;
-                    border-color: var(--primary-color);
+                .settings-content .form-group:last-child {
+                    border-bottom: none;
                 }
+
+            .settings-content label {
+                margin: 0;
+                font-weight: 500;
+            }
+
+            .settings-content input[type="checkbox"] {
+                width: auto;
+                margin: 0;
+            }
+
+            .settings-content select {
+                width: 150px;
+                margin: 0;
+            }
 
         .modal-actions {
             padding: 20px 25px;
@@ -2399,6 +2395,14 @@
 
         document.addEventListener('DOMContentLoaded', carregarAtletas);
 
+
+        function getIniciais(nome) {
+            if (!nome) return "👤";
+            const partes = nome.trim().split(/\s+/);
+            if (partes.length === 1) return partes[0][0].toUpperCase();
+            return (partes[0][0] + partes[1][0]).toUpperCase();
+        }
+
         // Funções para o modal de comparação
         async function openCompareModal() {
             console.log("Abrindo modal de comparação...");
@@ -2480,27 +2484,54 @@
             }
         }
 
-        // Função para atualizar o preview do atleta
+        // Atualiza preview com proteção contra dados faltantes
         function updateAthletePreview(athleteNum) {
             const select = document.getElementById(`athlete${athleteNum}`);
             const preview = document.getElementById(`athlete${athleteNum}Preview`);
-            const selectedIndex = select.value;
+            const selectedId = select ? select.value : "";
 
-            if (selectedIndex === "") {
+            if (!preview) return console.warn(`Preview #athlete${athleteNum}Preview não encontrado`);
+
+            if (!selectedId) {
                 preview.innerHTML = "Selecione um atleta";
                 preview.className = "athlete-preview";
-            } else {
-                const athlete = athletes[selectedIndex];
-                preview.innerHTML = `
-        <div class="athlete-preview-avatar">${athlete.avatar}</div>
-        <div class="athlete-preview-name">${athlete.nome}</div>
-        <div class="athlete-preview-sport">${athlete.modalidade}</div>
-        `;
-                preview.className = "athlete-preview has-athlete";
+                checkComparisonReady();
+                return;
             }
 
-            // Verificar se ambos os atletas foram selecionados
+            const athlete = Array.isArray(window.atletasGlobais)
+                ? window.atletasGlobais.find(a => String(a.id) === String(selectedId))
+                : null;
+
+            if (!athlete) {
+                preview.innerHTML = "Atleta não encontrado";
+                preview.className = "athlete-preview";
+                checkComparisonReady();
+                return;
+            }
+
+            const nome = athlete.nome || athlete.name || "Nome não informado";
+            const modalidade = athlete.modalidade || athlete.sport || "Modalidade não informada";
+
+            preview.innerHTML = `
+    <div class="athlete-preview-avatar">${getIniciais(nome)}</div>
+    <div class="athlete-preview-name">${nome}</div>
+    <div class="athlete-preview-sport">${modalidade}</div>
+  `;
+            preview.className = "athlete-preview has-athlete";
+
             checkComparisonReady();
+        }
+
+        // Habilita/desabilita botão de comparação
+        function checkComparisonReady() {
+            const athlete1 = document.getElementById("athlete1")?.value || "";
+            const athlete2 = document.getElementById("athlete2")?.value || "";
+            const compareBtn = document.getElementById("compareBtn");
+            if (!compareBtn) return;
+
+            const ready = athlete1 !== "" && athlete2 !== "" && athlete1 !== athlete2;
+            compareBtn.disabled = !ready;
         }
 
         // Função para verificar se a comparação está pronta
@@ -2523,79 +2554,102 @@
         function compareAthletes() {
             console.log("Função compareAthletes chamada");
 
-            const athlete1Index = document.getElementById("athlete1").value;
-            const athlete2Index = document.getElementById("athlete2").value;
+            const athlete1Id = document.getElementById("athlete1")?.value;
+            const athlete2Id = document.getElementById("athlete2")?.value;
 
-            console.log("Índices selecionados:", athlete1Index, athlete2Index);
-
-            if (!athlete1Index || !athlete2Index) {
+            if (!athlete1Id || !athlete2Id) {
                 alert("Por favor, selecione dois atletas para comparar.");
                 return;
             }
-
-            if (athlete1Index === athlete2Index) {
+            if (athlete1Id === athlete2Id) {
                 alert("Por favor, selecione atletas diferentes para comparar.");
                 return;
             }
 
-            const athlete1 = athletes[athlete1Index];
-            const athlete2 = athletes[athlete2Index];
+            const list = Array.isArray(window.atletasGlobais) ? window.atletasGlobais : [];
+            const athlete1 = list.find(a => String(a.id) === String(athlete1Id));
+            const athlete2 = list.find(a => String(a.id) === String(athlete2Id));
 
-            console.log("Atletas selecionados:", athlete1, athlete2);
+            if (!athlete1 || !athlete2) {
+                alert("Erro ao localizar os dados dos atletas. Atualize a página e tente novamente.");
+                return;
+            }
 
-            // Preencher estatísticas de performance
-            document.getElementById("freq1").textContent = `${athlete1.performance.frequencia}%`;
-            document.getElementById("freq2").textContent = `${athlete2.performance.frequencia}%`;
+            // Normaliza nomes de campos (compatibilidade com diferentes payloads)
+            const a1 = {
+                nome: athlete1.nome || athlete1.name || "—",
+                modalidade: athlete1.modalidade || athlete1.sport || "—",
+                performance: athlete1.performance || athlete1.stats || {}
+            };
+            const a2 = {
+                nome: athlete2.nome || athlete2.name || "—",
+                modalidade: athlete2.modalidade || athlete2.sport || "—",
+                performance: athlete2.performance || athlete2.stats || {}
+            };
 
-            document.getElementById("treinos1").textContent = athlete1.performance.treinosCompletos;
-            document.getElementById("treinos2").textContent = athlete2.performance.treinosCompletos;
+            // Função helper para pegar valor com fallback
+            const p = (obj, key, fallback = "—") => (obj && obj[key] !== undefined ? obj[key] : fallback);
 
-            document.getElementById("medalhas1").textContent = athlete1.performance.medalhas;
-            document.getElementById("medalhas2").textContent = athlete2.performance.medalhas;
+            // Preencher valores na UI (existindo os elementos)
+            const safeSet = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
 
-            // Preencher tabela de comparação de performance
-            document.getElementById("name1").textContent = athlete1.name;
-            document.getElementById("name2").textContent = athlete2.name;
+            safeSet("freq1", `${p(a1.performance, "frequencia", "-")}%`);
+            safeSet("freq2", `${p(a2.performance, "frequencia", "-")}%`);
 
-            document.getElementById("sport1").textContent = athlete1.sport;
-            document.getElementById("sport2").textContent = athlete2.sport;
+            safeSet("treinos1", p(a1.performance, "treinosCompletos", p(a1.performance, "treinos_completos", "-")));
+            safeSet("treinos2", p(a2.performance, "treinosCompletos", p(a2.performance, "treinos_completos", "-")));
 
-            document.getElementById("freq1-detail").textContent = `${athlete1.performance.frequencia}%`;
-            document.getElementById("freq2-detail").textContent = `${athlete2.performance.frequencia}%`;
-            document.getElementById("freq-diff").textContent = calculateDifferential(athlete1.performance.frequencia, athlete2.performance.frequencia, '%');
+            safeSet("medalhas1", p(a1.performance, "medalhas", "-"));
+            safeSet("medalhas2", p(a2.performance, "medalhas", "-"));
 
-            document.getElementById("resistencia1").textContent = athlete1.performance.resistencia;
-            document.getElementById("resistencia2").textContent = athlete2.performance.resistencia;
-            document.getElementById("resistencia-diff").textContent = calculateDifferential(athlete1.performance.resistencia, athlete2.performance.resistencia, '');
+            safeSet("name1", a1.nome);
+            safeSet("name2", a2.nome);
 
-            document.getElementById("tecnica1").textContent = athlete1.performance.tecnica;
-            document.getElementById("tecnica2").textContent = athlete2.performance.tecnica;
-            document.getElementById("tecnica-diff").textContent = calculateDifferential(athlete1.performance.tecnica, athlete2.performance.tecnica, '');
+            safeSet("sport1", a1.modalidade);
+            safeSet("sport2", a2.modalidade);
 
-            document.getElementById("forca1").textContent = athlete1.performance.forca;
-            document.getElementById("forca2").textContent = athlete2.performance.forca;
-            document.getElementById("forca-diff").textContent = calculateDifferential(athlete1.performance.forca, athlete2.performance.forca, '');
+            // Detalhes e diferenciais
+            const freq1Val = p(a1.performance, "frequencia", "-");
+            const freq2Val = p(a2.performance, "frequencia", "-");
+            safeSet("freq1-detail", `${freq1Val}%`);
+            safeSet("freq2-detail", `${freq2Val}%`);
+            safeSet("freq-diff", calculateDifferential(freq1Val, freq2Val, '%'));
 
-            document.getElementById("velocidade1").textContent = athlete1.performance.velocidade;
-            document.getElementById("velocidade2").textContent = athlete2.performance.velocidade;
-            document.getElementById("velocidade-diff").textContent = calculateDifferential(athlete1.performance.velocidade, athlete2.performance.velocidade, '');
+            safeSet("resistencia1", p(a1.performance, "resistencia", "-"));
+            safeSet("resistencia2", p(a2.performance, "resistencia", "-"));
+            safeSet("resistencia-diff", calculateDifferential(p(a1.performance, "resistencia"), p(a2.performance, "resistencia")));
 
-            document.getElementById("ultima1").textContent = athlete1.performance.ultimaCompeticao;
-            document.getElementById("ultima2").textContent = athlete2.performance.ultimaCompeticao;
+            safeSet("tecnica1", p(a1.performance, "tecnica", "-"));
+            safeSet("tecnica2", p(a2.performance, "tecnica", "-"));
+            safeSet("tecnica-diff", calculateDifferential(p(a1.performance, "tecnica"), p(a2.performance, "tecnica")));
 
-            // Gerar análise comparativa
-            generateAnalysis(athlete1, athlete2);
+            safeSet("forca1", p(a1.performance, "forca", "-"));
+            safeSet("forca2", p(a2.performance, "forca", "-"));
+            safeSet("forca-diff", calculateDifferential(p(a1.performance, "forca"), p(a2.performance, "forca")));
 
-            // Mostrar resultados
-            console.log("Tentando mostrar resultados da comparação");
+            safeSet("velocidade1", p(a1.performance, "velocidade", "-"));
+            safeSet("velocidade2", p(a2.performance, "velocidade", "-"));
+            safeSet("velocidade-diff", calculateDifferential(p(a1.performance, "velocidade"), p(a2.performance, "velocidade")));
+
+            safeSet("ultima1", p(a1.performance, "ultimaCompeticao", p(a1.performance, "ultima_competicao", "-")));
+            safeSet("ultima2", p(a2.performance, "ultimaCompeticao", p(a2.performance, "ultima_competicao", "-")));
+
+            // Gerar análise (garanta que generateAnalysis aceita objetos no novo formato)
+            if (typeof generateAnalysis === "function") {
+                try { generateAnalysis(a1, a2); } catch (err) { console.warn("generateAnalysis falhou:", err); }
+            }
+
             const resultsElement = document.getElementById("comparisonResults");
             if (resultsElement) {
                 resultsElement.style.display = "block";
-                console.log("Resultados da comparação exibidos com sucesso");
             } else {
-                console.error("Elemento 'comparisonResults' não encontrado");
+                console.warn("Elemento 'comparisonResults' não encontrado");
             }
         }
+
 
         // Função para calcular anos de experiência
         function calculateExperience(joinDate) {
@@ -2616,25 +2670,14 @@
         }
 
         // Função para calcular diferencial
-        function calculateDifferential(value1, value2, unit = '') {
-            try {
-                const num1 = extractNumber(value1);
-                const num2 = extractNumber(value2);
-                const diff = num1 - num2;
-
-                if (isNaN(diff)) return '-';
-
-                if (diff > 0) {
-                    return `+${diff.toFixed(1)}${unit}`;
-                } else if (diff < 0) {
-                    return `${diff.toFixed(1)}${unit}`;
-                } else {
-                    return '0' + unit;
-                }
-            } catch (error) {
-                console.error("Erro ao calcular diferencial:", error);
-                return '-';
-            }
+        // Função segura para calcular diferencial (ex.: retorna "+3" ou "-2" ou "0")
+        function calculateDifferential(a, b, suffix = "") {
+            const na = (a === null || a === undefined) ? NaN : Number(a);
+            const nb = (b === null || b === undefined) ? NaN : Number(b);
+            if (Number.isNaN(na) || Number.isNaN(nb)) return "-";
+            const diff = na - nb;
+            const sign = diff > 0 ? "+" : diff < 0 ? "" : "";
+            return `${sign}${diff}${suffix}`;
         }
 
         // Função para gerar análise comparativa baseada em performance

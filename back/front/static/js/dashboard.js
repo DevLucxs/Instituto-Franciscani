@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PARA TUDO
+﻿document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PARA TUDO
 
     // ================================================================
     // SEÇÃO 1: LÓGICA DO MOTOR DE PESQUISA

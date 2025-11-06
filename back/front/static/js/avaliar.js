@@ -1,5 +1,4 @@
-﻿
-function getParametrosDaURL() {
+﻿function getParametrosDaURL() {
     const params = new URLSearchParams(window.location.search);
     return {
         atletaId: params.get("id"),
@@ -7,7 +6,6 @@ function getParametrosDaURL() {
         atletaModalidade: params.get("modalidade")
     };
 }
-
 
 // 🔐 Realiza login e salva token + dados do usuário
 async function realizarLogin() {
@@ -47,8 +45,7 @@ async function realizarLogin() {
     }
 }
 
-
-// Salvar avaliação
+// 💾 Salvar avaliação
 async function salvarAvaliacao() {
     const token = localStorage.getItem("jwt_token");
     if (!token) {
@@ -79,12 +76,7 @@ async function salvarAvaliacao() {
             body: JSON.stringify(dados)
         });
 
-        let resultado = {};
-        try {
-            resultado = await response.json();
-        } catch (jsonError) {
-            console.warn("⚠️ Erro ao interpretar JSON:", jsonError);
-        }
+        const resultado = await response.json();
 
         if (response.status === 403) {
             alert("❌ Apenas treinadores podem enviar avaliações.");
@@ -103,9 +95,85 @@ async function salvarAvaliacao() {
     }
 }
 
+// 📊 Atualiza gráfico de desempenho
+function atualizarGraficoDesempenho(categoriasData) {
+    if (!categoriasData || typeof categoriasData !== 'object') return;
 
+    const categorias = Object.keys(categoriasData);
+    const esperado = categorias.map(cat => categoriasData[cat]?.esperado ?? 100);
+    const atingido = categorias.map(cat => categoriasData[cat]?.atingido ?? 0);
 
-// Carrega dados do atleta na tela
+    const ctx = document.getElementById("performanceChart")?.getContext("2d");
+    if (!ctx) return;
+
+    if (window.performanceChartInstance) {
+        window.performanceChartInstance.destroy();
+    }
+
+    window.performanceChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: categorias,
+            datasets: [
+                {
+                    label: "Esperado",
+                    data: esperado,
+                    backgroundColor: "rgba(0, 0, 94, 0.6)",
+                },
+                {
+                    label: "Atingido",
+                    data: atingido,
+                    backgroundColor: "rgba(72, 149, 239, 0.6)",
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// 📡 Carrega desempenho do atleta com cache
+async function carregarDesempenhoDoAtleta(atletaId) {
+    const token = localStorage.getItem("jwt_token");
+    const baseURL = window.location.protocol === "file:" ? "http://localhost:8000" : "";
+    const cacheKey = `desempenho_atleta_${atletaId}`;
+
+    const cache = localStorage.getItem(cacheKey);
+    if (cache) {
+        try {
+            const dados = JSON.parse(cache);
+            console.log(`📊 Usando cache para atleta ${atletaId}`);
+            atualizarGraficoDesempenho(dados.categorias);
+            return;
+        } catch (e) {
+            console.warn("⚠️ Erro ao interpretar cache:", e);
+        }
+    }
+
+    try {
+        const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok && data.sucesso && data.desempenho) {
+            localStorage.setItem(cacheKey, JSON.stringify(data.desempenho));
+            atualizarGraficoDesempenho(data.desempenho.categorias);
+        }
+    } catch (error) {
+        console.error(`❌ Erro ao buscar desempenho do atleta ${atletaId}:`, error);
+    }
+}
+
+// 🧠 Carrega dados do atleta na tela
 function carregarDadosDoAtleta() {
     const { atletaId, atletaNome, atletaModalidade } = getParametrosDaURL();
     const usuarioInfo = localStorage.getItem("usuario_info");
@@ -126,15 +194,17 @@ function carregarDadosDoAtleta() {
         return;
     }
 
-    // 🔒 Proteção: aluno só pode acessar sua própria página
     if (usuario.tipo === "aluno" && usuario.id !== parseInt(atletaId)) {
         alert("⚠️ Você não tem permissão para acessar este atleta.");
         window.location.href = `/aluno/dashboard/${usuario.id}`;
         return;
     }
 
-    // ✅ Exibe os dados do atleta na tela
     document.getElementById("nome-atleta").textContent = decodeURIComponent(atletaNome);
     document.getElementById("modalidade-atleta").textContent = decodeURIComponent(atletaModalidade);
+
+    carregarDesempenhoDoAtleta(atletaId);
 }
 
+// 🚀 Inicia tudo ao carregar a página
+document.addEventListener("DOMContentLoaded", carregarDadosDoAtleta);

@@ -1,10 +1,13 @@
-﻿<!DOCTYPE html>
+﻿﻿
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Área do Aluno | Instituto Franciscani</title>
-    <link rel="icon" href="/static/img/logo_if_icon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/static/img/logo_if_icon.png" type="image/x-icon" />
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -880,7 +883,7 @@
             <div class="student-avatar">
                 <img src="/static/img/man_profile.png" alt="Foto de Perfik" style="height: 70px; width: 70px;" />
             </div>
-            <div class="student-details">
+            <div class="student-details" data-atleta-id="{{ aluno.id }}">
                 <h2 class="nome-atleta">{{ aluno.nome }}</h2>
                 <span class="student-sport">{{ aluno.modalidade }}</span>
                 <p class="data-ingresso">Atleta desde {{ aluno.ano_ingresso }} | Foco: {{ aluno.foco }}</p>
@@ -1079,51 +1082,15 @@
 
     <script>
 
-        
-
-
-        // Gráfico de desempenho
         let performanceChart = null;
 
-        function criarGraficoDesempenho() {
-            const ctx = document.getElementById("performanceChart").getContext("2d");
+        function renderizarGrafico(labels, esperado, atingido, titulo) {
+            const canvas = document.getElementById("performanceChart");
+            const ctx = canvas.getContext("2d");
 
-            // Destruir gráfico anterior se existir
-            if (performanceChart) {
+            if (performanceChart instanceof Chart) {
                 performanceChart.destroy();
             }
-
-            // Tentar carregar dados salvos do localStorage
-            let dadosDesempenho = null;
-            try {
-                // Procurar por dados de desempenho salvos
-                const chaves = Object.keys(localStorage);
-                for (let chave of chaves) {
-                    if (chave.startsWith('desempenho_')) {
-                        const dados = JSON.parse(localStorage.getItem(chave));
-                        if (dados && dados.categorias && dados.desempenhoEsperado && dados.desempenhoAtingido) {
-                            dadosDesempenho = dados;
-                            break;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Erro ao carregar dados de desempenho:', error);
-            }
-
-            // Usar dados salvos ou dados zerados
-            const labels = dadosDesempenho ? dadosDesempenho.categorias : [
-                "100m Livre",
-                "200m Livre",
-                "Resistência",
-                "Técnica",
-                "Força",
-            ];
-
-            const esperado = dadosDesempenho ? dadosDesempenho.desempenhoEsperado : [0, 0, 0, 0, 0];
-            const atingido = dadosDesempenho ? dadosDesempenho.desempenhoAtingido : [0, 0, 0, 0, 0];
-
-            const titulo = dadosDesempenho ? "Desempenho" : "Desempenho (Não Avaliado)";
 
             performanceChart = new Chart(ctx, {
                 type: "bar",
@@ -1133,126 +1100,109 @@
                         {
                             label: "Desempenho Esperado",
                             data: esperado,
-                            backgroundColor: "rgba(0, 0, 94, 0.3)",
-                            borderColor: "#00005E",
-                            borderWidth: 1,
+                            backgroundColor: "rgba(102, 126, 234, 0.8)",
+                            borderColor: "rgba(102, 126, 234, 1)",
+                            borderWidth: 1
                         },
                         {
                             label: "Desempenho Atingido",
                             data: atingido,
-                            backgroundColor: "rgba(0, 180, 81, 0.5)",
-                            borderColor: "#00b451",
-                            borderWidth: 1,
-                        },
-                    ],
+                            backgroundColor: "rgba(46, 204, 113, 0.8)",
+                            borderColor: "rgba(46, 204, 113, 1)",
+                            borderWidth: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: titulo,
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        }
-                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             max: 100,
-                            title: {
-                                display: true,
-                                text: "Pontuação",
-                            },
-                        },
+                            ticks: {
+                                stepSize: 10
+                            }
+                        }
                     },
-                },
+                    plugins: {
+                        legend: {
+                            position: "top"
+                        },
+                        title: {
+                            display: true,
+                            text: titulo
+                        }
+                    }
+                }
             });
         }
 
-        
+        function criarGraficoDesempenho() {
+            let dadosDesempenho = null;
 
+            try {
+                const chaves = Object.keys(localStorage);
+                for (let chave of chaves) {
+                    if (chave.startsWith('desempenho_')) {
+                        const dados = JSON.parse(localStorage.getItem(chave));
+                        if (dados && dados.categorias) {
+                            const categorias = dados.categorias;
 
-        // Configurar sincronização
+                            const labels = Object.keys(categorias).map(key => {
+                                switch (key) {
+                                    case '100m_livre': return '100m Livre';
+                                    case '200m_livre': return '200m Livre';
+                                    case 'resistencia': return 'Resistência';
+                                    case 'tecnica': return 'Técnica';
+                                    case 'forca': return 'Força';
+                                    default: return key;
+                                }
+                            });
+
+                            const esperado = Object.values(categorias).map(c => c.esperado);
+                            const atingido = Object.values(categorias).map(c => c.atingido);
+
+                            dadosDesempenho = { labels, esperado, atingido };
+                            break;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados de desempenho:', error);
+            }
+
+            const labels = dadosDesempenho ? dadosDesempenho.labels : [
+                "100m Livre", "200m Livre", "Resistência", "Técnica", "Força"
+            ];
+            const esperado = dadosDesempenho ? dadosDesempenho.esperado : [0, 0, 0, 0, 0];
+            const atingido = dadosDesempenho ? dadosDesempenho.atingido : [0, 0, 0, 0, 0];
+            const titulo = dadosDesempenho ? "Desempenho" : "Desempenho (Não Avaliado)";
+
+            renderizarGrafico(labels, esperado, atingido, titulo);
+        }
+
         function configurarSincronizacaoDesempenho() {
-            // Escutar mudanças no localStorage
             window.addEventListener('storage', function (e) {
                 if (e.key && e.key.startsWith('desempenho_') && e.newValue) {
                     console.log('🔄 Dados de desempenho atualizados pelo professor!');
-
                     try {
                         const dados = JSON.parse(e.newValue);
                         console.log('📊 Novos dados recebidos:', dados);
-
-                        // Recriar gráfico com novos dados
                         criarGraficoDesempenho();
-
-                        // Mostrar notificação
-                        const notification = document.createElement('div');
-                        notification.style.cssText = `
-                            position: fixed;
-                            top: 20px;
-                            right: 20px;
-                            background: #00b451;
-                            color: white;
-                            padding: 15px 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                            z-index: 9999;
-                            font-family: 'Segoe UI', sans-serif;
-                            font-size: 14px;
-                            font-weight: 500;
-                          `;
-                        notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
-
-                        document.body.appendChild(notification);
-
-                        setTimeout(() => {
-                            notification.remove();
-                        }, 4000);
-
+                        mostrarNotificacao("Desempenho atualizado pelo professor!", "#00b451", "fas fa-sync-alt");
                     } catch (error) {
                         console.error('❌ Erro ao processar dados sincronizados:', error);
                     }
                 }
 
-                // Escutar mudanças no feedback
                 if (e.key && e.key.startsWith('avaliacao_') && e.newValue) {
                     console.log('🔄 Feedback atualizado pelo professor!');
-
                     try {
                         const dados = JSON.parse(e.newValue);
                         console.log('📝 Novo feedback recebido:', dados);
-
-                        // Recarregar feedback
                         carregarFeedbackDoTreinador();
-
-                        // Mostrar notificação
-                        const notification = document.createElement('div');
-                        notification.style.cssText = `
-                            position: fixed;
-                            top: 20px;
-                            right: 20px;
-                            background: #2196f3;
-                            color: white;
-                            padding: 15px 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                            z-index: 9999;
-                            font-family: 'Segoe UI', sans-serif;
-                            font-size: 14px;
-                            font-weight: 500;
-                          `;
-                        notification.innerHTML = '<i class="fas fa-comments"></i> Novo feedback do treinador!';
-
-                        document.body.appendChild(notification);
-
-                        setTimeout(() => {
-                            notification.remove();
-                        }, 3000);
+                        mostrarNotificacao("Novo feedback do treinador!", "#2196f3", "fas fa-comments");
                     } catch (error) {
                         console.error('❌ Erro ao processar feedback:', error);
                     }
@@ -1260,11 +1210,36 @@
             });
         }
 
+        function mostrarNotificacao(texto, cor, icone) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${cor};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+            notification.innerHTML = `<i class="${icone}"></i> ${texto}`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
 
         function preencherPerfil(usuario) {
-            document.getElementById('nome-atleta').textContent = atleta.nome;
-            document.getElementById('modalidade-atleta').textContent = atleta.modalidade;
-            document.getElementById('data-ingresso').textContent = `Atleta desde ${atleta.ingresso} | Foco: ${usuario.foco}`;
+            const nomeEl = document.querySelector('.nome-atleta');
+            const modalidadeEl = document.querySelector('.student-modalidade');
+            const ingressoEl = document.querySelector('.data-ingresso');
+
+            if (nomeEl) nomeEl.textContent = usuario.nome;
+            if (modalidadeEl) modalidadeEl.textContent = usuario.modalidade;
+            if (ingressoEl) ingressoEl.textContent = `Atleta desde ${usuario.ano_ingresso} | Foco: ${usuario.foco}`;
         }
 
 
@@ -1297,31 +1272,41 @@
 
 
         // 🔐 Carrega dados do usuário logado
-        async function carregarUsuarioLogado() {
+        function carregarUsuarioLogado() {
             const token = localStorage.getItem("jwt_token");
-            const { atletaId } = getParametrosDaURL();
 
-            console.log("🔍 Token:", token);
-            console.log("🔍 atletaId:", atletaId);
-
-            if (!token || !atletaId || isNaN(parseInt(atletaId))) {
-                console.warn("⚠️ Token ou ID do atleta inválido");
+            if (!token) {
+                console.warn("🔒 Token ausente. Redirecionando para login...");
+                window.location.href = "/"; // ou exiba uma mensagem
                 return;
             }
 
-            try {
-                const response = await fetch("/api/usuario/me", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
+            fetch("http://127.0.0.1:8000/api/usuario/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (response.status === 401) {
+                        console.warn("🚫 Token inválido ou expirado. Redirecionando...");
+                        localStorage.removeItem("jwt_token");
+                        window.location.href = "/";
+                        return null;
                     }
-                });
+                    return response.json();
+                })
+                .then(usuario => {
+                    if (!usuario) return;
 
-                const usuario = await response.json();
-                localStorage.setItem("usuario_info", JSON.stringify(usuario));
-                console.log("✅ Usuário carregado:", usuario);
-            } catch (err) {
-                console.error("❌ Erro ao buscar usuário:", err);
-            }
+                    console.log("✅ Usuário carregado:", usuario);
+
+                    // Aqui você pode preencher o perfil ou iniciar sincronização
+                    preencherPerfil(usuario);
+                    configurarSincronizacaoDesempenho();
+                })
+                .catch(error => {
+                    console.error("❌ Erro ao carregar usuário:", error);
+                });
         }
 
 
@@ -1420,13 +1405,13 @@
                 bloco.style.marginBottom = '20px';
 
                 bloco.innerHTML = `
-                  <div class="trainer-avatar">${iniciais}</div>
-                  <div class="trainer-info">
-                    <h4>${fb.treinador_nome || 'Treinador'}</h4>
-                    <p style="margin: 4px 0;">${fb.texto}</p>
-                    <small style="color: gray;">${dataFormatada}</small>
-                  </div>
-                `;
+                      <div class="trainer-avatar">${iniciais}</div>
+                      <div class="trainer-info">
+                        <h4>${fb.treinador_nome || 'Treinador'}</h4>
+                        <p style="margin: 4px 0;">${fb.texto}</p>
+                        <small style="color: gray;">${dataFormatada}</small>
+                      </div>
+                    `;
 
                 container.appendChild(bloco);
             });
@@ -1457,194 +1442,238 @@
 
         // Função de logout
         function logout() {
-            if (confirm('Tem certeza que deseja sair?')) {
-                localStorage.removeItem("jwt_token");
-                localStorage.removeItem("usuario_info");
-                window.location.href = '/';
-            }
+            localStorage.removeItem("jwt_token");
+            localStorage.removeItem("usuario_info");
+
+            // Limpa todos os caches de desempenho
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith("desempenho_")) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            window.location.href = "/";
         }
 
         // Adicionar funcionalidade aos botões do modal de dieta
-       document.querySelector('.modal-actions .btn-outline').addEventListener('click', () => {
-    // Chama a nova função com a ação 'view'
-    abrirArquivoDieta('view'); 
-});
-
-document.querySelector('.modal-actions .btn-primary').addEventListener('click', () => {
-    // Chama a nova função com a ação 'download'
-    abrirArquivoDieta('download'); 
-});
-
-// Nova função para buscar e abrir a dieta
-async function abrirArquivoDieta(action) {
-    const { atletaId } = getParametrosDaURL();
-    if (!atletaId) {
-        alert('Erro: Não foi possível identificar o ID do atleta.');
-        return;
-    }
-
-    try {
-        const token = localStorage.getItem('jwt_token');
-        const baseURL = window.location.origin;
-        
-        // 1. Chama a nova rota da API que criamos no main.py
-        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/dieta`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        document.querySelector('.modal-actions .btn-outline').addEventListener('click', () => {
+            // Chama a nova função com a ação 'view'
+            abrirArquivoDieta('view');
         });
 
-        const data = await response.json();
+        document.querySelector('.modal-actions .btn-primary').addEventListener('click', () => {
+            // Chama a nova função com a ação 'download'
+            abrirArquivoDieta('download');
+        });
 
-        // 2. Se a API retornar um erro (como 404), mostra o erro
-        if (!response.ok || !data.sucesso) {
-            throw new Error(data.detail || 'Arquivo da dieta não encontrado.');
+        // Nova função para buscar e abrir a dieta
+        async function abrirArquivoDieta(action) {
+            const { atletaId } = getParametrosDaURL();
+            if (!atletaId) {
+                alert('Erro: Não foi possível identificar o ID do atleta.');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('jwt_token');
+                const baseURL = window.location.origin;
+
+                // 1. Chama a nova rota da API que criamos no main.py
+                const response = await fetch(`${baseURL}/api/alunos/${atletaId}/dieta`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                // 2. Se a API retornar um erro (como 404), mostra o erro
+                if (!response.ok || !data.sucesso) {
+                    throw new Error(data.detail || 'Arquivo da dieta não encontrado.');
+                }
+
+                const filePath = data.filepath; // Ex: /uploads/dietas/dieta_5_...
+                const fileUrl = baseURL + filePath; // Ex: http://127.0.0.1:8000/uploads/dietas/...
+
+                if (action === 'view') {
+                    // 3. 'Visualizar Online': Abre o arquivo em uma nova aba
+                    window.open(fileUrl, '_blank');
+
+                } else if (action === 'download') {
+                    // 4. 'Baixar PDF': Cria um link temporário e simula o clique para baixar
+                    const a = document.createElement('a');
+                    a.href = fileUrl;
+                    // Pega só o nome do arquivo da URL (ex: dieta_5_Curriculo_David...pdf)
+                    a.download = filePath.split('/').pop();
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+
+                // 5. Fecha o modal após a ação
+                document.getElementById('dietModal').style.display = 'none';
+
+            } catch (error) {
+                // 6. Mostra qualquer erro no processo (ex: "Nenhuma dieta foi enviada...")
+                console.error('❌ Erro ao buscar dieta:', error);
+                alert(`Erro: ${error.message}`);
+            }
         }
-        
-        const filePath = data.filepath; // Ex: /uploads/dietas/dieta_5_...
-        const fileUrl = baseURL + filePath; // Ex: http://127.0.0.1:8000/uploads/dietas/...
-
-        if (action === 'view') {
-            // 3. 'Visualizar Online': Abre o arquivo em uma nova aba
-            window.open(fileUrl, '_blank');
-        
-        } else if (action === 'download') {
-            // 4. 'Baixar PDF': Cria um link temporário e simula o clique para baixar
-            const a = document.createElement('a');
-            a.href = fileUrl;
-            // Pega só o nome do arquivo da URL (ex: dieta_5_Curriculo_David...pdf)
-            a.download = filePath.split('/').pop(); 
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        // 5. Fecha o modal após a ação
-        document.getElementById('dietModal').style.display = 'none';
-
-    } catch (error) {
-        // 6. Mostra qualquer erro no processo (ex: "Nenhuma dieta foi enviada...")
-        console.error('❌ Erro ao buscar dieta:', error);
-        alert(`Erro: ${error.message}`);
-    }
-}
 
         document.addEventListener("DOMContentLoaded", () => {
             carregarUsuarioLogado();
-        }); 
+        });
 
 
         // =====================================================
         // SISTEMA DE SINCRONIZAÇÃO DE DESEMPENHO
         // =====================================================
 
-        // Função para carregar dados de desempenho do servidor
-        async function carregarDesempenhoDoServidor() {
-            const token = localStorage.getItem("jwt_token");
 
-            // 🔍 Obter o ID do atleta corretamente
-            let atletaId = new URLSearchParams(window.location.search).get("id");
-            if (!atletaId) {
-                const el = document.getElementById("painel-atleta");
-                atletaId = el?.dataset.atletaId;
-            }
 
-            if (!atletaId) {
-                console.error("❌ ID do atleta não encontrado");
+        // Função para montar ou atualizar o gráfico
+        window.atualizarGraficoDesempenho = function (categoriasData) {
+            if (!categoriasData || typeof categoriasData !== 'object') {
+                console.warn("⚠️ Dados de categorias inválidos para o gráfico.");
                 return;
             }
 
-            console.log("🔍 atletaId:", atletaId);
-            console.log("🔍 Token:", token);
+            const categorias = Object.keys(categoriasData);
+            const esperado = categorias.map(cat => {
+                const valor = categoriasData[cat]?.esperado;
+                return valor != null ? Number(valor) : 100;
+            });
+            const atingido = categorias.map(cat => {
+                const valor = categoriasData[cat]?.atingido;
+                return valor != null ? Number(valor) : 0;
+            });
 
-            try {
-                const response = await fetch(`/api/atletas/${atletaId}/desempenho`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                });
+            const ctx = document.getElementById("performanceChart")?.getContext("2d");
+            if (!ctx) {
+                console.warn("⚠️ Elemento canvas 'performanceChart' não encontrado.");
+                return;
+            }
 
-                if (!response.ok) throw new Error("Erro ao buscar desempenho");
+            if (window.performanceChartInstance) {
+                window.performanceChartInstance.destroy();
+            }
 
-                const dados = await response.json();
-                const categorias = dados.desempenho.categorias;
-
-                const labels = Object.keys(categorias).map(key => {
-                    switch (key) {
-                        case "100m_livre": return "100m Livre";
-                        case "200m_livre": return "200m Livre";
-                        case "resistencia": return "Resistência";
-                        case "tecnica": return "Técnica";
-                        case "forca": return "Força";
-                        default: return key;
-                    }
-                });
-
-                const esperadoData = Object.values(categorias).map(cat => cat.esperado);
-                const atingidoData = Object.values(categorias).map(cat => cat.atingido);
-
-                const canvas = document.getElementById("performanceChart");
-                const ctx = canvas.getContext("2d");
-
-                if (window.performanceChart) {
-                    window.performanceChart.destroy();
-                }
-
-                window.performanceChart = new Chart(ctx, {
-                    type: "bar",
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: "Desempenho Esperado",
-                                data: esperadoData,
-                                backgroundColor: "rgba(102, 126, 234, 0.8)",
-                                borderColor: "rgba(102, 126, 234, 1)",
-                                borderWidth: 1
-                            },
-                            {
-                                label: "Desempenho Atingido",
-                                data: atingidoData,
-                                backgroundColor: "rgba(46, 204, 113, 0.8)",
-                                borderColor: "rgba(46, 204, 113, 1)",
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                ticks: {
-                                    stepSize: 10
-                                }
-                            }
+            window.performanceChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: categorias,
+                    datasets: [
+                        {
+                            label: "Esperado",
+                            data: esperado,
+                            backgroundColor: "rgba(0, 0, 94, 0.6)",
                         },
-                        plugins: {
-                            legend: {
-                                position: "top"
-                            },
-                            title: {
-                                display: true,
-                                text: "Desempenho - Natação"
-                            }
+                        {
+                            label: "Atingido",
+                            data: atingido,
+                            backgroundColor: "rgba(72, 149, 239, 0.6)",
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
+                }
+            });
+        };
+
+
+
+
+
+
+
+
+        let carregandoDesempenho = false;
+
+        // Função para buscar dados do servidor e atualizar gráfico
+        async function carregarDesempenhoDoServidor() {
+            try {
+                const token = localStorage.getItem('jwt_token');
+                const baseURL = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
+                const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+                const atletaId = usuarioInfo.id;
+
+                console.log('📊 Carregando desempenho do servidor para atleta:', atletaId);
+
+                const response = await fetch(`${baseURL}/api/atletas/${atletaId}/desempenho`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
 
-                console.log("✅ Gráfico renderizado com sucesso");
+                if (!response.ok) {
+                    console.error('❌ Erro ao carregar desempenho:', response.status);
+                    return null;
+                }
+
+                const data = await response.json();
+                if (!data.sucesso || !data.desempenho) {
+                    console.warn("⚠️ Dados de desempenho ausentes ou inválidos.");
+                    return null;
+                }
+
+                const dadosAnteriores = localStorage.getItem(`desempenho_${atletaId}`);
+                let houveMudanca = true;
+
+                if (dadosAnteriores) {
+                    try {
+                        const dadosAnt = JSON.parse(dadosAnteriores);
+                        if (dadosAnt.ultima_atualizacao === data.desempenho.ultima_atualizacao) {
+                            houveMudanca = false;
+                            console.log('📊 Nenhuma mudança detectada');
+                        } else {
+                            console.log('🔄 Mudança detectada!');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Erro ao comparar dados anteriores:', error);
+                    }
+                }
+
+                if (houveMudanca && window.atualizarGraficoDesempenho) {
+                    window.atualizarGraficoDesempenho(data.desempenho.categorias);
+
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                z-index: 9999;
+                font-weight: 500;
+            `;
+                    notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
+                }
+
+                localStorage.setItem(`desempenho_${atletaId}`, JSON.stringify(data.desempenho));
+                return data.desempenho;
+
             } catch (error) {
-                console.error("❌ Erro ao carregar desempenho:", error);
+                console.error('❌ Erro na requisição:', error);
+                return null;
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            carregarDesempenhoDoServidor();
+        document.addEventListener("DOMContentLoaded", carregarDesempenhoDoServidor);
+
+
 
         // Função para atualizar gráfico de desempenho
         function atualizarGraficoDesempenho(categorias) {
@@ -1768,7 +1797,7 @@ async function abrirArquivoDieta(action) {
 
             const { atletaId, dados } = event.detail;
             const usuarioInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
-            const meuAtletaId = 1; // Ana Mendonça tem atleta_id = 1
+
 
             // Verificar se a atualização é para o atleta logado
             if (atletaId == meuAtletaId) {
@@ -1782,17 +1811,17 @@ async function abrirArquivoDieta(action) {
                 // Mostrar notificação
                 const notification = document.createElement('div');
                 notification.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        padding: 15px 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                        z-index: 9999;
-                        font-weight: 500;
-                      `;
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 15px 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                            z-index: 9999;
+                            font-weight: 500;
+                          `;
                 notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
 
                 document.body.appendChild(notification);
@@ -1857,49 +1886,49 @@ async function abrirArquivoDieta(action) {
 
         // Função para carregar vídeos do atleta
         async function carregarVideosDoAtleta() {
-    try {
-        const token = localStorage.getItem('jwt_token');
-        const baseURL = window.location.origin; // Correção simples de URL
+            try {
+                const token = localStorage.getItem('jwt_token');
+                const baseURL = window.location.origin; // Correção simples de URL
 
-        // Pega o ID do atleta DIRETAMENTE DA URL
-        const { atletaId } = getParametrosDaURL(); 
+                // Pega o ID do atleta DIRETAMENTE DA URL
+                const { atletaId } = getParametrosDaURL();
 
-        if (!atletaId || isNaN(parseInt(atletaId))) {
-            console.warn("⚠️ ID do atleta na URL é inválido. Vídeos não serão carregados.");
-            atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
-            return;
-        }
+                if (!atletaId || isNaN(parseInt(atletaId))) {
+                    console.warn("⚠️ ID do atleta na URL é inválido. Vídeos não serão carregados.");
+                    atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
+                    return;
+                }
 
-        console.log('🎥 [VÍDEOS] Carregando vídeos para atleta:', atletaId);
+                console.log('🎥 [VÍDEOS] Carregando vídeos para atleta:', atletaId);
 
-        // Chama a rota correta da API
-        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/videos`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                // Chama a rota correta da API
+                const response = await fetch(`${baseURL}/api/alunos/${atletaId}/videos`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('🎥 [VÍDEOS] Resposta da API:', data);
+
+                if (data.sucesso) {
+                    atualizarListaVideos(data.videos);
+                } else {
+                    console.error('❌ [VÍDEOS] Erro na API:', data.erro);
+                    atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
+                }
+
+            } catch (error) {
+                console.error('❌ [VÍDEOS] Erro ao carregar vídeos:', error);
+                atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
             }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-
-        const data = await response.json();
-        console.log('🎥 [VÍDEOS] Resposta da API:', data);
-
-        if (data.sucesso) {
-            atualizarListaVideos(data.videos);
-        } else {
-            console.error('❌ [VÍDEOS] Erro na API:', data.erro);
-            atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
-        }
-
-    } catch (error) {
-        console.error('❌ [VÍDEOS] Erro ao carregar vídeos:', error);
-        atualizarListaVideos([]); // Mostra a mensagem de "Nenhum vídeo"
-    }
-}
 
         // Função para atualizar a lista de vídeos na interface
         function atualizarListaVideos(videos) {
@@ -1915,12 +1944,12 @@ async function abrirArquivoDieta(action) {
             if (videos.length === 0) {
                 // Mostrar mensagem quando não há vídeos
                 videosGrid.innerHTML = `
-                        <div class="no-videos">
-                          <i class="fas fa-video-slash"></i>
-                          <p>Nenhum vídeo disponível</p>
-                          <small>Seus vídeos de treino aparecerão aqui quando forem enviados</small>
-                        </div>
-                      `;
+                            <div class="no-videos">
+                              <i class="fas fa-video-slash"></i>
+                              <p>Nenhum vídeo disponível</p>
+                              <small>Seus vídeos de treino aparecerão aqui quando forem enviados</small>
+                            </div>
+                          `;
                 return;
             }
 
@@ -1935,31 +1964,31 @@ async function abrirArquivoDieta(action) {
 
         // Função para criar elemento de vídeo
         function criarElementoVideo(video) {
-    const videoDiv = document.createElement('div');
-    videoDiv.className = 'video-item';
-    videoDiv.onclick = () => visualizarVideo(video);
+            const videoDiv = document.createElement('div');
+            videoDiv.className = 'video-item';
+            videoDiv.onclick = () => visualizarVideo(video);
 
-    // Calcular tempo relativo e data completa
-    const dataUpload = new Date(video.data_upload);
-    const tempoRelativo = calcularTempoRelativo(dataUpload);
-    const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+            // Calcular tempo relativo e data completa
+            const dataUpload = new Date(video.data_upload);
+            const tempoRelativo = calcularTempoRelativo(dataUpload);
+            const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
-    // AQUI ESTÁ A CORREÇÃO: 
-    // Colocando o HTML da thumbnail de volta
-    videoDiv.innerHTML = `
-        <div class="video-thumbnail">
-            <i class="fas fa-play"></i>
-        </div>
-        <div class="video-info">
-            <h4>${video.titulo}</h4>
-            <p>${video.descricao || 'Vídeo de treinamento'}</p>
-            <small>Postado • ${tempoRelativo}</small>
-            <small class="video-datetime">${dataHoraCompleta}</small>
-        </div>
-    `;
+            // AQUI ESTÁ A CORREÇÃO:
+            // Colocando o HTML da thumbnail de volta
+            videoDiv.innerHTML = `
+            <div class="video-thumbnail">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="video-info">
+                <h4>${video.titulo}</h4>
+                <p>${video.descricao || 'Vídeo de treinamento'}</p>
+                <small>Postado • ${tempoRelativo}</small>
+                <small class="video-datetime">${dataHoraCompleta}</small>
+            </div>
+        `;
 
-    return videoDiv;
-}
+            return videoDiv;
+        }
 
         // Função para calcular tempo relativo
         function calcularTempoRelativo(data) {
@@ -2026,76 +2055,76 @@ async function abrirArquivoDieta(action) {
         }
 
         // Função para visualizar vídeo
-       function visualizarVideo(video) {
-    console.log('🎥 [VÍDEO] Iniciando visualização:', video);
+        function visualizarVideo(video) {
+            console.log('🎥 [VÍDEO] Iniciando visualização:', video);
 
-    // Preencher o modal de visualização
-    const videoElement = document.getElementById('videoPlayer');
-    const videoSource = document.getElementById('videoSource');
-    const videoTitle = document.getElementById('videoViewDetailsTitle');
-    const videoDescription = document.getElementById('videoViewDescription');
-    const videoDate = document.getElementById('videoViewDate');
-    const videoAthlete = document.getElementById('videoViewAthlete');
+            // Preencher o modal de visualização
+            const videoElement = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const videoTitle = document.getElementById('videoViewDetailsTitle');
+            const videoDescription = document.getElementById('videoViewDescription');
+            const videoDate = document.getElementById('videoViewDate');
+            const videoAthlete = document.getElementById('videoViewAthlete');
 
-    if (!videoElement || !videoSource) {
-        console.error('❌ [VÍDEO] Elementos do player não encontrados');
-        alert('Erro: Player de vídeo não encontrado');
-        return;
-    }
+            if (!videoElement || !videoSource) {
+                console.error('❌ [VÍDEO] Elementos do player não encontrados');
+                alert('Erro: Player de vídeo não encontrado');
+                return;
+            }
 
-    // Verificar se a URL do vídeo é válida (ISSO DEVE VIR ANTES de usar a URL)
-    if (!video.url_video || video.url_video.trim() === '') {
-        console.error('❌ [VÍDEO] URL do vídeo inválida:', video.url_video);
-        alert('Erro: URL do vídeo não disponível');
-        return;
-    }
+            // Verificar se a URL do vídeo é válida (ISSO DEVE VIR ANTES de usar a URL)
+            if (!video.url_video || video.url_video.trim() === '') {
+                console.error('❌ [VÍDEO] URL do vídeo inválida:', video.url_video);
+                alert('Erro: URL do vídeo não disponível');
+                return;
+            }
 
-    // 1. CONSTRUIR A URL CORRETA (USANDO A ORIGEM ATUAL)
-    const videoUrl = window.location.origin + video.url_video;
+            // 1. CONSTRUIR A URL CORRETA (USANDO A ORIGEM ATUAL)
+            const videoUrl = window.location.origin + video.url_video;
 
-    // 2. REMOVEMOS O BLOCO DE CÓDIGO ANTIGO QUE USAVA "localhost:5000"
+            // 2. REMOVEMOS O BLOCO DE CÓDIGO ANTIGO QUE USAVA "localhost:5000"
 
-    console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
+            console.log('🎥 [VÍDEO] URL final do vídeo:', videoUrl);
 
-    // Configurar o vídeo
-    videoSource.src = videoUrl;
-    videoElement.load(); // Recarregar o vídeo com a nova fonte
+            // Configurar o vídeo
+            videoSource.src = videoUrl;
+            videoElement.load(); // Recarregar o vídeo com a nova fonte
 
-    // Adicionar event listeners para debug
-    videoElement.addEventListener('loadstart', () => {
-        console.log('🎥 [VÍDEO] Iniciando carregamento...');
-    });
+            // Adicionar event listeners para debug
+            videoElement.addEventListener('loadstart', () => {
+                console.log('🎥 [VÍDEO] Iniciando carregamento...');
+            });
 
-    videoElement.addEventListener('canplay', () => {
-        console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
-    });
+            videoElement.addEventListener('canplay', () => {
+                console.log('✅ [VÍDEO] Vídeo pode ser reproduzido');
+            });
 
-    videoElement.addEventListener('error', (e) => {
-        console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
-        console.error('❌ [VÍDEO] Erro details:', videoElement.error);
-        alert('Erro ao carregar vídeo. Verifique a URL ou tente novamente.');
-    });
+            videoElement.addEventListener('error', (e) => {
+                console.error('❌ [VÍDEO] Erro ao carregar vídeo:', e);
+                console.error('❌ [VÍDEO] Erro details:', videoElement.error);
+                alert('Erro ao carregar vídeo. Verifique a URL ou tente novamente.');
+            });
 
-    videoElement.addEventListener('loadeddata', () => {
-        console.log('✅ [VÍDEO] Dados do vídeo carregados');
-    });
+            videoElement.addEventListener('loadeddata', () => {
+                console.log('✅ [VÍDEO] Dados do vídeo carregados');
+            });
 
-    // Calcular tempo relativo e data completa
-    const dataUpload = new Date(video.data_upload);
-    const tempoRelativo = calcularTempoRelativo(dataUpload);
-    const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
+            // Calcular tempo relativo e data completa
+            const dataUpload = new Date(video.data_upload);
+            const tempoRelativo = calcularTempoRelativo(dataUpload);
+            const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
-    // Preencher informações
-    videoTitle.textContent = video.titulo;
-    videoDescription.textContent = video.descricao || 'Sem descrição disponível';
-    videoDate.textContent = `${tempoRelativo} (${dataHoraCompleta})`;
-    videoAthlete.textContent = `Postado pelo seu treinador`;
+            // Preencher informações
+            videoTitle.textContent = video.titulo;
+            videoDescription.textContent = video.descricao || 'Sem descrição disponível';
+            videoDate.textContent = `${tempoRelativo} (${dataHoraCompleta})`;
+            videoAthlete.textContent = `Postado pelo seu treinador`;
 
-    console.log('🎥 [VÍDEO] Abrindo modal...');
+            console.log('🎥 [VÍDEO] Abrindo modal...');
 
-    // Abrir o modal
-    document.getElementById('videoViewModal').style.display = 'flex';
-}
+            // Abrir o modal
+            document.getElementById('videoViewModal').style.display = 'flex';
+        }
 
         // Função para fechar o modal de visualização de vídeo
         function closeVideoViewModal() {
@@ -2107,351 +2136,356 @@ async function abrirArquivoDieta(action) {
         }
 
         // Função para CARREGAR as competições da API
-// (INÍCIO DO BLOCO DE SUBSTITUIÇÃO - LINHA 3123)
+        // (INÍCIO DO BLOCO DE SUBSTITUIÇÃO - LINHA 3123)
 
-async function carregarEventosDoAtleta() { // <-- 1. NOME CORRIGIDO
-    try {
-        const token = localStorage.getItem('jwt_token');
-        const baseURL = window.location.origin;
-        
-        // Pega o ID do atleta da URL da página
-        const { atletaId } = getParametrosDaURL(); 
+        async function carregarEventosDoAtleta() { // <-- 1. NOME CORRIGIDO
+            try {
+                const token = localStorage.getItem('jwt_token');
+                const baseURL = window.location.origin;
 
-        if (!atletaId || isNaN(parseInt(atletaId))) {
-            console.warn("⚠️ ID do atleta na URL é inválido. Eventos não serão carregados.");
-            atualizarListaCompeticoes([]);
-            renderizarCalendario([]);
-            renderizarAtividadesRealizadas([]);
-            return;
+                // Pega o ID do atleta da URL da página
+                const { atletaId } = getParametrosDaURL();
+
+                if (!atletaId || isNaN(parseInt(atletaId))) {
+                    console.warn("⚠️ ID do atleta na URL é inválido. Eventos não serão carregados.");
+                    atualizarListaCompeticoes([]);
+                    renderizarCalendario([]);
+                    renderizarAtividadesRealizadas([]);
+                    return;
+                }
+
+                console.log('🗓️ [EVENTOS] Carregando todos os eventos para atleta:', atletaId);
+
+                // Chama a rota correta da API
+                const response = await fetch(`${baseURL}/api/alunos/${atletaId}/eventos`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.sucesso) {
+                    // 2. ENVIA OS DADOS PARA AS 3 FUNÇÕES
+                    atualizarListaCompeticoes(data.eventos);
+                    renderizarCalendario(data.eventos);
+                    renderizarAtividadesRealizadas(data.eventos);
+                } else {
+                    console.error('❌ [EVENTOS] Erro na API:', data.detail);
+                    atualizarListaCompeticoes([]);
+                    renderizarCalendario([]);
+                    renderizarAtividadesRealizadas([]);
+                }
+
+            } catch (error) {
+                console.error('❌ [EVENTOS] Erro ao carregar eventos:', error);
+                atualizarListaCompeticoes([]);
+                renderizarCalendario([]);
+                renderizarAtividadesRealizadas([]);
+            }
         }
 
-        console.log('🗓️ [EVENTOS] Carregando todos os eventos para atleta:', atletaId);
+        // Função para RENDERIZAR as competições no HTML
+        function atualizarListaCompeticoes(eventos) {
+            const container = document.querySelector('.card.competitions .eventos-proximos');
+            if (!container) {
+                console.error("❌ [COMPETICOES] Container .eventos-proximos não encontrado.");
+                return;
+            }
 
-        // Chama a rota correta da API
-        const response = await fetch(`${baseURL}/api/alunos/${atletaId}/eventos`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+            // --- FILTRO DE DATA E TIPO ---
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0); // Zera a hora para comparar só a data
+
+            const competicoesFuturas = eventos.filter(ev => {
+                const dataEv = new Date(ev.data + 'T00:00:00');
+                // Filtra por data E por tipo
+                return dataEv >= hoje && ev.tipo === 'competition';
+            });
+
+            // Ordena do mais próximo para o mais distante
+            competicoesFuturas.sort((a, b) => new Date(a.data) - new Date(b.data));
+            // --- FIM DO FILTRO ---
+
+            container.innerHTML = ''; // Limpa o container
+
+            if (competicoesFuturas.length === 0) {
+                // Mensagem de "Nenhuma competição"
+                container.innerHTML = `
+                <div class="sem-dados" style="padding: 10px 0;">
+                    <i class="fas fa-calendar-times" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <p style="font-size: 14px; color: #555;">Nenhuma competição futura</p>
+                    <small style="font-size: 12px;">Seu treinador não agendou nada ainda.</small>
+                </div>
+            `;
+                return;
+            }
+
+            // Cria o HTML para cada evento
+            competicoesFuturas.forEach(ev => {
+                const dataObj = new Date(ev.data + 'T00:00:00');
+                const dia = dataObj.getDate();
+                const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
+
+                let horaFormatada = '';
+                if (ev.hora) {
+                    try {
+                        const [h, m] = ev.hora.split(':');
+                        horaFormatada = ` - ${h}:${m}h`;
+                    } catch (e) { /* ignora erro de hora */ }
+                }
+
+                const tipoIcone = '🏆';
+
+                const eventoHtml = `
+                <div class="competition-item">
+                    <div class="competition-date">
+                        <div class="day">${dia}</div>
+                        <div class="month">${mes}</div>
+                    </div>
+                    <div class="competition-details">
+                        <h4>${tipoIcone} ${ev.titulo}</h4>
+                        <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
+                    </div>
+                </div>
+            `;
+                container.innerHTML += eventoHtml;
+            });
+        } // <-- FIM DA FUNÇÃO "atualizarListaCompeticoes"
+
+
+        // =====================================================
+        // SISTEMA DE CALENDÁRIO E ATIVIDADES (AGORA NO LUGAR CORRETO)
+        // =====================================================
+
+        // Variáveis de estado para o calendário
+        let dataAtualCalendario = new Date();
+        let todosEventosDoAluno = []; // Armazena os eventos buscados
+
+        // Mapeia os nomes dos meses
+        const nomesDosMeses = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+
+        /**
+         * Função principal que é chamada 1 vez pela `carregarEventosDoAtleta`
+         * e depois é chamada pelos botões de navegação.
+         */
+        function renderizarCalendario(eventos) {
+            // Se 'eventos' for passado, armazena. Senão, usa o que já está armazenado.
+            if (eventos && Array.isArray(eventos)) {
+                todosEventosDoAluno = eventos;
+            }
+
+            const grid = document.getElementById('calendar-grid');
+            const cabecalhoMes = document.getElementById('mes-calendario');
+
+            if (!grid || !cabecalhoMes) {
+                console.error("❌ [CALENDARIO] Elementos do calendário não encontrados.");
+                return;
+            }
+
+            // Limpa o grid
+            grid.innerHTML = '';
+
+            const ano = dataAtualCalendario.getFullYear();
+            const mes = dataAtualCalendario.getMonth(); // 0-11
+
+            // Define o título (ex: "Novembro 2025")
+            cabecalhoMes.textContent = `${nomesDosMeses[mes]} ${ano}`;
+
+            // Descobre o primeiro dia do mês (0=Dom, 1=Seg, ..., 6=Sab)
+            const primeiroDiaDoMes = new Date(ano, mes, 1).getDay();
+            // Descobre o último dia do mês
+            const ultimoDiaDoMes = new Date(ano, mes + 1, 0).getDate();
+
+            // 1. Adiciona os cabeçalhos (D, S, T, Q, Q, S, S)
+            const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+            diasSemana.forEach(dia => {
+                grid.innerHTML += `<div class="calendar-day header">${dia}</div>`;
+            });
+
+            // 2. Adiciona células vazias para o "preenchimento" do início do mês
+            for (let i = 0; i < primeiroDiaDoMes; i++) {
+                grid.innerHTML += `<div class="calendar-day"></div>`;
+            }
+
+            // 3. Adiciona os dias do mês
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            for (let dia = 1; dia <= ultimoDiaDoMes; dia++) {
+                const dataCorrente = new Date(ano, mes, dia);
+                let classes = "calendar-day";
+
+                // Marca o dia de hoje
+                if (dataCorrente.getTime() === hoje.getTime()) {
+                    classes += " today";
+                }
+
+                // Verifica se há eventos (treino ou competição) neste dia
+                const dataISO = dataCorrente.toISOString().split('T')[0];
+                const eventosNesteDia = todosEventosDoAluno.filter(ev => ev.data === dataISO);
+
+                if (eventosNesteDia.length > 0) {
+                    classes += " has-activity";
+                }
+
+                grid.innerHTML += `<div class="${classes}" data-date="${dataISO}">${dia}</div>`;
+            }
+        }
+
+        /**
+         * Função principal para renderizar a lista de "Atividades Realizadas"
+         */
+        function renderizarAtividadesRealizadas(eventos) {
+            // Se 'eventos' for passado, usa. Senão, usa o que já está armazenado.
+            if (eventos && Array.isArray(eventos)) {
+                todosEventosDoAluno = eventos;
+            }
+
+            const container = document.getElementById('atividades-container');
+            const cabecalhoMes = document.getElementById('mes-atual');
+
+            if (!container || !cabecalhoMes) {
+                console.error("❌ [ATIVIDADES] Elementos de atividades não encontrados.");
+                return;
+            }
+
+            container.innerHTML = ''; // Limpa o container
+
+            const ano = dataAtualCalendario.getFullYear();
+            const mes = dataAtualCalendario.getMonth(); // 0-11
+            const hoje = new Date();
+            hoje.setHours(23, 59, 59, 999); // Garante que "hoje" seja incluído
+
+            // Define o título (ex: "Novembro")
+            cabecalhoMes.textContent = nomesDosMeses[mes];
+
+            // Filtra os eventos para:
+            // 1. Ser do tipo 'treinamento'
+            // 2. Ser do mês e ano ATUAIS (do calendário)
+            // 3. Ser de uma data que já passou (ou é hoje)
+            const atividadesRealizadas = todosEventosDoAluno.filter(ev => {
+                const dataEv = new Date(ev.data + 'T00:00:00');
+                return ev.tipo === 'tranning' &&
+                    dataEv.getFullYear() === ano &&
+                    dataEv.getMonth() === mes &&
+                    dataEv <= hoje;
+            });
+
+            // Ordena do mais recente para o mais antigo
+            atividadesRealizadas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            if (atividadesRealizadas.length === 0) {
+                container.innerHTML = `
+                <div class="sem-dados" style="padding: 10px 0;">
+                    <i class="fas fa-running" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <p style="font-size: 14px; color: #555;">Nenhum treino realizado</p>
+                    <small style="font-size: 12px;">Seus treinos deste mês aparecerão aqui.</small>
+                </div>
+            `;
+                return;
+            }
+
+            atividadesRealizadas.forEach(ev => {
+                const dataObj = new Date(ev.data + 'T00:00:00');
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+                const atividadeHtml = `
+                <div class="activity-item">
+                    <i class="fas fa-running"></i>
+                    <div>
+                        <strong>${ev.titulo}</strong>
+                    </div>
+                    <span class="activity-date">${dataFormatada}</span>
+                </div>
+            `;
+                container.innerHTML += atividadeHtml;
+            });
+        }
+
+        // Adiciona os event listeners para os botões do calendário
+        document.getElementById('prev-month').addEventListener('click', () => {
+            dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() - 1);
+            renderizarCalendario(); // Re-renderiza o calendário
+            renderizarAtividadesRealizadas(); // Re-renderiza as atividades
+        });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + 1);
+            renderizarCalendario(); // Re-renderiza o calendário
+            renderizarAtividadesRealizadas(); // Re-renderiza as atividades
+        });
+
+
+        // Event listener para fechar modal ao clicar fora dele
+        window.addEventListener('click', function (event) {
+            const videoModal = document.getElementById('videoViewModal');
+            if (event.target === videoModal) {
+                closeVideoViewModal();
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carregar feedback do treinador automaticamente
+            carregarFeedbackDoTreinador();
 
-        const data = await response.json();
-        
-        if (data.sucesso) {
-            // 2. ENVIA OS DADOS PARA AS 3 FUNÇÕES
-            atualizarListaCompeticoes(data.eventos);
-            renderizarCalendario(data.eventos);
-            renderizarAtividadesRealizadas(data.eventos);
+            // Carregar vídeos do atleta
+            carregarVideosDoAtleta();
+
+            // CORREÇÃO: Chamar a função com o nome correto
+            carregarEventosDoAtleta(); // <-- 3. CHAMADA CORRIGIDA
+        });
+
+        // Fallback: se o DOM já estiver carregado, executar imediatamente
+        if (document.readyState === 'loading') {
+            // DOM ainda carregando, aguardar DOMContentLoaded
         } else {
-            console.error('❌ [EVENTOS] Erro na API:', data.detail);
-            atualizarListaCompeticoes([]);
-            renderizarCalendario([]);
-            renderizarAtividadesRealizadas([]);
+            // DOM já carregado, executar imediatamente
+            console.log('🚀 DOM já carregado, carregando dados automaticamente...');
+            carregarFeedbackDoTreinador();
+            carregarVideosDoAtleta();
+
+            // CORREÇÃO: Chamar a função com o nome correto
+            carregarEventosDoAtleta(); // <-- 4. CHAMADA CORRIGIDA
         }
 
-    } catch (error) {
-        console.error('❌ [EVENTOS] Erro ao carregar eventos:', error);
-        atualizarListaCompeticoes([]);
-        renderizarCalendario([]);
-        renderizarAtividadesRealizadas([]);
-    }
-}
-
-// Função para RENDERIZAR as competições no HTML
-function atualizarListaCompeticoes(eventos) {
-    const container = document.querySelector('.card.competitions .eventos-proximos');
-    if (!container) {
-        console.error("❌ [COMPETICOES] Container .eventos-proximos não encontrado.");
-        return;
-    }
-
-    // --- FILTRO DE DATA E TIPO ---
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Zera a hora para comparar só a data
-
-    const competicoesFuturas = eventos.filter(ev => {
-        const dataEv = new Date(ev.data + 'T00:00:00');
-        // Filtra por data E por tipo
-        return dataEv >= hoje && ev.tipo === 'competition';
-    });
-    
-    // Ordena do mais próximo para o mais distante
-    competicoesFuturas.sort((a, b) => new Date(a.data) - new Date(b.data));
-    // --- FIM DO FILTRO ---
-
-    container.innerHTML = ''; // Limpa o container
-
-    if (competicoesFuturas.length === 0) {
-        // Mensagem de "Nenhuma competição"
-        container.innerHTML = `
-            <div class="sem-dados" style="padding: 10px 0;">
-                <i class="fas fa-calendar-times" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
-                <p style="font-size: 14px; color: #555;">Nenhuma competição futura</p>
-                <small style="font-size: 12px;">Seu treinador não agendou nada ainda.</small>
-            </div>
-        `;
-        return;
-    }
-
-    // Cria o HTML para cada evento
-    competicoesFuturas.forEach(ev => {
-        const dataObj = new Date(ev.data + 'T00:00:00');
-        const dia = dataObj.getDate();
-        const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
-        
-        let horaFormatada = '';
-        if (ev.hora) {
-            try {
-                const [h, m] = ev.hora.split(':');
-                horaFormatada = ` - ${h}:${m}h`;
-            } catch (e) { /* ignora erro de hora */ }
-        }
-        
-        const tipoIcone = '🏆'; 
-
-        const eventoHtml = `
-            <div class="competition-item">
-                <div class="competition-date">
-                    <div class="day">${dia}</div>
-                    <div class="month">${mes}</div>
-                </div>
-                <div class="competition-details">
-                    <h4>${tipoIcone} ${ev.titulo}</h4>
-                    <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
-                </div>
-            </div>
-        `;
-        container.innerHTML += eventoHtml;
-    });
-} // <-- FIM DA FUNÇÃO "atualizarListaCompeticoes"
 
 
-// =====================================================
-// SISTEMA DE CALENDÁRIO E ATIVIDADES (AGORA NO LUGAR CORRETO)
-// =====================================================
+        // Sistema de calendário integrado com dashboard-aluno.js
 
-// Variáveis de estado para o calendário
-let dataAtualCalendario = new Date();
-let todosEventosDoAluno = []; // Armazena os eventos buscados
+        // Expor função globalmente para uso por outros scripts
+        window.atualizarGraficoDesempenho = atualizarGraficoDesempenho;
+        window.carregarVideosDoAtleta = carregarVideosDoAtleta;
 
-// Mapeia os nomes dos meses
-const nomesDosMeses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-];
+        // Função de teste para feedback
+        window.testarFeedback = function () {
+            console.log('🧪 [TESTE] Testando sistema de feedback...');
+            console.log('🔑 Token atual:', localStorage.getItem('jwt_token'));
+            carregarFeedbackDoTreinador();
+        };
 
-/**
- * Função principal que é chamada 1 vez pela `carregarEventosDoAtleta`
- * e depois é chamada pelos botões de navegação.
- */
-function renderizarCalendario(eventos) {
-    // Se 'eventos' for passado, armazena. Senão, usa o que já está armazenado.
-    if (eventos && Array.isArray(eventos)) {
-        todosEventosDoAluno = eventos;
-    }
-
-    const grid = document.getElementById('calendar-grid');
-    const cabecalhoMes = document.getElementById('mes-calendario');
-    
-    if (!grid || !cabecalhoMes) {
-        console.error("❌ [CALENDARIO] Elementos do calendário não encontrados.");
-        return;
-    }
-
-    // Limpa o grid
-    grid.innerHTML = '';
-    
-    const ano = dataAtualCalendario.getFullYear();
-    const mes = dataAtualCalendario.getMonth(); // 0-11
-
-    // Define o título (ex: "Novembro 2025")
-    cabecalhoMes.textContent = `${nomesDosMeses[mes]} ${ano}`;
-    
-    // Descobre o primeiro dia do mês (0=Dom, 1=Seg, ..., 6=Sab)
-    const primeiroDiaDoMes = new Date(ano, mes, 1).getDay();
-    // Descobre o último dia do mês
-    const ultimoDiaDoMes = new Date(ano, mes + 1, 0).getDate();
-
-    // 1. Adiciona os cabeçalhos (D, S, T, Q, Q, S, S)
-    const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-    diasSemana.forEach(dia => {
-        grid.innerHTML += `<div class="calendar-day header">${dia}</div>`;
-    });
-
-    // 2. Adiciona células vazias para o "preenchimento" do início do mês
-    for (let i = 0; i < primeiroDiaDoMes; i++) {
-        grid.innerHTML += `<div class="calendar-day"></div>`;
-    }
-
-    // 3. Adiciona os dias do mês
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-
-    for (let dia = 1; dia <= ultimoDiaDoMes; dia++) {
-        const dataCorrente = new Date(ano, mes, dia);
-        let classes = "calendar-day";
-
-        // Marca o dia de hoje
-        if (dataCorrente.getTime() === hoje.getTime()) {
-            classes += " today";
-        }
-
-        // Verifica se há eventos (treino ou competição) neste dia
-        const dataISO = dataCorrente.toISOString().split('T')[0];
-        const eventosNesteDia = todosEventosDoAluno.filter(ev => ev.data === dataISO);
-
-        if (eventosNesteDia.length > 0) {
-            classes += " has-activity";
-        }
-        
-        grid.innerHTML += `<div class="${classes}" data-date="${dataISO}">${dia}</div>`;
-    }
-}
-
-/**
- * Função principal para renderizar a lista de "Atividades Realizadas"
- */
-function renderizarAtividadesRealizadas(eventos) {
-    // Se 'eventos' for passado, usa. Senão, usa o que já está armazenado.
-    if (eventos && Array.isArray(eventos)) {
-        todosEventosDoAluno = eventos;
-    }
-    
-    const container = document.getElementById('atividades-container');
-    const cabecalhoMes = document.getElementById('mes-atual');
-    
-    if (!container || !cabecalhoMes) {
-        console.error("❌ [ATIVIDADES] Elementos de atividades não encontrados.");
-        return;
-    }
-    
-    container.innerHTML = ''; // Limpa o container
-    
-    const ano = dataAtualCalendario.getFullYear();
-    const mes = dataAtualCalendario.getMonth(); // 0-11
-    const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999); // Garante que "hoje" seja incluído
-
-    // Define o título (ex: "Novembro")
-    cabecalhoMes.textContent = nomesDosMeses[mes];
-
-    // Filtra os eventos para:
-    // 1. Ser do tipo 'treinamento'
-    // 2. Ser do mês e ano ATUAIS (do calendário)
-    // 3. Ser de uma data que já passou (ou é hoje)
-    const atividadesRealizadas = todosEventosDoAluno.filter(ev => {
-        const dataEv = new Date(ev.data + 'T00:00:00');
-        return ev.tipo === 'tranning' &&
-               dataEv.getFullYear() === ano &&
-               dataEv.getMonth() === mes &&
-               dataEv <= hoje;
-    });
-
-    // Ordena do mais recente para o mais antigo
-    atividadesRealizadas.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-    if (atividadesRealizadas.length === 0) {
-        container.innerHTML = `
-            <div class="sem-dados" style="padding: 10px 0;">
-                <i class="fas fa-running" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
-                <p style="font-size: 14px; color: #555;">Nenhum treino realizado</p>
-                <small style="font-size: 12px;">Seus treinos deste mês aparecerão aqui.</small>
-            </div>
-        `;
-        return;
-    }
-
-    atividadesRealizadas.forEach(ev => {
-        const dataObj = new Date(ev.data + 'T00:00:00');
-        const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        
-        const atividadeHtml = `
-            <div class="activity-item">
-                <i class="fas fa-running"></i>
-                <div>
-                    <strong>${ev.titulo}</strong>
-                </div>
-                <span class="activity-date">${dataFormatada}</span>
-            </div>
-        `;
-        container.innerHTML += atividadeHtml;
-    });
-}
-
-// Adiciona os event listeners para os botões do calendário
-document.getElementById('prev-month').addEventListener('click', () => {
-    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() - 1);
-    renderizarCalendario(); // Re-renderiza o calendário
-    renderizarAtividadesRealizadas(); // Re-renderiza as atividades
-});
-
-document.getElementById('next-month').addEventListener('click', () => {
-    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + 1);
-    renderizarCalendario(); // Re-renderiza o calendário
-    renderizarAtividadesRealizadas(); // Re-renderiza as atividades
-});
+        // Função para definir token de teste
+        window.definirTokenTeste = function () {
+            const tokenTeste = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvX2lkIjo2LCJ0aXBvX3VzdWFyaW8iOiJhbHVubyIsImV4cCI6MTc1Njk1Njg1Mn0.ZxFI3E4-3CX1K7oZ0j5xVL2eH8gQtSCCBkYq9nGOnO';
+            localStorage.setItem('jwt_token', tokenTeste);
+            console.log('✅ Token de teste definido');
+            carregarFeedbackDoTreinador();
+        };
 
 
-// Event listener para fechar modal ao clicar fora dele
-window.addEventListener('click', function (event) {
-    const videoModal = document.getElementById('videoViewModal');
-    if (event.target === videoModal) {
-        closeVideoViewModal();
-    }
-});
-
-// Carregar dados quando a página carregar
-document.addEventListener('DOMContentLoaded', () => {
-    // Carregar feedback do treinador automaticamente
-    carregarFeedbackDoTreinador();
-
-    // Carregar vídeos do atleta
-    carregarVideosDoAtleta();
-    
-    // CORREÇÃO: Chamar a função com o nome correto
-    carregarEventosDoAtleta(); // <-- 3. CHAMADA CORRIGIDA
-});
-
-// Fallback: se o DOM já estiver carregado, executar imediatamente
-if (document.readyState === 'loading') {
-    // DOM ainda carregando, aguardar DOMContentLoaded
-} else {
-    // DOM já carregado, executar imediatamente
-    console.log('🚀 DOM já carregado, carregando dados automaticamente...');
-    carregarFeedbackDoTreinador();
-    carregarVideosDoAtleta();
-    
-    // CORREÇÃO: Chamar a função com o nome correto
-    carregarEventosDoAtleta(); // <-- 4. CHAMADA CORRIGIDA
-}
-
-// Sistema de calendário integrado com dashboard-aluno.js
-
-// Expor função globalmente para uso por outros scripts
-window.atualizarGraficoDesempenho = atualizarGraficoDesempenho;
-window.carregarVideosDoAtleta = carregarVideosDoAtleta;
-
-// Função de teste para feedback
-window.testarFeedback = function () {
-    console.log('🧪 [TESTE] Testando sistema de feedback...');
-    console.log('🔑 Token atual:', localStorage.getItem('jwt_token'));
-    carregarFeedbackDoTreinador();
-};
-
-// Função para definir token de teste
-window.definirTokenTeste = function () {
-    const tokenTeste = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvX2lkIjo2LCJ0aXBvX3VzdWFyaW8iOiJhbHVubyIsImV4cCI6MTc1Njk1Njg1Mn0.ZxFI3E4-3CX1K7oZ0j5xVL2eH8gQtSCCBkYq9nGOnO';
-    localStorage.setItem('jwt_token', tokenTeste);
-    console.log('✅ Token de teste definido');
-    carregarFeedbackDoTreinador();
-};
 
 
-</script>
+
+    </script>
 </body>
 </html>

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Instituto Franciscani</title>
     <link rel="icon" href="/static/img/logo_if_icon.png" type="image/png" />
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
@@ -74,12 +74,21 @@
 
         if (usuarioCookie) {
             try {
-                const usuario = JSON.parse(decodeURIComponent(usuarioCookie));
-                localStorage.setItem("usuario_info", JSON.stringify(usuario));
+                const novoUsuario = JSON.parse(decodeURIComponent(usuarioCookie));
+                const usuarioAnterior = JSON.parse(localStorage.getItem("usuario_info") || "{}");
+
+                // Limpa cache de desempenho do usuário anterior se for diferente
+                if (usuarioAnterior.id && usuarioAnterior.id !== novoUsuario.id) {
+                    localStorage.removeItem(`desempenho_${usuarioAnterior.id}`);
+                }
+
+                // Atualiza localStorage com novo usuário
+                localStorage.setItem("usuario_info", JSON.stringify(novoUsuario));
             } catch (e) {
                 console.warn("⚠️ Erro ao interpretar usuario_info:", e);
             }
         }
+
 
     </script>
 
