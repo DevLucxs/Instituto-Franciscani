@@ -759,8 +759,6 @@
                 margin: 0;
             }
 
-
-
         .modal-actions {
             padding: 20px 25px;
             border-top: 1px solid #eee;
@@ -2145,9 +2143,12 @@
     </div>
 
 
-    <script src="/static/js/settings.js"> </script>
+
+
+    <script src="/static/js/settings.js"></script>
 
     <script>
+
         // Função para carregar atletas via API
 
         const API_BASE_URL = "http://127.0.0.1:8000/api"
@@ -2178,14 +2179,14 @@
 
                 const avatar = document.createElement('td');
                 avatar.innerHTML = `
-                    <div class="athlete-info">
-                        <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
-                        <div class="athlete-details">
-                            <h4>${atleta.nome}</h4>
-                            <p>${atleta.email}</p>
-                        </div>
-                    </div>
-                    `;
+        <div class="athlete-info">
+            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
+            <div class="athlete-details">
+                <h4>${atleta.nome}</h4>
+                <p>${atleta.email}</p>
+            </div>
+        </div>
+        `;
 
                 const modalidade = document.createElement('td');
                 modalidade.textContent = atleta.modalidade || 'Não informado';
@@ -2513,10 +2514,10 @@
             const modalidade = athlete.modalidade || athlete.sport || "Modalidade não informada";
 
             preview.innerHTML = `
-                <div class="athlete-preview-avatar">${getIniciais(nome)}</div>
-                <div class="athlete-preview-name">${nome}</div>
-                <div class="athlete-preview-sport">${modalidade}</div>
-              `;
+    <div class="athlete-preview-avatar">${getIniciais(nome)}</div>
+    <div class="athlete-preview-name">${nome}</div>
+    <div class="athlete-preview-sport">${modalidade}</div>
+  `;
             preview.className = "athlete-preview has-athlete";
 
             checkComparisonReady();
@@ -2696,11 +2697,11 @@
             const freq2 = athlete2.performance.frequencia;
             if (Math.abs(freq1 - freq2) > 10) {
                 analysis += `<p>
-                        <span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
+            <span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
             } else {
                 analysis += `
-                    <p>
-                        Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
+        <p>
+            Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
             }
 
             // Análise de treinos completos
@@ -2708,8 +2709,8 @@
             const treinos2 = athlete2.performance.treinosCompletos;
             if (Math.abs(treinos1 - treinos2) > 20) {
                 analysis += `
-                    </p><p>
-                        Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
+        </p><p>
+            Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
             }
 
             // Análise de habilidades técnicas
@@ -2717,8 +2718,8 @@
             const tecnica2 = athlete2.performance.tecnica;
             if (Math.abs(tecnica1 - tecnica2) > 1) {
                 analysis += `
-                    </p><p>
-                        Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
+        </p><p>
+            Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
             }
 
             // Análise de força vs velocidade
@@ -2729,16 +2730,16 @@
 
             if (forca1 > forca2 && vel1 > vel2) {
                 analysis += `
-                    </p><p>
-                        <span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
+        </p><p>
+            <span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
             } else if (forca2 > forca1 && vel2 > vel1) {
                 analysis += `
-                    </p><p>
-                        <span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
+        </p><p>
+            <span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
             } else {
                 analysis += `
-                    </p><p>
-                        Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
+        </p><p>
+            Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
             }
 
             // Análise de competições
@@ -2746,25 +2747,25 @@
             const medalhas2 = athlete2.performance.medalhas;
             if (Math.abs(medalhas1 - medalhas2) > 1) {
                 analysis += `
-                    </p><p>
-                        Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
+        </p><p>
+            Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
             }
 
             // Análise de modalidade
             if (athlete1.modalidade === athlete2.modalidade) {
                 analysis += `
-                    </p><p>
-                        Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
+        </p><p>
+            Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
             } else {
                 analysis += `
-                    </p><p>
-                        As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
+        </p><p>
+            As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
             }
 
             // Recomendações baseadas em performance
             analysis += `
-                    </p><p>
-                        <strong>Recomendações de Treinamento:</strong> `;
+        </p><p>
+            <strong>Recomendações de Treinamento:</strong> `;
 
             if (freq1 < 80 || freq2 < 80) {
                 analysis += `Para o atleta com menor frequência, considere programas de motivação e acompanhamento mais próximo. `;
@@ -2791,23 +2792,23 @@
         ) {
             const container = document.getElementById("trainingsChartContainer");
             container.innerHTML = `
-                        <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
-                            <div style="display: flex; flex-direction: column; align-items: center;">
-                                <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+            <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                                <span>${athlete1Trainings}</span>
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: center;">
-                                <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                    <span>${athlete1Trainings}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                                <span>${athlete2Trainings}</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                            <span style="color: var(--primary-color);">${athlete1Name}</span>
-                            <span style="color: var(--info-color);">${athlete2Name}</span>
-                        </div>
-                        `;
+                    <span>${athlete2Trainings}</span>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                <span style="color: var(--info-color);">${athlete2Name}</span>
+            </div>
+            `;
         }
 
         function renderGoalsChart(
@@ -2823,33 +2824,33 @@
 
             const container = document.getElementById("goalsChartContainer");
             container.innerHTML = `
-                        <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
-                            <div style="width: 45%;">
-                                <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                                    <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
-                                </div>
-                                <div style="text-align: center; margin-top: 5px;">
-                                    ${athlete1Percentage.toFixed(
+            <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
+                <div style="width: 45%;">
+                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 5px;">
+                        ${athlete1Percentage.toFixed(
                 1
             )}%
-                                </div>
-                            </div>
-                            <div style="width: 45%;">
-                                <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                                    <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
-                                </div>
-                                <div style="text-align: center; margin-top: 5px;">
-                                    ${athlete2Percentage.toFixed(
+                    </div>
+                </div>
+                <div style="width: 45%;">
+                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 5px;">
+                        ${athlete2Percentage.toFixed(
                 1
             )}%
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                            <span style="color: var(--primary-color);">${athlete1Name}</span>
-                            <span style="color: var(--info-color);">${athlete2Name}</span>
-                        </div>
-                        `;
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                <span style="color: var(--info-color);">${athlete2Name}</span>
+            </div>
+            `;
         }
 
         // Fechar modal de comparação clicando fora
@@ -2862,9 +2863,6 @@
         // Função de logout
         function logout() {
             if (confirm("Tem certeza que deseja sair?")) {
-                localStorage.removeItem("jwt_token");
-                localStorage.removeItem("usuario_info");
-
                 window.location.href = "/";
             }
         }
@@ -2878,9 +2876,6 @@
                 console.log('⚠️ Sistema de notificações não disponível');
             }
         }
-
-
-        
 
         // Funções para os botões da tabela
         function showFilters() {
@@ -3107,12 +3102,12 @@
             if (filteredAthletes.length === 0) {
                 const noResultsRow = document.createElement("tr");
                 noResultsRow.innerHTML = `
-                        <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-                            <h3>Nenhum atleta encontrado</h3>
-                            <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
-                        </td>
-                        `;
+            <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+                <h3>Nenhum atleta encontrado</h3>
+                <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
+            </td>
+            `;
                 tbody.appendChild(noResultsRow);
                 return;
             }
@@ -3124,12 +3119,12 @@
                 const athleteCell = document.createElement("td");
                 athleteCell.className = "athlete-info";
                 athleteCell.innerHTML = `
-                        <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
-                        <div class="athlete-details">
-                            <h4>${athlete.nome}</h4>
-                            <p>${athlete.email}</p>
-                        </div>
-                        `;
+            <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
+            <div class="athlete-details">
+                <h4>${athlete.nome}</h4>
+                <p>${athlete.email}</p>
+            </div>
+            `;
 
                 const sportCell = document.createElement("td");
                 // Mapear modalidades para traduções

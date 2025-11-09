@@ -20,7 +20,7 @@ if not SECRET_KEY:
     raise RuntimeError("APP_SECRET_KEY não foi definido no .env")
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def criar_token_acesso(data: dict):
     to_encode = data.copy()
@@ -29,25 +29,16 @@ def criar_token_acesso(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
-def get_usuario_logado(request: Request, db: Session = Depends(get_db)):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Token ausente")
-
-    token = auth_header.replace("Bearer ", "")
+def get_usuario_logado(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
-        if not email:
+        if email is None:
             raise HTTPException(status_code=401, detail="Token inválido")
-
-        usuario = db.query(models.User).filter(models.User.email == email).first()
-        if not usuario:
-            raise HTTPException(status_code=401, detail="Usuário não encontrado")
-
-        return usuario
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
 
-
+    usuario = db.query(models.User).filter(models.User.email == email).first()
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+    return usuario

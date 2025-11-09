@@ -32,8 +32,6 @@ class User(Base):
     endereco = Column(String(100), nullable=True)
     data_cadastro = Column(DateTime(timezone=True), server_default=func.now())
     dieta_filepath = Column(String(255), nullable=True)
-    foco = Column(String(255), nullable=True)  
-    ano_ingresso = Column(Integer, nullable=True)  
     # Eventos que este usuário (treinador) criou
     eventos_criados = relationship("Evento", back_populates="criador", foreign_keys="Evento.treinador_id")
     

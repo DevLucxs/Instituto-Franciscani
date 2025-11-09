@@ -1,657 +1,672 @@
 ﻿<!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Treinamentos | Instituto Franciscani</title>
-    <link rel="shortcut icon"
-          href="/static/img/logo_if_icon.png"
-          type="image/x-icon" />
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="shortcut icon"
+      href="/static/img/logo_if_icon.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-        :root {
-            --primary-color: #00005e;
-            --secondary-color: #010146;
-            --accent-color: #08083a;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --success-color: #00b451;
-            --warning-color: #f72548;
-            --gray-color: #adb5bd;
-            --sidebar-width: 250px;
-            --header-height: 70px;
-            --transition: all 0.3s ease;
-            --info-color: #4895ef;
-        }
+      :root {
+        --primary-color: #00005e;
+        --secondary-color: #010146;
+        --accent-color: #08083a;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #00b451;
+        --warning-color: #f72548;
+        --gray-color: #adb5bd;
+        --sidebar-width: 250px;
+        --header-height: 70px;
+        --transition: all 0.3s ease;
+        --info-color: #4895ef;
+      }
 
-        body {
-            background-color: #f5f7fb;
-            color: var(--dark-color);
-            display: flex;
-            min-height: 100vh;
-        }
+      body {
+        background-color: #f5f7fb;
+        color: var(--dark-color);
+        display: flex;
+        min-height: 100vh;
+      }
 
-        /* Sidebar */
+      /* Sidebar */
+      .sidebar {
+        width: var(--sidebar-width);
+        background: linear-gradient(
+          to bottom,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        height: 100vh;
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px 0;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+
+      .sidebar-header {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 20px;
+      }
+
+      .sidebar-header h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sidebar-header h2 i {
+        background: white;
+        color: var(--primary-color);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-items {
+        list-style: none;
+        padding: 0 15px;
+      }
+
+      .menu-items li {
+        margin-bottom: 5px;
+      }
+
+      .menu-items a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .menu-items a:hover,
+      .menu-items a.active {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .menu-items a i {
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar-footer a {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .sidebar-footer a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        padding: 20px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(
+          to right,
+          var(--accent-color),
+          var(--primary-color)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .user-details h4 {
+        margin-bottom: 3px;
+      }
+
+      .user-details p {
+        color: var(--gray-color);
+        font-size: 14px;
+      }
+
+      .search-bar {
+        flex: 1;
+        max-width: 400px;
+        margin: 0 20px;
+        position: relative;
+      }
+
+      .search-bar input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border: none;
+        background-color: #f5f7fb;
+        border-radius: 25px;
+        font-size: 14px;
+      }
+
+      .search-bar i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-color);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f5f7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-color);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .action-icon:hover {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      /* Treinamentos */
+      .training-container {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .training-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .training-header h2 {
+        color: var(--primary-color);
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: var(--transition);
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .week-container {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+
+      .day-column {
+        flex: 1;
+        min-width: 150px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+      }
+
+      .day-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .day-title {
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .date-badge {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .training-item {
+        background-color: white;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        cursor: move;
+        position: relative;
+      }
+
+      .training-item.dragging {
+        opacity: 0.5;
+      }
+
+      .training-athlete {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--dark-color);
+      }
+
+      .training-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--gray-color);
+        margin-bottom: 8px;
+      }
+
+      .training-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .training-check {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .training-check input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .training-check label {
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .training-delete {
+        color: var(--warning-color);
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .empty-day {
+        text-align: center;
+        color: var(--gray-color);
+        font-style: italic;
+        padding: 20px 0;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background-color: white;
+        width: 500px;
+        max-width: 90%;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-header h2 {
+        color: var(--primary-color);
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--gray-color);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark-color);
+      }
+
+      .form-group select,
+      .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+      }
+
+      .btn-outline:hover {
+        background-color: #f5f7fb;
+      }
+
+      .training-description {
+        font-size: 13px;
+        color: var(--dark-color);
+        margin-bottom: 8px;
+        font-style: italic;
+      }
+
+      /* Responsividade */
+      @media (max-width: 992px) {
         .sidebar {
-            width: var(--sidebar-width);
-            background: linear-gradient( to bottom, var(--primary-color), var(--secondary-color) );
-            color: white;
-            height: 100vh;
-            position: fixed;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px 0;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+          width: 70px;
+          overflow: hidden;
         }
 
-        .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
+        .sidebar-header h2 span,
+        .menu-items a span,
+        .sidebar-footer a span {
+          display: none;
         }
 
-            .sidebar-header h2 {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-                .sidebar-header h2 i {
-                    background: white;
-                    color: var(--primary-color);
-                    width: 35px;
-                    height: 35px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-        .menu-items {
-            list-style: none;
-            padding: 0 15px;
-        }
-
-            .menu-items li {
-                margin-bottom: 5px;
-            }
-
-            .menu-items a {
-                color: white;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 12px 15px;
-                border-radius: 8px;
-                transition: var(--transition);
-            }
-
-                .menu-items a:hover,
-                .menu-items a.active {
-                    background-color: rgba(255, 255, 255, 0.1);
-                }
-
-                .menu-items a i {
-                    width: 20px;
-                    text-align: center;
-                }
-
-        .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-            .sidebar-footer a {
-                color: white;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 10px 15px;
-                border-radius: 8px;
-                transition: var(--transition);
-            }
-
-                .sidebar-footer a:hover {
-                    background-color: rgba(255, 255, 255, 0.1);
-                }
-
-        /* Main Content */
         .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            padding: 20px;
+          margin-left: 70px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          padding: 15px;
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: white;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
+        .search-bar {
+          max-width: 100%;
+          margin: 0;
         }
 
         .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+          width: 100%;
+          justify-content: center;
         }
-
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient( to right, var(--accent-color), var(--primary-color) );
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .user-details h4 {
-            margin-bottom: 3px;
-        }
-
-        .user-details p {
-            color: var(--gray-color);
-            font-size: 14px;
-        }
-
-        .search-bar {
-            flex: 1;
-            max-width: 400px;
-            margin: 0 20px;
-            position: relative;
-        }
-
-            .search-bar input {
-                width: 100%;
-                padding: 12px 20px 12px 45px;
-                border: none;
-                background-color: #f5f7fb;
-                border-radius: 25px;
-                font-size: 14px;
-            }
-
-            .search-bar i {
-                position: absolute;
-                left: 15px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--gray-color);
-            }
 
         .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+          width: 100%;
+          justify-content: center;
         }
-
-        .action-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f5f7fb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark-color);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-            .action-icon:hover {
-                background-color: var(--primary-color);
-                color: white;
-            }
-
-        /* Treinamentos */
-        .training-container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-        }
-
-        .training-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-            .training-header h2 {
-                color: var(--primary-color);
-            }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-            .btn-primary:hover {
-                background-color: var(--secondary-color);
-            }
-
-        .week-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .day-column {
-            flex: 1;
-            min-width: 150px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .day-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .day-title {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .date-badge {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
-        .training-item {
-            background-color: white;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            cursor: move;
-            position: relative;
-        }
-
-            .training-item.dragging {
-                opacity: 0.5;
-            }
-
-        .training-athlete {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--dark-color);
-        }
-
-        .training-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: var(--gray-color);
-            margin-bottom: 8px;
-        }
-
-        .training-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .training-check {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-            .training-check input {
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-
-            .training-check label {
-                font-size: 13px;
-                cursor: pointer;
-            }
-
-        .training-delete {
-            color: var(--warning-color);
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .empty-day {
-            text-align: center;
-            color: var(--gray-color);
-            font-style: italic;
-            padding: 20px 0;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            width: 500px;
-            max-width: 90%;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-            .modal-header h2 {
-                color: var(--primary-color);
-            }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray-color);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 8px;
-                font-weight: 600;
-                color: var(--dark-color);
-            }
-
-            .form-group select,
-            .form-group input {
-                width: 100%;
-                padding: 12px 15px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                font-size: 15px;
-            }
 
         .form-row {
-            display: flex;
-            gap: 15px;
+          flex-direction: column;
+          gap: 0;
         }
+      }
 
-            .form-row .form-group {
-                flex: 1;
-            }
+      /* Estilos para notificações */
+      .notifications-list {
+        max-height: 400px;
+        overflow-y: auto;
+      }
 
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
-        }
+      .notification-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
+      }
 
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #ddd;
-        }
+      .notification-item:hover {
+        background-color: #f8f9fa;
+      }
 
-            .btn-outline:hover {
-                background-color: #f5f7fb;
-            }
+      .notification-item.unread {
+        background-color: #f0f8ff;
+        border-left: 4px solid var(--primary-color);
+      }
 
-        .training-description {
-            font-size: 13px;
-            color: var(--dark-color);
-            margin-bottom: 8px;
-            font-style: italic;
-        }
+      .notification-content {
+        flex: 1;
+      }
 
-        /* Responsividade */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-                overflow: hidden;
-            }
+      .notification-content p {
+        margin: 0 0 5px 0;
+        font-weight: 500;
+      }
 
-            .sidebar-header h2 span,
-            .menu-items a span,
-            .sidebar-footer a span {
-                display: none;
-            }
+      .notification-content small {
+        color: var(--gray-color);
+        font-size: 12px;
+      }
 
-            .main-content {
-                margin-left: 70px;
-            }
-        }
+      .unread-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        margin-left: 10px;
+      }
 
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
+      /* Estilos para configurações */
+      .settings-content {
+        margin-bottom: 20px;
+      }
 
-            .search-bar {
-                max-width: 100%;
-                margin: 0;
-            }
+      .settings-content .form-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
 
-            .user-info {
-                width: 100%;
-                justify-content: center;
-            }
+      .settings-content .form-group:last-child {
+        border-bottom: none;
+      }
 
-            .header-actions {
-                width: 100%;
-                justify-content: center;
-            }
+      .settings-content label {
+        margin: 0;
+        font-weight: 500;
+      }
 
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-        }
+      .settings-content input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
 
-        /* Estilos para notificações */
-        .notifications-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
+      .settings-content select {
+        width: 150px;
+        margin: 0;
+      }
+       /* Container para a barra de pesquisa - para posicionar a caixa de sugestões */
+    .search-bar {
+      position: relative; /* Essencial para que a caixa de sugestões apareça logo abaixo */
+    }
 
-        .notification-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.3s ease;
-        }
+  /* Caixa de Sugestões - O container que aparece e desaparece (VERSÃO ATUALIZADA) */
+  #suggestionsBox {
+      position: absolute; 
+      top: calc(100% + 5px); /* Alterado: 100% da altura + 5px de espaço */
+      left: 0;
+      right: 0;
+      background-color: #ffffff; /* Alterado: Fundo branco */
+      border: 1px solid #ddd;     /* Alterado: Borda cinza clara */
+      border-radius: 8px;         /* Alterado: Borda arredondada em todos os cantos */
+      z-index: 10;
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Alterado: Sombra mais pronunciada */
+    }
 
-            .notification-item:hover {
-                background-color: #f8f9fa;
-            }
+    /* Itens Individuais da Sugestão (VERSÃO ATUALIZADA) */
+    .suggestion-item {
+      padding: 12px 20px;
+      font-size: 15px;
+      color: #333333; /* Alterado: Cor de texto escura para o fundo branco */
+      cursor: pointer;
+      border-bottom: 1px solid #eee; /* Alterado: Linha separadora mais clara */
+      transition: background-color 0.2s ease;
+    }
 
-            .notification-item.unread {
-                background-color: #f0f8ff;
-                border-left: 4px solid var(--primary-color);
-            }
+    /* Remove a borda do último item para um acabamento limpo */
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
 
-        .notification-content {
-            flex: 1;
-        }
-
-            .notification-content p {
-                margin: 0 0 5px 0;
-                font-weight: 500;
-            }
-
-            .notification-content small {
-                color: var(--gray-color);
-                font-size: 12px;
-            }
-
-        .unread-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            margin-left: 10px;
-        }
-
-        /* Estilos para configurações */
-        .settings-content {
-            margin-bottom: 20px;
-        }
-
-            .settings-content .form-group {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid #eee;
-            }
-
-                .settings-content .form-group:last-child {
-                    border-bottom: none;
-                }
-
-            .settings-content label {
-                margin: 0;
-                font-weight: 500;
-            }
-
-            .settings-content input[type="checkbox"] {
-                width: auto;
-                margin: 0;
-            }
-
-            .settings-content select {
-                width: 150px;
-                margin: 0;
-            }
-        /* Container para a barra de pesquisa - para posicionar a caixa de sugestões */
-        .search-bar {
-            position: relative; /* Essencial para que a caixa de sugestões apareça logo abaixo */
-        }
-
-        /* Caixa de Sugestões - O container que aparece e desaparece (VERSÃO ATUALIZADA) */
-        #suggestionsBox {
-            position: absolute;
-            top: calc(100% + 5px); /* Alterado: 100% da altura + 5px de espaço */
-            left: 0;
-            right: 0;
-            background-color: #ffffff; /* Alterado: Fundo branco */
-            border: 1px solid #ddd; /* Alterado: Borda cinza clara */
-            border-radius: 8px; /* Alterado: Borda arredondada em todos os cantos */
-            z-index: 10;
-            max-height: 250px;
-            overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Alterado: Sombra mais pronunciada */
-        }
-
-        /* Itens Individuais da Sugestão (VERSÃO ATUALIZADA) */
-        .suggestion-item {
-            padding: 12px 20px;
-            font-size: 15px;
-            color: #333333; /* Alterado: Cor de texto escura para o fundo branco */
-            cursor: pointer;
-            border-bottom: 1px solid #eee; /* Alterado: Linha separadora mais clara */
-            transition: background-color 0.2s ease;
-        }
-
-            /* Remove a borda do último item para um acabamento limpo */
-            .suggestion-item:last-child {
-                border-bottom: none;
-            }
-
-            /* Efeito Hover (VERSÃO ATUALIZADA) */
-            .suggestion-item:hover {
-                background-color: #f5f5f5; /* Alterado: Fundo cinza bem claro para o hover */
-            }
+    /* Efeito Hover (VERSÃO ATUALIZADA) */
+    .suggestion-item:hover {
+      background-color: #f5f5f5; /* Alterado: Fundo cinza bem claro para o hover */
+    }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div>
-            <div class="sidebar-header">
-                <img src="/static/img/logo_if.png" alt="logo" width="230" />
-            </div>
-            <ul class="menu-items">
-                <li>
-                    <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span data-translate="nav.dashboard">Dashboard</span></a>
-                </li>
-                <li>
-                    <a href="/treinador/dados/{{ treinador.id }}"><i class="fas fa-chart-bar"></i> <span data-translate="nav.dados_gerais">Dados Gerais</span></a>
-                </li>
-                <li>
-                    <a href="#" class="active"><i class="fas fa-running"></i> <span data-translate="nav.treinamentos">Treinamentos</span></a>
-                </li>
-                <li>
-                    <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span data-translate="nav.calendario">Calendário</span></a>
-                </li>
-            </ul>
+      <div>
+        <div class="sidebar-header">
+          <img src="/static/img/logo_if.png" alt="logo" width="230" />
         </div>
-        <div class="sidebar-footer">
-            <a href="https://forms.office.com/" target="_blank"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
-            <a href="/logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a>
-        </div>
+        <ul class="menu-items">
+          <li>
+            <a href="/treinador/dashboard/{{ treinador.id }}"><i class="fas fa-th-large"></i> <span data-translate="nav.dashboard">Dashboard</span></a>
+          </li>
+          <li>
+            <a href="/treinador/dados/{{ treinador.id }}"><i class="fas fa-chart-bar"></i> <span data-translate="nav.dados_gerais">Dados Gerais</span></a>
+          </li>
+          <li>
+            <a href="#" class="active"
+              ><i class="fas fa-running"></i> <span data-translate="nav.treinamentos">Treinamentos</span></a>
+          </li>
+          <li>
+            <a href="/treinador/calendario/{{ treinador.id }}"><i class="fas fa-calendar-days"></i> <span data-translate="nav.calendario">Calendário</span></a>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <a href="https://forms.office.com/" target="_blank"
+          ><i class="fas fa-question-circle"></i> <span>Ajuda</span></a
+        >
+        <a href="/logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Header -->
+      <!-- Header -->
         <header class="header">
             <div class="user-info">
                 <div class="user-avatar">{{ (treinador.nome.split()[0][0] + treinador.nome.split()[1][0]).upper() }}</div>
@@ -660,12 +675,12 @@
                     <p>{{ treinador.cargos }}</p>
                 </div>
             </div>
-            <div class="search-bar" data-treinador-id="{{ treinador.id }}">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
-                <div id="suggestionsBox"></div>
+          <div class="search-bar" data-treinador-id="{{ treinador.id }}">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
+              <div id="suggestionsBox"></div> 
             </div>
-
+            <script src="/static/js/dashboard.js"></script>
             <div class="header-actions">
                 <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
                     <i class="fas fa-bell"></i>
@@ -676,104 +691,112 @@
             </div>
         </header>
 
-        <!-- Treinamentos Section -->
-        <div class="training-container">
-            <div class="training-header">
-                <h2>Programação de Treinamentos</h2>
-                <button class="btn btn-primary" id="addTrainingBtn">
-                    Adicionar Treinamento
-                </button>
-                <button class="btn btn-info" onclick="forcarAtualizacaoGrafico()" style="margin-left: 10px;">
-                    <i class="fas fa-chart-bar"></i> Atualizar Gráfico
-                </button>
-                <button class="btn btn-warning" onclick="atualizarEstatisticasTreinos()" style="margin-left: 10px;">
-                    <i class="fas fa-percentage"></i> Atualizar Estatísticas
-                </button>
-                <button class="btn btn-success" onclick="abrirDashboard()" style="margin-left: 10px;">
-                    <i class="fas fa-tachometer-alt"></i> Abrir Dashboard
-                </button>
-            </div>
-
-            <div class="week-container" id="weekContainer">
-                <!-- Dias da semana serão inseridos via JavaScript -->
-            </div>
+      <!-- Treinamentos Section -->
+      <div class="training-container">
+        <div class="training-header">
+          <h2>Programação de Treinamentos</h2>
+          <button class="btn btn-primary" id="addTrainingBtn">
+            Adicionar Treinamento
+          </button>
+          <button class="btn btn-info" onclick="forcarAtualizacaoGrafico()" style="margin-left: 10px;">
+            <i class="fas fa-chart-bar"></i> Atualizar Gráfico
+          </button>
+          <button class="btn btn-warning" onclick="atualizarEstatisticasTreinos()" style="margin-left: 10px;">
+            <i class="fas fa-percentage"></i> Atualizar Estatísticas
+          </button>
+          <button class="btn btn-success" onclick="abrirDashboard()" style="margin-left: 10px;">
+            <i class="fas fa-tachometer-alt"></i> Abrir Dashboard
+          </button>
         </div>
+
+        <div class="week-container" id="weekContainer">
+          <!-- Dias da semana serão inseridos via JavaScript -->
+        </div>
+      </div>
     </main>
 
     <!-- Modal para Adicionar Treinamento -->
     <div class="modal" id="trainingModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Adicionar Treinamento</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="trainingForm">
-                <div class="form-group">
-                    <label for="athlete">Atleta</label>
-                    <select id="athlete" required>
-                        <option value="">Carregando atletas...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="trainingDate">Data do Treino</label>
-                    <input type="date" id="trainingDate" required />
-                </div>
-                <!-- Hora do treino -->
-                <div class="form-group">
-                    <label for="trainingHour">Hora do Treino</label>
-                    <input type="time" id="trainingHour" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="trainingDuration">Tempo de Treino (minutos)</label>
-                    <input type="number" id="trainingDuration" min="1" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="trainingType">Tipo de Treino</label>
-                    <div class="form-group"
-                         id="technicalDescriptionGroup"
-                         style="display: none">
-                        <label for="technicalDescription">Descrição do Treino Técnico</label>
-                        <textarea id="technicalDescription"
-                                  rows="3"
-                                  placeholder="Detalhe o treino técnico..."></textarea>
-                    </div>
-                    <select id="trainingType" required>
-                        <option value="">Selecione o tipo</option>
-                        <option value="Aeróbico">Aeróbico</option>
-                        <option value="Força">Força</option>
-                        <option value="Resistência">Resistência</option>
-                        <option value="Técnico">Técnico</option>
-                        <option value="Recuperação">Recuperação</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="trainingLoad">Carga (kg)</label>
-                        <input type="number" id="trainingLoad" min="0" step="0.5" />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="trainingDeadline">Prazo</label>
-                        <input type="date" id="trainingDeadline" />
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button"
-                            class="btn btn-outline"
-                            id="cancelTrainingBtn">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Salvar Treinamento
-                    </button>
-                </div>
-            </form>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Adicionar Treinamento</h2>
+          <button class="close-modal">&times;</button>
         </div>
+        <form id="trainingForm">
+          <div class="form-group">
+            <label for="athlete">Atleta</label>
+            <select id="athlete" required>
+              <option value="">Carregando atletas...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="trainingDate">Data do Treino</label>
+            <input type="date" id="trainingDate" required />
+          </div>
+          <!-- NOVO CAMPO DE HORA -->
+          <div class="form-group">
+              <label for="trainingHour">Hora do Treino</label>
+              <input type="time" id="trainingTime" required />
+
+          </div>
+          <div class="form-group">
+            <label for="trainingTime">Tempo de Treino (minutos)</label>
+            <input type="number" id="trainingTime" min="1" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="trainingType">Tipo de Treino</label>
+            <div
+              class="form-group"
+              id="technicalDescriptionGroup"
+              style="display: none"
+            >
+              <label for="technicalDescription"
+                >Descrição do Treino Técnico</label
+              >
+              <textarea
+                id="technicalDescription"
+                rows="3"
+                placeholder="Detalhe o treino técnico..."
+              ></textarea>
+            </div>
+            <select id="trainingType" required>
+              <option value="">Selecione o tipo</option>
+              <option value="Aeróbico">Aeróbico</option>
+              <option value="Força">Força</option>
+              <option value="Resistência">Resistência</option>
+              <option value="Técnico">Técnico</option>
+              <option value="Recuperação">Recuperação</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="trainingLoad">Carga (kg)</label>
+              <input type="number" id="trainingLoad" min="0" step="0.5" />
+            </div>
+
+            <div class="form-group">
+              <label for="trainingDeadline">Prazo</label>
+              <input type="date" id="trainingDeadline" />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-outline"
+              id="cancelTrainingBtn"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Salvar Treinamento
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
@@ -789,10 +812,9 @@
       }
       // Função auxiliar para pegar o token JWT (assuma que é salvo no login, ex: localStorage.setItem('token', token))
         function getAuthToken() {
-            return localStorage.getItem("token") || localStorage.getItem("jwt_token");
+            return localStorage.getItem('token') || localStorage.getItem('jwt_token');
         }
-
-
+      
       // Função para carregar treinamentos do back-end
         async function loadTrainings() {
             try {
@@ -802,8 +824,6 @@
                     window.location.href = '/';
                     return;
                 }
-
-                console.log("🔐 Token usado:", token);
 
                 const response = await fetch('/api/treinamentos', {
                     headers: {
@@ -826,6 +846,8 @@
                 console.error('Erro:', error);
                 alert('Erro ao carregar treinamentos. Verifique sua conexão ou login.');
             }
+
+
         }
 
 
@@ -867,7 +889,7 @@
 
         // Configurar funcionalidade de arrastar
         setupDragAndDrop();
-
+      
 
       // Função para formatar data como YYYY-MM-DD
       function formatDate(date) {
@@ -953,6 +975,9 @@ function renderTrainings(trainings = []) {
   });
 }
 
+        // Adicionar event listeners para checkboxes e botões de exclusão
+        addTrainingEventListeners();
+      
 
       // Função para configurar arrastar e soltar
       function setupDragAndDrop() {
@@ -983,13 +1008,13 @@ function handleDragStart(e) {
   e.target.classList.add("dragging");
 }
 function handleDragOver(e) {
-
+  
 }
 function handleDragEnter(e) {
-
+  
 }
 function handleDragLeave(e) {
-
+  
 }
 
 // Função para drop (atualiza data no BD)
@@ -1021,17 +1046,17 @@ async function handleDrop(e) {
       window.atualizarGraficoHoras = function(dadosHoras) {
         try {
           console.log('🎯 Função global de atualização do gráfico chamada com dados:', dadosHoras);
-
+          
           // Aqui você pode implementar a lógica para atualizar o gráfico
           // Por enquanto, vamos apenas logar os dados
           console.log('📊 Dados para atualizar gráfico:', dadosHoras);
-
+          
           // Se houver dados, mostrar notificação
           const totalHoras = Object.values(dadosHoras).reduce((a, b) => a + b, 0);
           if (totalHoras > 0) {
             showNotification(`📊 Gráfico atualizado! Total: ${totalHoras.toFixed(2)} horas de treinamento`, 'success');
           }
-
+          
         } catch (error) {
           console.error('❌ Erro na função global de atualização do gráfico:', error);
         }
@@ -1045,43 +1070,43 @@ async function handleDrop(e) {
             console.error('❌ Token não encontrado para atualizar estatísticas');
             return;
           }
-
+          
           console.log('🔄 Atualizando estatísticas dos treinos...');
-
+          
           const response = await fetch('http://localhost:8000/api/treinamentos', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           });
-
+          
           if (response.ok) {
             const dados = await response.json();
             const treinos = dados.treinamentos || [];
-
+            
             console.log('📊 Treinos encontrados:', treinos);
-
+            
             // Calcular estatísticas reais
             const totalTreinos = treinos.length;
             const treinosConcluidos = treinos.filter(t => t.completado === true).length;
             const percentualConcluido = totalTreinos > 0 ? (treinosConcluidos / totalTreinos) * 100 : 0;
-
+            
             const estatisticas = {
               total: totalTreinos,
               concluidos: treinosConcluidos,
               percentual: percentualConcluido.toFixed(1),
               pendentes: totalTreinos - treinosConcluidos
             };
-
+            
             console.log('📊 Estatísticas calculadas:', estatisticas);
-
+            
             // Salvar no localStorage
             localStorage.setItem('estatisticas_treinos', JSON.stringify(estatisticas));
             localStorage.setItem('grafico_atualizar', 'true');
             localStorage.setItem('grafico_timestamp', Date.now().toString());
-
+            
             console.log('✅ Estatísticas salvas no localStorage');
-
+            
             // Tentar atualizar dashboard
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage({ type: 'atualizar_estatisticas', estatisticas }, '*');
@@ -1093,45 +1118,16 @@ async function handleDrop(e) {
         } catch (error) {
           console.error('❌ Erro ao atualizar estatísticas:', error);
         }
-
-          document.addEventListener("DOMContentLoaded", function () {
-              const btnEstatisticas = document.querySelector('[onclick="atualizarEstatisticasTreinos()"]');
-              if (btnEstatisticas) {
-                  btnEstatisticas.addEventListener("click", async () => {
-                      await atualizarEstatisticasTreinos();
-
-                      // Atualiza gráfico se estiver disponível
-                      if (typeof atualizarGraficoHorasTreinamento === "function") {
-                          atualizarGraficoHorasTreinamento();
-                      }
-
-                      // Atualiza indicadores visuais se estiver na mesma página
-                      const estatisticas = JSON.parse(localStorage.getItem("estatisticas_treinos") || "{}");
-                      const percentualElement = document.getElementById("percentualTreinos");
-                      const contagemElement = document.getElementById("contagemTreinos");
-
-                      if (percentualElement && contagemElement && estatisticas.total !== undefined) {
-                          percentualElement.textContent = `${estatisticas.percentual}%`;
-                          contagemElement.textContent = `${estatisticas.concluidos} de ${estatisticas.total} treinos`;
-                      }
-
-                      // Notificação de sucesso
-                      showNotification("✅ Estatísticas atualizadas com sucesso!", "success");
-                  });
-              }
-          });
-
-
       }
 
       // Função para forçar atualização do gráfico
       function forcarAtualizacaoGrafico() {
         try {
           console.log('🔄 Forçando atualização do gráfico...');
-
+          
           // Chamar função de atualização
           atualizarGraficoHorasTreinamento();
-
+          
           // Tentar atualizar dashboard se estiver aberto
           if (window.opener && !window.opener.closed) {
             try {
@@ -1141,7 +1137,7 @@ async function handleDrop(e) {
               console.log('⚠️ Não foi possível recarregar dashboard');
             }
           }
-
+          
         } catch (error) {
           console.error('❌ Erro ao forçar atualização:', error);
         }
@@ -1151,14 +1147,14 @@ async function handleDrop(e) {
       function abrirDashboard() {
         try {
           console.log('🚀 Abrindo dashboard...');
-
+          
           // Abrir dashboard em nova aba
           const dashboardUrl = `/treinador/dashboard/{{ treinador.id }}`;
           const dashboardWindow = window.open(dashboardUrl, '_blank');
-          cd
+          cd 
           if (dashboardWindow) {
             console.log('✅ Dashboard aberto em nova aba');
-
+            
             // Aguardar um pouco e então atualizar dados
             setTimeout(() => {
               atualizarGraficoHorasTreinamento();
@@ -1166,7 +1162,7 @@ async function handleDrop(e) {
           } else {
             console.log('⚠️ Não foi possível abrir dashboard');
           }
-
+          
         } catch (error) {
           console.error('❌ Erro ao abrir dashboard:', error);
         }
@@ -1198,17 +1194,17 @@ async function handleDrop(e) {
       async function toggleTrainingCompleted(trainingId, completed) {
         try {
           console.log(`🔄 Iniciando toggle para treino ${trainingId}, status: ${completed}`);
-
+          
           // Verificar se o usuário está logado
           console.log('🔍 Verificando autenticação...');
           console.log('🔍 Tipo de verificarAutenticacao:', typeof verificarAutenticacao);
-
+          
           if (typeof verificarAutenticacao !== 'function') {
             console.error('❌ Função verificarAutenticacao não está definida!');
             showNotification('❌ Erro interno: função de autenticação não encontrada', 'error');
             return;
           }
-
+          
           if (!verificarAutenticacao()) {
             console.log('❌ Usuário não autenticado');
             showNotification('❌ Usuário não autenticado. Faça login novamente.', 'error');
@@ -1220,13 +1216,13 @@ async function handleDrop(e) {
           let token = localStorage.getItem('token') || localStorage.getItem('jwt_token');
           console.log('🔍 Token encontrado:', token ? 'SIM' : 'NÃO');
           console.log('🔍 Chave usada:', localStorage.getItem('token') ? 'token' : localStorage.getItem('jwt_token') ? 'jwt_token' : 'nenhuma');
-
+          
           if (!token) {
             console.error('❌ Token não encontrado');
             showNotification('❌ Token não encontrado. Faça login novamente.', 'error');
             return;
           }
-
+          
           try {
             const tokenPayload = JSON.parse(atob(token.split('.')[1]));
             console.log(`🔑 Token encontrado, usuário ID: ${tokenPayload?.usuario_id || 'N/A'}`);
@@ -1238,8 +1234,8 @@ async function handleDrop(e) {
           const endpoint = completed ? 'concluir' : 'pendente';
           // Obter ID correto para o banco de dados
           const idCorreto = obterIdCorretoTreinamento(trainingId);
-
-          const url = `api/treinamentos/${idCorreto}/${endpoint}`;
+          
+          const url = `http://localhost:5000/api/treinamentos/${idCorreto}/${endpoint}`;
 
           console.log(`�� Marcando treino ${trainingId} como ${completed ? 'concluído' : 'pendente'}...`);
 
@@ -1249,7 +1245,7 @@ async function handleDrop(e) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token.substring(0, 20)}...`
           });
-
+          
           const response = await fetch(url, {
             method: 'PUT',
             headers: {
@@ -1257,7 +1253,7 @@ async function handleDrop(e) {
               'Authorization': `Bearer ${token}`
             }
           });
-
+          
           console.log('📡 Resposta recebida:', {
             status: response.status,
             ok: response.ok,
@@ -1284,13 +1280,13 @@ async function handleDrop(e) {
 
             // Atualizar dashboard em tempo real (se estiver aberto)
             updateDashboardInRealTime();
-
+            
             // Atualizar gráfico de horas de treinamento
             atualizarGraficoHorasTreinamento();
 
             // Atualizar apenas o estado local sem recarregar a página
             console.log('✅ Estado atualizado localmente, página não será recarregada');
-
+            
             // Atualizar o checkbox visualmente
             const checkbox = document.getElementById(`check-${trainingId}`);
             if (checkbox) {
@@ -1300,37 +1296,37 @@ async function handleDrop(e) {
           } else if (response.status === 401) {
             // Token expirado ou inválido
             console.error('❌ Token expirado ou inválido');
-
+            
             // Reverter checkbox para estado anterior
             const checkbox = document.getElementById(`check-${trainingId}`);
             if (checkbox) {
               checkbox.checked = !completed;
             }
-
+            
             // Mostrar erro específico
             showNotification(
               '❌ Sessão expirada. Faça login novamente.',
               'error'
             );
-
+            
             // Não redirecionar automaticamente, deixar o usuário decidir
             console.log('⚠️ Usuário deve fazer login novamente manualmente');
           } else if (response.status === 404) {
             // Treinamento não encontrado
             console.error(`❌ Treinamento ${trainingId} não encontrado`);
-
+            
             // Reverter checkbox para estado anterior
             const checkbox = document.getElementById(`check-${trainingId}`);
             if (checkbox) {
               checkbox.checked = !completed;
             }
-
+            
             // Mostrar erro específico
             showNotification(
               `❌ Treinamento ${trainingId} não encontrado no sistema. Verifique se o ID está correto.`,
               'error'
             );
-
+            
             // Tentar buscar todos os treinamentos disponíveis para debug
             try {
               // Usar URL completa para evitar problemas de CORS
@@ -1340,7 +1336,7 @@ async function handleDrop(e) {
                 const debugData = await debugResponse.json();
                 console.log('📊 Treinamentos disponíveis:', debugData);
                 if (debugData.treinamentos && debugData.treinamentos.length > 0) {
-                  const treinamentosInfo = debugData.treinamentos.map(t =>
+                  const treinamentosInfo = debugData.treinamentos.map(t => 
                     `ID: ${t.id} (${t.tipo_treino})`
                   ).join(', ');
                   showNotification(`📊 Treinamentos disponíveis: ${treinamentosInfo}`, 'info');
@@ -1349,12 +1345,12 @@ async function handleDrop(e) {
             } catch (debugError) {
               console.error('❌ Erro ao buscar treinamentos para debug:', debugError);
             }
-
+            
             return;
           } else {
             const errorData = await response.json();
             console.error(`❌ Erro ao marcar treino ${trainingId}:`, errorData);
-
+            
             // Reverter checkbox para estado anterior
             const checkbox = document.getElementById(`check-${trainingId}`);
             if (checkbox) {
@@ -1370,7 +1366,7 @@ async function handleDrop(e) {
 
         } catch (error) {
           console.error(`❌ Erro de conexão ao marcar treino ${trainingId}:`, error);
-
+          
           // Reverter checkbox para estado anterior
           const checkbox = document.getElementById(`check-${trainingId}`);
           if (checkbox) {
@@ -1382,7 +1378,7 @@ async function handleDrop(e) {
             `❌ Erro de conexão: ${error.message || 'Verifique sua internet'}`,
             'error'
           );
-
+          
           console.log('⚠️ Erro tratado, usuário permanece na página');
         }
       }
@@ -1399,7 +1395,7 @@ async function handleDrop(e) {
               <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
             </div>
           `;
-
+          
           // Adicionar estilos
           notification.style.cssText = `
             position: fixed;
@@ -1414,7 +1410,7 @@ async function handleDrop(e) {
             max-width: 300px;
             animation: slideIn 0.3s ease-out;
           `;
-
+          
           // Adicionar CSS para animação
           if (!document.getElementById('notification-styles')) {
             const style = document.createElement('style');
@@ -1435,17 +1431,17 @@ async function handleDrop(e) {
             `;
             document.head.appendChild(style);
           }
-
+          
           // Adicionar ao DOM
           document.body.appendChild(notification);
-
+          
           // Remover automaticamente após 5 segundos
           setTimeout(() => {
             if (notification.parentElement) {
               notification.remove();
             }
           }, 5000);
-
+          
           console.log(`✅ Notificação ${type} exibida: ${message}`);
         } catch (error) {
           console.error('❌ Erro ao mostrar notificação:', error);
@@ -1463,11 +1459,11 @@ async function handleDrop(e) {
               window.opener.atualizarDadosDashboard();
             }
           }
-
+          
           // Tentar atualizar via localStorage
           localStorage.setItem('dashboard_update_needed', 'true');
           localStorage.setItem('dashboard_update_timestamp', Date.now().toString());
-
+          
           console.log('🔄 Dashboard atualizado em tempo real');
         } catch (error) {
           console.log('ℹ️ Dashboard não está aberto ou não pode ser atualizado');
@@ -1475,98 +1471,161 @@ async function handleDrop(e) {
       }
 
       // Função para atualizar gráfico de horas de treinamento
-        async function atualizarGraficoHorasTreinamento() {
-            try {
-                console.log('🔄 Atualizando gráfico de horas de treinamento...');
-
-                const token = getAuthToken();
-                const response = await fetch('/api/treinamentos', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                let treinosBanco = [];
-                if (response.ok) {
-                    const data = await response.json();
-                    treinosBanco = Array.isArray(data) ? data : data.treinamentos || [];
-                    console.log('📊 Treinos encontrados no banco:', treinosBanco);
-                } else {
-                    console.warn('⚠️ Falha ao buscar treinos do banco:', response.status);
-                }
-
-                // Traduzir meses
-                const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
-                const mesesTraducao = {
-                    pt: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                    en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-                };
-                const meses = mesesTraducao[idiomaAtual] || mesesTraducao.pt;
-
-                const horasPorMes = {};
-                meses.forEach(mes => {
-                    horasPorMes[mes] = 0;
-                });
-
-                // Calcular horas por mês com base em carga
-                treinosBanco.forEach(treino => {
-                    if (treino.completed && treino.carga && treino.data) {
-                        const horas = treino.carga;
-                        const data = new Date(treino.data);
-                        const nomeMes = meses[data.getMonth()];
-                        horasPorMes[nomeMes] += horas;
-                        console.log(`📅 Treino em ${nomeMes}: ${horas.toFixed(2)}h`);
-                    }
-                });
-
-                console.log('📊 Horas por mês calculadas:', horasPorMes);
-
-                // Salvar dados no localStorage sempre
-                localStorage.setItem('horas_treinamento_mensal', JSON.stringify(horasPorMes));
-                localStorage.setItem('grafico_atualizar', 'true');
-                localStorage.setItem('grafico_timestamp', Date.now().toString());
-                console.log('✅ Dados salvos no localStorage para atualização do dashboard');
-
-                // Atualizar gráfico com escala Y fixa
-                if (window.chartHorasTreinamento) {
-                    const chart = window.chartHorasTreinamento;
-                    const valores = Object.values(horasPorMes);
-
-                    chart.data.datasets[0].data = valores;
-                    chart.options.scales.y.max = 60;
-                    chart.options.scales.y.suggestedMax = 60;
-                    chart.update();
-
-                    console.log('✅ Gráfico atualizado com escala Y fixa em 60');
-                } else if (window.atualizarGraficoHoras) {
-                    window.atualizarGraficoHoras(horasPorMes);
-                    console.log('✅ Gráfico atualizado via função global!');
-                }
-
-                // Estatísticas
-                const total = treinosBanco.length;
-                const concluidos = treinosBanco.filter(t => t.completed).length;
-                const percentual = total > 0 ? (concluidos / total) * 100 : 0;
-
-                const estatisticas = {
-                    total,
-                    concluidos,
-                    percentual: percentual.toFixed(1),
-                    pendentes: total - concluidos
-                };
-
-                localStorage.setItem('estatisticas_treinos', JSON.stringify(estatisticas));
-                console.log('📊 Estatísticas dos treinos:', estatisticas);
-
-            } catch (error) {
-                console.error('❌ Erro ao atualizar gráfico de horas:', error);
+      async function atualizarGraficoHorasTreinamento() {
+        try {
+          console.log('🔄 Atualizando gráfico de horas de treinamento...');
+          
+          // Obter treinos do localStorage
+          const treinos = JSON.parse(localStorage.getItem("trainings")) || [];
+          console.log('📊 Treinos encontrados no localStorage:', treinos);
+          
+          // Tentar obter dados do banco também
+          let treinosBanco = [];
+          try {
+            const response = await fetch('http://localhost:8000/api/treinamentos');
+            if (response.ok) {
+              const data = await response.json();
+              treinosBanco = data.treinamentos || [];
+              console.log('📊 Treinos encontrados no banco:', treinosBanco);
             }
+          } catch (error) { 
+            console.log('⚠️ Não foi possível buscar dados do banco:', error);
+          }
+          
+          // Calcular horas por mês - usar traduções corretas
+          const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
+          const mesesTraducao = {
+            pt: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+          };
+          const meses = mesesTraducao[idiomaAtual] || mesesTraducao.pt;
+          
+          const horasPorMes = {};
+          meses.forEach(mes => {
+            horasPorMes[mes] = 0;
+          });
+          
+          // Processar apenas treinos concluídos
+          treinos.forEach(treino => {
+            if (treino.completed && treino.time) {
+              // Converter minutos para horas
+              const horas = treino.time / 60;
+              
+              // Obter mês da data do treino
+              if (treino.date) {
+                const data = new Date(treino.date);
+                const mes = data.getMonth();
+                const nomeMes = meses[mes];
+                
+                if (horasPorMes[nomeMes] !== undefined) {
+                  horasPorMes[nomeMes] += horas;
+                  console.log(`📅 Treino ${treino.title || treino.type} concluído em ${nomeMes}: ${treino.time}min = ${horas.toFixed(2)}h`);
+                }
+              }
+            }
+          });
+          
+          console.log('📊 Horas por mês calculadas:', horasPorMes);
+          
+          // Tentar atualizar gráfico de várias formas
+          let graficoAtualizado = false;
+          
+          // Método 1: Atualizar diretamente se o gráfico estiver disponível
+          if (window.chartHorasTreinamento) {
+            try {
+              window.chartHorasTreinamento.data.datasets[0].data = Object.values(horasPorMes);
+              window.chartHorasTreinamento.update();
+              console.log('✅ Gráfico atualizado diretamente!');
+              graficoAtualizado = true;
+            } catch (error) {
+              console.log('⚠️ Erro ao atualizar gráfico diretamente:', error);
+            }
+          }
+          
+          // Método 2: Usar função global se disponível
+          if (!graficoAtualizado && window.atualizarGraficoHoras) {
+            try {
+              window.atualizarGraficoHoras(horasPorMes);
+              console.log('✅ Gráfico atualizado via função global!');
+              graficoAtualizado = true;
+            } catch (error) {
+              console.log('⚠️ Erro ao atualizar via função global:', error);
+            }
+          }
+          
+          // Método 3: Tentar atualizar via localStorage e recarregar dashboard
+          if (!graficoAtualizado) {
+            try {
+              // Salvar dados no localStorage
+              localStorage.setItem('horas_treinamento_mensal', JSON.stringify(horasPorMes));
+              localStorage.setItem('grafico_atualizar', 'true');
+              localStorage.setItem('grafico_timestamp', Date.now().toString());
+              
+              console.log('✅ Dados salvos no localStorage para atualização do dashboard');
+              
+              // Atualizar estatísticas dos treinos também
+              await atualizarEstatisticasTreinos();
+              
+              // Tentar abrir/atualizar dashboard
+              if (window.opener && !window.opener.closed) {
+                try {
+                  window.opener.location.reload();
+                  console.log('✅ Dashboard recarregado para mostrar dados atualizados');
+                } catch (e) {
+                  console.log('⚠️ Não foi possível recarregar dashboard');
+                }
+              }
+            } catch (error) {
+              console.log('⚠️ Erro ao salvar dados no localStorage:', error);
+            }
+          }
+          
+          // Buscar treinos reais do banco para calcular estatísticas corretas
+          try {
+            const responseTreinos = await fetch('/api/treinamentos', {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (responseTreinos.ok) {
+              const dadosTreinos = await responseTreinos.json();
+              const treinosReais = dadosTreinos.treinamentos || [];
+              
+              console.log('📊 Treinos reais do banco:', treinosReais);
+              
+              // Calcular estatísticas baseadas nos treinos reais
+              const totalTreinos = treinosReais.length;
+              const treinosConcluidos = treinosReais.filter(t => t.completado === true).length;
+              const percentualConcluido = totalTreinos > 0 ? (treinosConcluidos / totalTreinos) * 100 : 0;
+              
+              const estatisticasTreinos = {
+                total: totalTreinos,
+                concluidos: treinosConcluidos,
+                percentual: percentualConcluido.toFixed(1),
+                pendentes: totalTreinos - treinosConcluidos
+              };
+              
+              console.log('📊 Estatísticas reais dos treinos:', estatisticasTreinos);
+              
+              // Salvar dados no localStorage para o dashboard
+              localStorage.setItem('horas_treinamento_mensal', JSON.stringify(horasPorMes));
+              localStorage.setItem('estatisticas_treinos', JSON.stringify(estatisticasTreinos));
+              localStorage.setItem('grafico_atualizar', 'true');
+              localStorage.setItem('grafico_timestamp', Date.now().toString());
+            } else {
+              console.error('❌ Erro ao buscar treinos para estatísticas:', responseTreinos.status);
+            }
+          } catch (error) {
+            console.error('❌ Erro ao calcular estatísticas dos treinos:', error);
+          }
+          
+        } catch (error) {
+          console.error('❌ Erro ao atualizar gráfico de horas:', error);
         }
-
-
-      
+      }
 
       // Função para excluir um treino
       function deleteTraining(trainingId) {
@@ -1607,72 +1666,58 @@ async function handleDrop(e) {
     // =====================================================
 
     // Função para adicionar novo treinamento
+    async function addNewTraining(e) {
+      e.preventDefault();
 
-        async function addNewTraining() {
-            if (isSubmitting) {
-                console.warn("⏳ Envio já em andamento. Ignorando duplicação.");
-                return;
+      const athlete = document.getElementById("athlete").value;
+      const date = document.getElementById("trainingDate").value;
+      const time = document.getElementById("trainingTime").value;
+      const type = document.getElementById("trainingType").value;
+      const load = parseFloat(document.getElementById("trainingLoad").value) || 0;
+      const deadline = document.getElementById("trainingDeadline").value || date;
+      const description = document.getElementById("technicalDescription").value;
+
+      if (!athlete || !date || !time || !type) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      const newTraining = {
+        atleta_id: parseInt(athlete),  // ID do atleta selecionado
+        tipo: type,
+        data: date,
+        hora: time,
+        carga: load,
+        deadline: deadline,
+        descricao: type === "Técnico" ? description : "",
+      };
+
+        try {
+            const response = await fetch('/api/treinamentos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: JSON.stringify(newTraining)
+            });
+
+            const resultado = await response.json();
+
+            if (!response.ok) {
+                console.error("❌ Erro da API:", resultado);
+                throw new Error(resultado.detail || "Erro ao criar treinamento");
             }
 
-            isSubmitting = true;
-            console.log("🚀 Enviando novo treinamento...");
-
-            const athlete = document.getElementById("athlete").value;
-            const date = document.getElementById("trainingDate").value;
-            const hour = document.getElementById("trainingHour").value;
-            const type = document.getElementById("trainingType").value;
-            const load = parseFloat(document.getElementById("trainingLoad").value) || 0;
-            const deadline = document.getElementById("trainingDeadline").value || date;
-            const description = document.getElementById("technicalDescription").value;
-
-            if (!athlete || !date || !hour || !type) {
-                alert("Por favor, preencha todos os campos obrigatórios.");
-                isSubmitting = false; // ✅ desbloqueia o botão
-                return;
-            }
-
-            const newTraining = {
-                atleta_id: parseInt(athlete),
-                tipo: type,
-                data: date,
-                hora: hour,
-                carga: load,
-                deadline: deadline,
-                descricao: type === "Técnico" ? description : "",
-            };
-
-
-            console.log("🔐 Token usado:", getAuthToken());
-
-            try {
-                const response = await fetch('/api/treinamentos', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getAuthToken()}`
-                    },
-                    body: JSON.stringify(newTraining)
-                });
-
-                const resultado = await response.json();
-                console.log("📥 Resposta da API:", response.status, resultado);
-
-                if (response.status >= 400) {
-                    throw new Error(resultado.detail || "Erro ao criar treinamento");
-                }
-
-                console.log("✅ Treinamento criado:", resultado);
-                closeModal();
-                loadTrainings();
-            } catch (error) {
-                console.error("❌ Erro no frontend:", error);
-                alert(error.message || "Erro ao adicionar treinamento.");
-            } finally {
-                isSubmitting = false;
-            }
-
-            console.log("🔐 Token:", getAuthToken());
+            console.log("✅ Treinamento criado:", resultado);
+            closeModal();
+            loadTrainings();
+        } catch (error) {
+            console.error("❌ Erro no frontend:", error);
+            alert(error.message || "Erro ao adicionar treinamento.");
         }
+
+    }
 
     // Função para atualizar treinamento (geral)
         async function updateTraining(id, updatedData) {
@@ -1749,12 +1794,8 @@ async function handleDrop(e) {
 
       // Função de logout
       function logout() {
-          if (confirm("Tem certeza que deseja sair?")) {
-
-              localStorage.removeItem("jwt_token");
-              localStorage.removeItem("usuario_info");
-
-              window.location.href = "/";
+        if (confirm("Tem certeza que deseja sair?")) {
+          window.location.href = "/";
         }
       }
 
@@ -1810,9 +1851,9 @@ async function handleDrop(e) {
             </div>
           </div>
         `;
-
+        
         document.body.appendChild(modal);
-
+        
         // Fechar modal ao clicar fora
         modal.addEventListener('click', function(e) {
           if (e.target === modal) {
@@ -1870,11 +1911,11 @@ async function handleDrop(e) {
             document.getElementById("technicalDescription").value = ""; // limpa se não for técnico
           }
         });
-
+      
       // =====================================================
       // INCLUSÃO DO ARQUIVO GLOBAL DE PERSONALIZAÇÃO
       // =====================================================
-
+      
       // Carregar arquivo de personalização global
       const script = document.createElement('script');
       script.src = '/static/js/personalizar-usuario.js';
@@ -1892,7 +1933,7 @@ async function handleDrop(e) {
           }
         };
         document.head.appendChild(traducaoScript);
-
+        
         // Carregar script de notificações
         const notifScript = document.createElement('script');
         notifScript.src = '/static/js/notificacoes.js';
@@ -1912,7 +1953,7 @@ async function handleDrop(e) {
           console.log('✅ [TREINAMENTOS] Funções globais disponíveis');
           // Carregar dados do usuário
           carregarDadosUsuarioLogado();
-
+          
           // Carregar estatísticas iniciais dos treinos após um delay
           setTimeout(() => {
             if (typeof atualizarEstatisticasTreinos === 'function') {
@@ -1932,160 +1973,107 @@ async function handleDrop(e) {
       document.head.appendChild(script);
     </script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const addBtn = document.getElementById("addTrainingBtn");
-            const modal = document.getElementById("trainingModal");
-            const closeBtn = document.querySelector(".close-modal");
-            const cancelBtn = document.getElementById("cancelTrainingBtn");
+    document.addEventListener("DOMContentLoaded", () => {
+      const addBtn = document.getElementById("addTrainingBtn");
+      const modal = document.getElementById("trainingModal");
+      const closeBtn = document.querySelector(".close-modal");
+      const cancelBtn = document.getElementById("cancelTrainingBtn");
 
-            if (addBtn && modal) {
-                addBtn.addEventListener("click", () => {
-                    modal.style.display = "flex"; // mostra o modal
-                });
-            }
+      if (addBtn && modal) {
+        addBtn.addEventListener("click", () => {
+          modal.style.display = "flex"; // mostra o modal
+        });
+      }
 
-            function closeModal() {
-                modal.style.display = "none";
-            }
+      function closeModal() {
+        modal.style.display = "none";
+      }
 
-            closeBtn?.addEventListener("click", closeModal);
-            cancelBtn?.addEventListener("click", closeModal);
+      closeBtn?.addEventListener("click", closeModal);
+      cancelBtn?.addEventListener("click", closeModal);
 
-            // Fecha modal ao clicar fora
-            modal?.addEventListener("click", (e) => {
-                if (e.target === modal) closeModal();
-            });
+      // Fecha modal ao clicar fora
+      modal?.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+    });
+  </script>
 
-            // ✅ REGISTRA O ENVIO DO FORMULÁRIO SEM DUPLICAR
-            const form = document.getElementById("trainingForm");
-            if (form && !form.dataset.listenerAttached) {
-                form.addEventListener("submit", addNewTraining);
-                form.dataset.listenerAttached = "true";
-            }
+  <script>
+  document.getElementById("trainingForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const atletaId = document.getElementById("athlete").value;
+    const dataTreino = document.getElementById("trainingDate").value;
+    const horaTreino = document.getElementById("trainingHour").value;
+    const tipo = document.getElementById("trainingType").value;
+    const carga = parseFloat(document.getElementById("trainingLoad").value) || 0;
+    const deadline = document.getElementById("trainingDeadline").value;
+    const descricao = document.getElementById("technicalDescription").value;
+
+    const novoTreino = {
+      atleta_id: atletaId,
+      tipo,
+      data: dataTreino,
+      hora: horaTreino,
+      carga,
+      deadline,
+      descricao,
+    };
+
+    const response = await fetch("/api/treinamentos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(novoTreino),
+    });
+
+    if (response.ok) {
+      alert("✅ Treinamento adicionado com sucesso!");
+      document.getElementById("trainingModal").style.display = "none";
+    } else {
+      const err = await response.json();
+      alert("❌ Erro ao adicionar treino: " + err.detail);
+    }
+  });
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const selectAtleta = document.getElementById("athlete");
+
+    async function carregarAlunos() {
+      try {
+        const response = await fetch("/api/alunos");
+        if (!response.ok) {
+          throw new Error("Erro ao buscar alunos");
+        }
+
+        const alunos = await response.json();
+        selectAtleta.innerHTML = '<option value="">Selecione um atleta</option>';
+
+        if (alunos.length === 0) {
+          const opt = document.createElement("option");
+          opt.textContent = "Nenhum atleta cadastrado";
+          opt.disabled = true;
+          selectAtleta.appendChild(opt);
+          return;
+        }
+
+        alunos.forEach((aluno) => {
+          const option = document.createElement("option");
+          option.value = aluno.id; // ID numérico do banco
+          option.textContent = `${aluno.nome} ${aluno.modalidade ? '- ' + aluno.modalidade : ''}`;
+          selectAtleta.appendChild(option);
         });
 
-    </script>
+      } catch (error) {
+        console.error("Erro ao carregar alunos:", error);
+        selectAtleta.innerHTML = '<option value="">Erro ao carregar atletas</option>';
+      }
+    }
 
-    <script>
-        let isSubmitting = false;
+    await carregarAlunos();
+  });
+  </script>
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("trainingForm");
-            const submitBtn = form.querySelector('button[type="submit"]');
-
-            if (form && !form.dataset.listenerAttached) {
-                form.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-
-                    if (isSubmitting) {
-                        console.warn("⏳ Envio já em andamento. Ignorando duplicação.");
-                        return;
-                    }
-
-                    isSubmitting = true;
-                    submitBtn.disabled = true;
-
-                    try {
-                        await addNewTraining(); // sua função de envio
-                    } catch (error) {
-                        console.error("Erro ao salvar:", error);
-                    } finally {
-                        isSubmitting = false;
-                        submitBtn.disabled = false;
-                    }
-                });
-
-                form.dataset.listenerAttached = "true";
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const selectAtleta = document.getElementById("athlete");
-
-            async function carregarAlunos() {
-                try {
-                    const response = await fetch("/api/alunos");
-                    if (!response.ok) {
-                        throw new Error("Erro ao buscar alunos");
-                    }
-
-                    const alunos = await response.json();
-                    selectAtleta.innerHTML = '<option value="">Selecione um atleta</option>';
-
-                    if (alunos.length === 0) {
-                        const opt = document.createElement("option");
-                        opt.textContent = "Nenhum atleta cadastrado";
-                        opt.disabled = true;
-                        selectAtleta.appendChild(opt);
-                        return;
-                    }
-
-                    alunos.forEach((aluno) => {
-                        const option = document.createElement("option");
-                        option.value = aluno.id; // ID numérico do banco
-                        option.textContent = `${aluno.nome} ${aluno.modalidade ? '- ' + aluno.modalidade : ''}`;
-                        selectAtleta.appendChild(option);
-                    });
-
-                } catch (error) {
-                    console.error("Erro ao carregar alunos:", error);
-                    selectAtleta.innerHTML = '<option value="">Erro ao carregar atletas</option>';
-                }
-            }
-
-            await carregarAlunos();
-        });
-
-
-        // Atualiza o gráfico ao abrir a página
-        document.addEventListener("DOMContentLoaded", function () {
-            atualizarGraficoHorasTreinamento();
-        });
-
-        // Atualiza o gráfico a cada 60 segundos
-        setInterval(() => {
-            atualizarGraficoHorasTreinamento();
-        }, 60000); // 1 minuto
-
-        // Atualiza o gráfico ao mudar de idioma
-        window.atualizarGraficoIdioma = function () {
-            const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
-            const traducoes = {
-                pt: { label: "Horas de Treinamento", yTitle: "Horas de Treinamento", meses: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"] },
-                en: { label: "Training Hours", yTitle: "Training Hours", meses: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] },
-                es: { label: "Horas de Entrenamiento", yTitle: "Horas de Entrenamiento", meses: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"] }
-            };
-
-            const traducao = traducoes[idiomaAtual] || traducoes.pt;
-
-            if (window.chartHorasTreinamento) {
-                window.chartHorasTreinamento.data.labels = traducao.meses;
-                window.chartHorasTreinamento.data.datasets[0].label = traducao.label;
-                window.chartHorasTreinamento.options.scales.y.title.text = traducao.yTitle;
-
-                // 🔧 Ajuste dinâmico do eixo Y com mínimo de 20h
-                const valores = window.chartHorasTreinamento.data.datasets[0].data;
-                const maiorValor = Math.max(...valores);
-                const limiteSuperior = Math.max(maiorValor * 1.2, 20);
-                window.chartHorasTreinamento.options.scales.y.max = limiteSuperior;
-
-                window.chartHorasTreinamento.update();
-            }
-
-            atualizarGraficoHorasTreinamento(); // Atualiza dados também
-        };
-
-        // ✅ Atualiza o gráfico ao receber mensagens externas
-        window.addEventListener('message', function (event) {
-            if (event.data.type === 'atualizar_grafico') {
-                atualizarGraficoHorasTreinamento();
-            }
-        });
-
-
-
-    </script>
-
-</body>
+  </body>
 </html>
