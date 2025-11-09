@@ -1,4 +1,67 @@
-﻿document.addEventListener('DOMContentLoaded', () => { // <-- UM ÚNICO BLOCO PARA TUDO
+﻿document.addEventListener('DOMContentLoaded', () => {
+    // ================================================================
+    // SEÇÃO 0: CARREGAMENTO DE EVENTOS DO DASHBOARD
+    // ================================================================
+    async function fetchAndRenderDashboardEvents() {
+        const container = document.getElementById('upcoming-events-items');
+        if (!container) {
+            console.warn("⚠️ Contêiner #upcoming-events-items não encontrado. Ignorando carregamento de eventos.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/eventos/proximos');
+            if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
+
+            const eventos = await response.json();
+            container.innerHTML = '';
+
+            if (eventos.length === 0) {
+                container.innerHTML = `
+                <div class="no-competitions">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Nenhum evento encontrado.</p>
+                </div>
+            `;
+                return;
+            }
+
+            eventos.forEach(evento => {
+                const item = document.createElement('div');
+                item.className = `competition-item ${evento.tipo?.toLowerCase() || ''}`;
+
+                const data = new Date(evento.data);
+                const dia = data.getDate();
+                const mes = data.toLocaleDateString('pt-BR', { month: 'short' });
+
+                const tipoIcon = {
+                    "competicao": "fa-trophy",
+                    "treinamento": "fa-dumbbell",
+                    "reuniao": "fa-users"
+                }[evento.tipo?.toLowerCase()] || "fa-calendar";
+
+                item.innerHTML = `
+                <div class="competition-date">
+                    <div class="day">${dia}</div>
+                    <div class="month">${mes}</div>
+                </div>
+                <div class="competition-details">
+                    <h4><i class="fas ${tipoIcon}"></i> ${evento.nome}</h4>
+                    <p>${evento.local}</p>
+                    <p>${evento.descricao}</p>
+                </div>
+            `;
+
+                container.appendChild(item);
+            });
+
+        } catch (error) {
+            console.error('❌ Erro ao carregar eventos:', error);
+            container.innerHTML = '<p>Erro ao carregar eventos.</p>';
+        }
+    }
+
+
 
     // ================================================================
     // SEÇÃO 1: LÓGICA DO MOTOR DE PESQUISA
@@ -68,13 +131,18 @@
     // ================================================================
     function setupDietModal() {
         const modal = document.getElementById('dietModal');
+        if (!modal) {
+            console.warn("⚠️ dietModal não encontrado.");
+            return;
+        }
+
         const openModalBtn = document.getElementById('openModal');
         const closeModalBtn = modal.querySelector('.close-modal');
         const cancelDietBtn = document.getElementById('cancelDietBtn');
         const submitDietBtn = document.getElementById('submitDietBtn');
 
-        if (!modal || !openModalBtn || !closeModalBtn || !cancelDietBtn || !submitDietBtn) {
-            console.error("Elementos do modal de dieta não encontrados.");
+        if (!openModalBtn || !closeModalBtn || !cancelDietBtn || !submitDietBtn) {
+            console.warn("⚠️ Botões do modal de dieta não encontrados.");
             return;
         }
 
@@ -126,33 +194,38 @@
     // SEÇÃO 3: LÓGICA DO MODAL DOS VÍDEOS  
     // ================================================================
 
-function setupVideoModal() {
-    const videoModal = document.getElementById('videoModal'); // Assumindo que o modal tem este ID
-    const postVideoBtn = document.getElementById('postVideoBtn'); // Assumindo que o botão "Postar Vídeo" tem este ID
+    function setupVideoModal() {
+        const videoModal = document.getElementById('videoModal');
+        const postVideoBtn = document.getElementById('postVideoBtn');
 
-    if (!videoModal || !postVideoBtn) {
-        console.error("Elementos do modal de vídeo não encontrados.");
-        return;
-    }
-
-    postVideoBtn.addEventListener('click', async () => {
-        const titulo = document.getElementById('videoTitle').value;
-        const descricao = document.getElementById('videoDescription').value;
-        const file = document.getElementById('videoFile').files[0];
-        const alunoId = document.getElementById('videoAthleteSelect').value;
-
-        if (!titulo || !file) {
-            alert('Por favor, preencha o título e selecione um arquivo de vídeo.');
+        if (!videoModal || !postVideoBtn) {
+            console.warn("⚠️ Elementos do modal de vídeo não encontrados.");
             return;
         }
 
-        const formData = new FormData();
-        formData.append('titulo', titulo);
-        formData.append('descricao', descricao);
-        formData.append('file', file);
-        if (alunoId) { // Só anexa o aluno_id se um for selecionado
-            formData.append('aluno_id', alunoId);
-        }
+        postVideoBtn.addEventListener('click', async () => {
+            const tituloInput = document.getElementById('videoTitle');
+            const descricaoInput = document.getElementById('videoDescription');
+            const fileInput = document.getElementById('videoFile');
+            const alunoSelect = document.getElementById('videoAthleteSelect');
+
+            if (!tituloInput || !fileInput) {
+                alert('Campos obrigatórios não encontrados.');
+                return;
+            }
+
+            const titulo = tituloInput.value;
+            const descricao = descricaoInput?.value || '';
+            const file = fileInput.files[0];
+            const alunoId = alunoSelect?.value || '';
+
+            const formData = new FormData();
+            formData.append('titulo', titulo);
+            formData.append('descricao', descricao);
+            formData.append('file', file);
+            if (alunoId) { // Só anexa o aluno_id se um for selecionado
+                formData.append('aluno_id', alunoId);
+            }
 
         try {
             const response = await fetch('/api/videos', {
@@ -171,10 +244,14 @@ function setupVideoModal() {
             alert('Erro: ' + error.message);
         }
     });
-}
+    }
+
+    const container = document.getElementById('upcoming-events-items');
+    if (container) {
+        fetchAndRenderDashboardEvents();
+    }
 
     setupSearchFeature();
     setupDietModal();
     setupVideoModal();
-
-}); 
+});

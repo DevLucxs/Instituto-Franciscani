@@ -18,6 +18,9 @@ from fastapi import APIRouter, Depends
 from models import User, UserType, Feedback
 from urllib.parse import quote
 import json
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import and_
+
 
 
 UPLOAD_DIRECTORY = "/static/uploads/dietas" #Variável referente a dieta
@@ -35,6 +38,15 @@ class VideoUpdate(BaseModel):
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Servindo arquivos estáticos
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
@@ -164,14 +176,13 @@ async def aluno_dashboard(request: Request, aluno_id: int):
     aluno = db.query(models.User).filter(models.User.id == aluno_id).first()
     db.close()
 
-    return templates.TemplateResponse(
-        "pages_aluno/dashboard.html",
-        {
-            "request": request,
-            "aluno": aluno
-        }
-    )
+    ano_atual = datetime.now().year
 
+    return templates.TemplateResponse("pages_aluno/dashboard.html", {
+    "request": request,
+    "aluno": aluno,
+    "ano_atual": ano_atual
+})
 
 @app.get("/api/atletas/{atleta_id}/desempenho", response_class=JSONResponse)
 async def api_desempenho(atleta_id: int):
@@ -684,10 +695,22 @@ async def adicionar_desempenho(desempenho: dict = Body(...)):
 # ROTAS DE TREINAMENTOS
 # ==========================================
 
-
 @app.get("/api/treinamentos", response_class=JSONResponse)
-def listar_treinamentos(db: Session = Depends(get_db)):
-    treinamentos = db.query(models.Treinamento).all()
+def listar_treinamentos(
+    usuario: models.User = Depends(get_usuario_logado),
+    db: Session = Depends(get_db)
+):
+    # Se o usuário for atleta, retorna apenas os treinos dele
+    if usuario.tipo == "atleta":
+        treinamentos = db.query(models.Treinamento).filter(
+            models.Treinamento.atleta_id == usuario.id
+        ).all()
+    # Se for treinador, retorna todos os treinos dos atletas
+    elif usuario.tipo == "treinador":
+        treinamentos = db.query(models.Treinamento).all()
+    else:
+        raise HTTPException(status_code=403, detail="Tipo de usuário não autorizado")
+
     result = []
     for t in treinamentos:
         result.append({
@@ -705,9 +728,23 @@ def listar_treinamentos(db: Session = Depends(get_db)):
     return result
 
 
+
 @app.post("/api/treinamentos", response_class=JSONResponse)
 def criar_treinamento(dados: dict = Body(...), db: Session = Depends(get_db)):
     try:
+        # Verifica se já existe um treino igual
+        treino_existente = db.query(models.Treinamento).filter(
+            and_(
+                models.Treinamento.atleta_id == dados.get("atleta_id"),
+                models.Treinamento.data == datetime.strptime(dados.get("data"), "%Y-%m-%d").date(),
+                models.Treinamento.hora == datetime.strptime(dados.get("hora"), "%H:%M").time(),
+                models.Treinamento.tipo == dados.get("tipo")
+            )
+        ).first()
+
+        if treino_existente:
+            raise HTTPException(status_code=409, detail="Treinamento já existe para esse atleta, data, hora e tipo.")
+
         novo = models.Treinamento(
             atleta_id=dados.get("atleta_id"),
             tipo=dados.get("tipo"),
@@ -928,10 +965,9 @@ async def update_video(
 # Buscar todos os eventos
 @app.get("/api/eventos")
 async def get_eventos(db: Session = Depends(get_db)):
-        
+    try:
         eventos = db.query(models.Evento).options(joinedload(models.Evento.participantes)).all()
-        
-        # Converte para um formato JSON seguro
+
         eventos_list = []
         for ev in eventos:
             eventos_list.append({
@@ -943,9 +979,15 @@ async def get_eventos(db: Session = Depends(get_db)):
                 "type": ev.tipo,
                 "description": ev.descricao,
                 "treinador_id": ev.treinador_id,
-                "alunos_ids": [p.id for p in ev.participantes] # Lista de IDs de alunos
+                "alunos_ids": [p.id for p in ev.participantes]
             })
+
         return eventos_list
+
+    except Exception as e:
+        print("❌ Erro ao buscar eventos:", e)
+        raise HTTPException(status_code=500, detail="Erro interno ao buscar eventos")
+
 
 # Este é o schema que valida os dados que chegam do JavaScript para criar o evento na rota seguinte
 class EventoCreate(BaseModel):
@@ -957,6 +999,35 @@ class EventoCreate(BaseModel):
     description: Optional[str] = None
     alunos_ids: List[int] = []
     treinador_id: int
+
+
+
+
+@app.get("/api/eventos/proximos", response_class=JSONResponse)
+def listar_eventos_proximos(db: Session = Depends(get_db)):
+    try:
+        eventos = db.query(models.Evento)\
+            .filter(models.Evento.data >= datetime.now())\
+            .order_by(models.Evento.data.asc())\
+            .limit(5)\
+            .all()
+
+        resultado = []
+        for e in eventos:
+            resultado.append({
+                "id": e.id,
+                "nome": e.titulo,  # ✅ corrigido aqui
+                "data": e.data.isoformat(),
+                "local": e.local,
+                "descricao": e.descricao
+            })
+
+        return resultado
+
+    except Exception as e:
+        print("❌ Erro ao buscar eventos próximos:", e)
+        raise HTTPException(status_code=500, detail="Erro interno ao buscar eventos")
+
 
 @app.post("/api/CriarEventos")  #Está lançando no banco de dados, falta assimilar ao aluno
 async def create_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):

@@ -8,6 +8,8 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
     <style>
         * {
             margin: 0;
@@ -1236,6 +1238,22 @@
             /* Adiciona barra de rolagem vertical APENAS se o conteúdo passar da altura */
             overflow-y: auto;
         }
+
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        #trainingChart {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+
+
+
     </style>
 </head>
 <body>
@@ -1284,7 +1302,7 @@
                 <div id="suggestionsBox"></div>
             </div>
 
-            <script src="/static/js/dashboard.js"></script>
+            <script src="/static/js/dashboard.js" defer></script>
 
             <div class="header-actions">
                 <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
@@ -1365,41 +1383,42 @@
                     <canvas id="trainingChart"></canvas>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="athletes-scroll">
-                    <h3 data-translate="dashboard.atletas_cadastrados_lista">Atletas Cadastrados</h3>
+        <div class="card">
+            <div class="athletes-scroll">
+                <h3 data-translate="dashboard.atletas_cadastrados_lista">Atletas Cadastrados</h3>
 
-                    <!--Puxando usuarios reais do banco-->
-                    {% for aluno in alunos %}
-                    <div class="athlete-item">
-                        <div class="athlete-avatar">
-                            {% if aluno.nome.split()|length >= 2 %}
-                            {{ (aluno.nome.split()[0][0] + aluno.nome.split()[1][0]).upper() }}
-                            {% else %}
-                            {{ aluno.nome[0:2].upper() }}
-                            {% endif %}
-                        </div>
-                        <div class="athlete-details">
-                            <h4>{{ aluno.nome }}</h4>
-                            <p>{{ aluno.modalidade or 'Sem modalidade' }}</p>
-                        </div>
+                <!--Puxando usuarios reais do banco-->
+                {% for aluno in alunos %}
+                <div class="athlete-item">
+                    <div class="athlete-avatar">
+                        {% if aluno.nome.split()|length >= 2 %}
+                        {{ (aluno.nome.split()[0][0] + aluno.nome.split()[1][0]).upper() }}
+                        {% else %}
+                        {{ aluno.nome[0:2].upper() }}
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Próximos Eventos -->
-            <div class="card competitions-card">
-                <h3 data-translate="dashboard.proximos_eventos">Próximos Eventos</h3>
-                <div id="upcoming-events-items">
-                    <!-- Competições serão carregadas dinamicamente do banco -->
-                    <div class="loading-competitions">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p data-translate="geral.carregando">Carregando competições...</p>
+                    <div class="athlete-details">
+                        <h4>{{ aluno.nome }}</h4>
+                        <p>{{ aluno.modalidade or 'Sem modalidade' }}</p>
                     </div>
                 </div>
+                {% endfor %}
             </div>
+        </div>
+
+        <!-- Próximos Eventos -->
+        <div class="card competitions-card">
+            <h3 data-translate="dashboard.proximos_eventos">Próximos Eventos</h3>
+            <div id="upcoming-events-items">
+                <!-- Competições serão carregadas dinamicamente do banco -->
+                <div class="loading-competitions">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p data-translate="geral.carregando">Carregando competições...</p>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Modal de Vídeos -->
@@ -1573,7 +1592,18 @@
         </div>
     </div>
 
+
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof inicializarGrafico === "function") {
+                inicializarGrafico();
+            } else {
+                console.error("❌ Função inicializarGrafico não está disponível.");
+            }
+        });
+
+
         //retornar próximos eventos
         function renderDashboardEvents(events) {
 
@@ -1626,25 +1656,25 @@
 
                 // Gera o HTML para este item (Note: sem os botões de ação)
                 allEventsHtml += `
-                    <div class="event-list-item" data-event-id="${ev.id}">
-                        <div class="event-date">
-                            <div class="event-day">${dia}</div>
-                            <div class="event-month">${mes}</div>
-                        </div>
-                        <div class="event-details">
-                            <div class="event-title">${ev.title || 'Evento sem título'}</div>
-                            <div class="event-info">
-                                <span class="event-time">
-                                    <i class="fas fa-clock"></i> ${horaFormatada}
-                                </span>
-                                ${ev.location ? `
-                                <span class="event-location">
-                                    <i class="fas fa-map-marker-alt"></i> ${ev.location}
-                                </span>` : ''}
-                            </div>
-                        </div>
-                        </div>
-                `;
+                            <div class="event-list-item" data-event-id="${ev.id}">
+                                <div class="event-date">
+                                    <div class="event-day">${dia}</div>
+                                    <div class="event-month">${mes}</div>
+                                </div>
+                                <div class="event-details">
+                                    <div class="event-title">${ev.title || 'Evento sem título'}</div>
+                                    <div class="event-info">
+                                        <span class="event-time">
+                                            <i class="fas fa-clock"></i> ${horaFormatada}
+                                        </span>
+                                        ${ev.location ? `
+                                        <span class="event-location">
+                                            <i class="fas fa-map-marker-alt"></i> ${ev.location}
+                                        </span>` : ''}
+                                    </div>
+                                </div>
+                                </div>
+                        `;
             });
 
             // Insere todo o HTML de uma vez no contêiner
@@ -1711,13 +1741,19 @@
             document.getElementById("videoModal").style.display = "flex";
         });
 
+        // Registrar o plugin globalmente
+        Chart.register(ChartDataLabels);
+
         // Gráfico de treinamento será atualizado dinamicamente com dados reais
         let trainingChart = null;
 
         function inicializarGrafico() {
+            if (window.chartHorasTreinamento) {
+                window.chartHorasTreinamento.destroy();
+            }
+
             const ctx = document.getElementById("trainingChart").getContext("2d");
 
-            // Obter traduções atuais
             const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
             const traducoes = {
                 pt: {
@@ -1754,6 +1790,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#000',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: function (value) {
+                                return value > 0 ? value + 'h' : '';
+                            }
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -1763,56 +1812,41 @@
                             },
                         },
                     },
-                },
+                }
             });
 
-            // Tornar o gráfico globalmente acessível
             window.chartHorasTreinamento = trainingChart;
 
-            // Função para atualizar gráfico quando idioma mudar
             window.atualizarGraficoIdioma = function () {
-                if (trainingChart) {
-                    const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
-                    const traducoes = {
-                        pt: {
-                            label: "Horas de Treinamento",
-                            yTitle: "Horas de Treinamento",
-                            meses: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
-                        },
-                        en: {
-                            label: "Training Hours",
-                            yTitle: "Training Hours",
-                            meses: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-                        },
-                        es: {
-                            label: "Horas de Entrenamiento",
-                            yTitle: "Horas de Entrenamiento",
-                            meses: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-                        }
-                    };
+                const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
+                const traducao = traducoes[idiomaAtual] || traducoes.pt;
 
-                    const traducao = traducoes[idiomaAtual] || traducoes.pt;
+                trainingChart.data.labels = traducao.meses;
+                trainingChart.data.datasets[0].label = traducao.label;
+                trainingChart.options.scales.y.title.text = traducao.yTitle;
+                trainingChart.update();
 
-                    // Atualizar labels e título
-                    trainingChart.data.labels = traducao.meses;
-                    trainingChart.data.datasets[0].label = traducao.label;
-                    trainingChart.options.scales.y.title.text = traducao.yTitle;
-                    trainingChart.update();
-
-                    console.log(`🔄 Gráfico atualizado para idioma: ${idiomaAtual}`);
-                }
+                console.log(`🔄 Gráfico atualizado para idioma: ${idiomaAtual}`);
             };
 
-            // Carregar dados salvos do localStorage
             carregarDadosGrafico();
-            console.log('🔄 Carregando estatísticas iniciais...');
-
-            // Carregar estatísticas imediatamente
             carregarEstatisticasTreinos();
-
-            // Inicializar contadores para detecção de novos cadastros
             inicializarContadoresCadastros();
         }
+
+
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof inicializarGrafico === "function") {
+                inicializarGrafico();
+            } else {
+                console.error("❌ Função inicializarGrafico não está disponível.");
+            }
+        });
+
 
         // Função para carregar dados do gráfico do localStorage
         function carregarDadosGrafico() {
@@ -1896,7 +1930,7 @@
 
                         // Verificar se há algum problema de referência
                         const percentualVerificado = document.getElementById('percentualTreinos');
-                        const contagemVerificada = document.getElementById('contagemTreinos');
+                        const contagemVerificado = document.getElementById('contagemTreinos');
                         console.log('🔍 Verificação de referência:');
                         console.log('  - Elemento percentual é o mesmo:', percentualElement === percentualVerificado);
                         console.log('  - Elemento contagem é o mesmo:', contagemElement === contagemVerificado);
@@ -2071,6 +2105,10 @@
         // Função de logout
         function logout() {
             if (confirm('Tem certeza que deseja sair?')) {
+
+                localStorage.removeItem("jwt_token");
+                localStorage.removeItem("usuario_info");
+
                 window.location.href = '/';
             }
         }
@@ -2081,7 +2119,30 @@
                 const agora = new Date();
                 const notificacoes = [];
 
-                // Verificar se há novos alunos cadastrados
+                // Verificar se há novos treinos criados com base no total real
+                const treinosSalvos = JSON.parse(localStorage.getItem('trainings') || '[]');
+                const totalTreinos = treinosSalvos.length;
+
+                const treinosAnteriores = parseInt(localStorage.getItem('total_treinos_anterior') || '0');
+
+                if (totalTreinos > treinosAnteriores) {
+                    const novosTreinos = totalTreinos - treinosAnteriores;
+
+                    notificacoes.push({
+                        id: Date.now(),
+                        message: `🏋️ ${novosTreinos} novo(s) treino(s) criado(s) no sistema`,
+                        timestamp: agora.getTime(),
+                        time: formatarTempoRelativo(agora),
+                        read: false,
+                        tipo: 'info',
+                        categoria: 'treino'
+                    });
+
+                    // Atualizar contador anterior com o valor real
+                    localStorage.setItem('total_treinos_anterior', totalTreinos.toString());
+                }
+
+                // Verificar novos alunos e professores (mantido igual)
                 const alunosAtuais = localStorage.getItem('alunos_cadastrados') || '0';
                 const alunosAnteriores = localStorage.getItem('alunos_cadastrados_anterior') || '0';
 
@@ -2097,11 +2158,9 @@
                         categoria: 'cadastro'
                     });
 
-                    // Atualizar contador anterior
                     localStorage.setItem('alunos_cadastrados_anterior', alunosAtuais);
                 }
 
-                // Verificar se há novos professores cadastrados
                 const professoresAtuais = localStorage.getItem('professores_cadastrados') || '0';
                 const professoresAnteriores = localStorage.getItem('professores_cadastrados_anterior') || '0';
 
@@ -2117,43 +2176,15 @@
                         categoria: 'cadastro'
                     });
 
-                    // Atualizar contador anterior
                     localStorage.setItem('professores_cadastrados_anterior', professoresAtuais);
                 }
 
-                // Verificar se há novos treinos criados
-                const treinosAtuais = localStorage.getItem('total_treinos') || '0';
-                const treinosAnteriores = localStorage.getItem('total_treinos_anterior') || '0';
-
-                if (parseInt(treinosAtuais) > parseInt(treinosAnteriores)) {
-                    const novosTreinos = parseInt(treinosAtuais) - parseInt(treinosAnteriores);
-                    notificacoes.push({
-                        id: Date.now() + 3,
-                        message: `🏋️ ${novosTreinos} novo(s) treino(s) criado(s) no sistema`,
-                        timestamp: agora.getTime(),
-                        time: formatarTempoRelativo(agora),
-                        read: false,
-                        tipo: 'info',
-                        categoria: 'treino'
-                    });
-
-                    // Atualizar contador anterior
-                    localStorage.setItem('total_treinos_anterior', treinosAtuais);
-                }
-
-                // Se houver novas notificações, adicionar às existentes
+                // Salvar e exibir notificações
                 if (notificacoes.length > 0) {
                     const notificacoesExistentes = JSON.parse(localStorage.getItem('notificacoes_sistema') || '[]');
-                    const todasNotificacoes = [...notificacoes, ...notificacoesExistentes];
-
-                    // Manter apenas as últimas 20 notificações
-                    if (todasNotificacoes.length > 20) {
-                        todasNotificacoes.splice(20);
-                    }
+                    const todasNotificacoes = [...notificacoes, ...notificacoesExistentes].slice(0, 20);
 
                     localStorage.setItem('notificacoes_sistema', JSON.stringify(todasNotificacoes));
-
-                    // Mostrar notificação toast
                     mostrarNotificacaoToast(notificacoes[0].message);
 
                     console.log('🔔 Novas notificações de cadastro criadas:', notificacoes);
@@ -2163,6 +2194,7 @@
                 console.error('❌ Erro ao detectar novos cadastros:', error);
             }
         }
+
 
         // Função para mostrar notificação toast
         function mostrarNotificacaoToast(mensagem) {
@@ -2177,11 +2209,11 @@
                 const toast = document.createElement('div');
                 toast.className = 'toast-notification';
                 toast.innerHTML = `
-                <div class="toast-content">
-                  <span>${mensagem}</span>
-                  <button onclick="this.parentElement.parentElement.remove()">&times;</button>
-              </div>
-            `;
+                        <div class="toast-content">
+                          <span>${mensagem}</span>
+                          <button onclick="this.parentElement.parentElement.remove()">&times;</button>
+                      </div>
+                    `;
 
                 document.body.appendChild(toast);
 
@@ -2447,42 +2479,42 @@
             modal.className = 'modal';
             modal.style.display = 'flex';
             modal.innerHTML = `
-              <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                  <h2 data-translate="config.titulo">Configurações do Sistema</h2>
-                  <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate-title="geral.fechar">&times;</button>
-                </div>
-                <div class="settings-content">
-                  <div class="form-group">
-                    <label data-translate="config.notificacoes_email">Notificações por Email</label>
-                    <input type="checkbox" checked>
-                  </div>
-                  <div class="form-group">
-                    <label data-translate="config.notificacoes_push">Notificações Push</label>
-                    <input type="checkbox" checked>
-                  </div>
-                  <div class="form-group">
-                    <label data-translate="config.idioma">Idioma</label>
-                    <select id="selectIdioma" onchange="alterarIdioma(this.value)">
-                      <option value="pt" ${idiomaAtual === 'pt' ? 'selected' : ''} data-translate="config.portugues">Português</option>
-                      <option value="en" ${idiomaAtual === 'en' ? 'selected' : ''} data-translate="config.ingles">English</option>
-                      <option value="es" ${idiomaAtual === 'es' ? 'selected' : ''} data-translate="config.espanhol">Español</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label data-translate="config.tema">Tema</label>
-                    <select>
-                      <option data-translate="config.claro">Claro</option>
-                      <option data-translate="config.escuro">Escuro</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="modal-actions">
-                  <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate="config.cancelar">Cancelar</button>
-                  <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-translate="config.salvar">Salvar</button>
-                </div>
-              </div>
-            `;
+                      <div class="modal-content" style="max-width: 600px;">
+                        <div class="modal-header">
+                          <h2 data-translate="config.titulo">Configurações do Sistema</h2>
+                          <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate-title="geral.fechar">&times;</button>
+                        </div>
+                        <div class="settings-content">
+                          <div class="form-group">
+                            <label data-translate="config.notificacoes_email">Notificações por Email</label>
+                            <input type="checkbox" checked>
+                          </div>
+                          <div class="form-group">
+                            <label data-translate="config.notificacoes_push">Notificações Push</label>
+                            <input type="checkbox" checked>
+                          </div>
+                          <div class="form-group">
+                            <label data-translate="config.idioma">Idioma</label>
+                            <select id="selectIdioma" onchange="alterarIdioma(this.value)">
+                              <option value="pt" ${idiomaAtual === 'pt' ? 'selected' : ''} data-translate="config.portugues">Português</option>
+                              <option value="en" ${idiomaAtual === 'en' ? 'selected' : ''} data-translate="config.ingles">English</option>
+                              <option value="es" ${idiomaAtual === 'es' ? 'selected' : ''} data-translate="config.espanhol">Español</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label data-translate="config.tema">Tema</label>
+                            <select>
+                              <option data-translate="config.claro">Claro</option>
+                              <option data-translate="config.escuro">Escuro</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="modal-actions">
+                          <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate="config.cancelar">Cancelar</button>
+                          <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-translate="config.salvar">Salvar</button>
+                        </div>
+                      </div>
+                    `;
 
             document.body.appendChild(modal);
 
@@ -2593,12 +2625,12 @@
 
             if (!videos || videos.length === 0) {
                 videosList.innerHTML = `
-                <div style="text-align: center; padding: 40px; color: #666;">
-                  <i class="fas fa-video" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                  <p>Nenhum vídeo postado ainda.</p>
-                  <small>Use o botão "Postar Novo Vídeo" para começar.</small>
-                </div>
-              `;
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                          <i class="fas fa-video" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                          <p>Nenhum vídeo postado ainda.</p>
+                          <small>Use o botão "Postar Novo Vídeo" para começar.</small>
+                        </div>
+                      `;
                 return;
             }
 
@@ -2610,30 +2642,30 @@
                 const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
                 html += `
-                <div class="video-item">
-                  <div class="video-thumbnail">
-                    <i class="fas fa-play-circle"></i>
-                  </div>
-                  <div class="video-info">
-                    <h4>${video.titulo}</h4>
-                    <p class="video-athlete">${video.atleta_nome}</p>
-                    <p class="video-time" title="${dataHoraCompleta}">${tempoRelativo}</p>
-                    <p class="video-datetime">${dataHoraCompleta}</p>
-                    ${video.descricao ? `<p class="video-description">${video.descricao}</p>` : ''}
-                  </div>
-                  <div class="video-actions">
-                    <button class="btn btn-primary btn-sm" onclick="visualizarVideo('${video.url_video}', '${video.titulo}', '${video.descricao || ''}', '${video.atleta_nome}', '${dataHoraCompleta}')">
-                      <i class="fas fa-eye"></i> Visualizar
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="editarVideo(${video.id})">
-                      <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="excluirVideo(${video.id})">
-                      <i class="fas fa-trash"></i> Excluir
-                    </button>
-                  </div>
-                </div>
-              `;
+                        <div class="video-item">
+                          <div class="video-thumbnail">
+                            <i class="fas fa-play-circle"></i>
+                          </div>
+                          <div class="video-info">
+                            <h4>${video.titulo}</h4>
+                            <p class="video-athlete">${video.atleta_nome}</p>
+                            <p class="video-time" title="${dataHoraCompleta}">${tempoRelativo}</p>
+                            <p class="video-datetime">${dataHoraCompleta}</p>
+                            ${video.descricao ? `<p class="video-description">${video.descricao}</p>` : ''}
+                          </div>
+                          <div class="video-actions">
+                            <button class="btn btn-primary btn-sm" onclick="visualizarVideo('${video.url_video}', '${video.titulo}', '${video.descricao || ''}', '${video.atleta_nome}', '${dataHoraCompleta}')">
+                              <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="editarVideo(${video.id})">
+                              <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="excluirVideo(${video.id})">
+                              <i class="fas fa-trash"></i> Excluir
+                            </button>
+                          </div>
+                        </div>
+                      `;
             });
 
             html += '</div>';
@@ -3052,7 +3084,7 @@
                     return;
                 }
 
-                const baseURL = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+                const baseURL = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
                 const response = await fetch(`${baseURL}/api/eventos/proximos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -3078,16 +3110,16 @@
 
         // Função para renderizar competições
         function renderizarCompeticoes(competicoes) {
-            const container = document.getElementById('competitions-container');
+            const container = document.getElementById('upcoming-events-items');
 
             if (!competicoes || competicoes.length === 0) {
                 container.innerHTML = `
-                <div class="no-competitions">
-                  <i class="fas fa-calendar-times"></i>
-                  <p>Nenhuma competição agendada</p>
-                  <small>Adicione eventos no calendário para vê-los aqui</small>
-                </div>
-              `;
+                        <div class="no-competitions">
+                          <i class="fas fa-calendar-times"></i>
+                          <p>Nenhuma competição agendada</p>
+                          <small>Adicione eventos no calendário para vê-los aqui</small>
+                        </div>
+                      `;
                 return;
             }
 
@@ -3131,17 +3163,17 @@
                 }
 
                 html += `
-                <div class="competition-item">
-                  <div class="competition-date">
-                    <div class="day">${dia}</div>
-                    <div class="month">${mes}</div>
-                  </div>
-                  <div class="competition-details">
-                    <h4>${tipoExibicao} ${competicao.titulo}</h4>
-                    <p>${local} - ${hora}</p>
-                  </div>
-                </div>
-              `;
+                        <div class="competition-item">
+                          <div class="competition-date">
+                            <div class="day">${dia}</div>
+                            <div class="month">${mes}</div>
+                          </div>
+                          <div class="competition-details">
+                            <h4>${tipoExibicao} ${competicao.titulo}</h4>
+                            <p>${local} - ${hora}</p>
+                          </div>
+                        </div>
+                      `;
             });
 
             container.innerHTML = html;
@@ -3150,14 +3182,21 @@
         // Função para mostrar erro ao carregar competições
         function mostrarErroCompeticoes() {
             const container = document.getElementById('competitions-container');
+
+            if (!container) {
+                console.warn('⚠️ Elemento #competitions-container não encontrado no DOM.');
+                return;
+            }
+
             container.innerHTML = `
-              <div class="no-competitions">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Erro ao carregar competições</p>
-                <small>Tente recarregar a página</small>
-              </div>
-            `;
+            <div class="no-competitions">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Erro ao carregar competições</p>
+              <small>Tente recarregar a página</small>
+            </div>
+          `;
         }
+
 
         // Carregar competições quando a página carregar
         document.addEventListener('DOMContentLoaded', function () {
@@ -3216,6 +3255,9 @@
         });
 
     </script>
+
+
+    <script src="/static/js/dashboard.js" defer></script>
 
     <script>
         async function atualizarComparativo() {
@@ -3281,6 +3323,7 @@
                 trendIcon && (trendIcon.className = "fas fa-exclamation-triangle");
             }
         }
+
 
         document.addEventListener("DOMContentLoaded", atualizarComparativo);
     </script>

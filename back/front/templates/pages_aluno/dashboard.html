@@ -881,12 +881,14 @@
         <!-- Perfil do Aluno -->
         <div class="student-profile">
             <div class="student-avatar">
-                <img src="/static/img/man_profile.png" alt="Foto de Perfik" style="height: 70px; width: 70px;" />
+                <img src="/static/img/man_profile.png" alt="Foto de Perfil" style="height: 70px; width: 70px;" />
             </div>
             <div class="student-details" data-atleta-id="{{ aluno.id }}">
                 <h2 class="nome-atleta">{{ aluno.nome }}</h2>
                 <span class="student-sport">{{ aluno.modalidade }}</span>
-                <p class="data-ingresso">Atleta desde {{ aluno.ano_ingresso }} | Foco: {{ aluno.foco }}</p>
+                <p class="data-ingresso">
+                    Atleta desde: {{ ano_atual }} | Foco: {{ aluno.foco }}
+                </p>
             </div>
         </div>
 
@@ -968,7 +970,7 @@
             <!-- Próximas Competições -->
             <div class="card competitions" style="grid-column: span 4">
                 <h3><i class="fas fa-trophy"></i> Próximas Competições</h3>
-                <div class="eventos-proximos">
+                <div id="upcoming-events-items" class="eventos-proximos">
                     <!-- Será preenchido dinamicamente -->
                 </div>
             </div>
@@ -1237,9 +1239,11 @@
             const modalidadeEl = document.querySelector('.student-modalidade');
             const ingressoEl = document.querySelector('.data-ingresso');
 
+            const anoAtual = new Date().getFullYear(); // ✅ pega o ano atual
+
             if (nomeEl) nomeEl.textContent = usuario.nome;
             if (modalidadeEl) modalidadeEl.textContent = usuario.modalidade;
-            if (ingressoEl) ingressoEl.textContent = `Atleta desde ${usuario.ano_ingresso} | Foco: ${usuario.foco}`;
+            if (ingressoEl) ingressoEl.textContent = `Atleta desde ${anoAtual} | Foco: ${usuario.foco}`;
         }
 
 
@@ -1440,12 +1444,11 @@
             }
         });
 
-        // Função de logout
+        // Função de logoutfunction logout() {
         function logout() {
             localStorage.removeItem("jwt_token");
             localStorage.removeItem("usuario_info");
 
-            // Limpa todos os caches de desempenho
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith("desempenho_")) {
                     localStorage.removeItem(key);
@@ -1454,6 +1457,7 @@
 
             window.location.href = "/";
         }
+        
 
         // Adicionar funcionalidade aos botões do modal de dieta
         document.querySelector('.modal-actions .btn-outline').addEventListener('click', () => {
@@ -1523,6 +1527,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             carregarUsuarioLogado();
         });
+
 
 
         // =====================================================
@@ -2245,15 +2250,16 @@
 
                 const eventoHtml = `
                 <div class="competition-item">
-                    <div class="competition-date">
-                        <div class="day">${dia}</div>
-                        <div class="month">${mes}</div>
-                    </div>
-                    <div class="competition-details">
-                        <h4>${tipoIcone} ${ev.titulo}</h4>
-                        <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
-                    </div>
+                <div class="competition-date">
+                  <div class="day">${new Date(evento.data).getDate()}</div>
+                  <div class="month">${new Date(evento.data).toLocaleDateString('pt-BR', { month: 'short' })}</div>
                 </div>
+                <div class="competition-details">
+                  <h4>${evento.nome}</h4>
+                  <p>${evento.local}</p>
+                  <p>${evento.descricao}</p>
+                </div>
+              </div>
             `;
                 container.innerHTML += eventoHtml;
             });

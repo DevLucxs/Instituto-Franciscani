@@ -1087,8 +1087,6 @@
 
     <script src="/static/js/settings.js"></script>
     <script src="/static/js/apiClient.js"></script>
-    <script src="/static/js/frontend-config.js"></script>
-    <script src="/static/js/personalizar-usuario.js"></script>
     <script src="/static/js/traducoes.js"></script>
     <script src="/static/js/notificacoes.js"></script>
     <script src="/static/js/avaliar.js"></script>
@@ -1096,7 +1094,7 @@
 
 
     <script>
-        window.addEventListener("DOMContentLoaded", carregarPerfilAtleta);
+        window.addEventListener("DOMContentLoaded", carregarDadosDoAtleta);
     </script>
 
 
@@ -1202,56 +1200,28 @@
         }
 
         // Carregar estatísticas do atleta
-        async function carregarEstatisticasAtleta() {
-            if (!atletaId) {
-                console.log('⚠️ ID do atleta não encontrado');
-                return;
-            }
-
-            console.log(`🔄 Carregando estatísticas para atleta ID: ${atletaId}`);
-
-            try {
-                const response = await apiClient.getEstatisticasAtleta(atletaId);
-                console.log('📊 Resposta das estatísticas:', response);
-
-                if (response.sucesso) {
-                    const stats = response.estatisticas;
-                    console.log('✅ Estatísticas recebidas:', stats);
-
-                    // Atualizar os elementos com os dados reais
-                    const totalTreinosEl = document.getElementById('totalTreinos');
-                    const treinosConcluidosEl = document.getElementById('treinosConcluidos');
-                    const horasTreinamentoEl = document.getElementById('horasTreinamento');
-
-                    if (totalTreinosEl) {
-                        totalTreinosEl.textContent = stats.treinos_realizados || 0;
-                        console.log(`📈 Total de treinos atualizado: ${stats.treinos_realizados}`);
-                    }
-
-                    if (treinosConcluidosEl) {
-                        treinosConcluidosEl.textContent = stats.treinos_concluidos || 0;
-                        console.log(`✅ Treinos concluídos atualizado: ${stats.treinos_concluidos}`);
-                    }
-
-                    if (horasTreinamentoEl) {
-                        horasTreinamentoEl.textContent = `${stats.horas_treino || 0}h`;
-                        console.log(`⏰ Horas de treinamento atualizado: ${stats.horas_treino}h`);
-                    }
-                } else {
-                    console.error('❌ Erro na resposta da API:', response);
-                    // Manter valores padrão em caso de erro
-                    document.getElementById('totalTreinos').textContent = '0';
-                    document.getElementById('treinosConcluidos').textContent = '0';
-                    document.getElementById('horasTreinamento').textContent = '0h';
-                }
-            } catch (error) {
-                console.error('❌ Erro ao carregar estatísticas:', error);
-                // Manter valores padrão em caso de erro
-                document.getElementById('totalTreinos').textContent = '0';
-                document.getElementById('treinosConcluidos').textContent = '0';
-                document.getElementById('horasTreinamento').textContent = '0h';
-            }
+       async function carregarEstatisticasAtleta() {
+    try {
+        const response = await fetch(`/api/alunos/${atletaId}/estatisticas`);
+        if (!response.ok) {
+            const erro = await response.json();
+            console.error('❌ Erro na resposta da API:', erro);
+            return;
         }
+
+        const estatisticas = await response.json();
+        console.log('📈 Estatísticas carregadas:', estatisticas);
+
+        // Exemplo: preencher campos na tela
+        document.getElementById('totalTreinos').textContent = estatisticas.total || 0;
+        document.getElementById('treinosConcluidos').textContent = estatisticas.concluidos || 0;
+        document.getElementById('horasTreinamento').textContent = `${estatisticas.horas || 0}h`;
+
+    } catch (error) {
+        console.error('❌ Erro ao buscar estatísticas:', error);
+    }
+}
+
 
         // Carregar histórico de avaliações
         async function carregarHistoricoAvaliacoes() {
@@ -1387,7 +1357,6 @@
 
         // Criar gráfico de desempenho
         function criarGraficoDesempenho() {
-            // Verificar se Chart.js está carregado
             if (typeof Chart === 'undefined') {
                 console.error('❌ Chart.js não está carregado!');
                 return;
@@ -1398,42 +1367,42 @@
                 console.error('❌ Canvas performanceChart não encontrado!');
                 return;
             }
+
             const ctx = canvas.getContext('2d');
 
-            // Verificar se há dados salvos
+            // Destruir gráfico anterior corretamente
+            if (Chart.getChart("performanceChart")) {
+                Chart.getChart("performanceChart").destroy();
+            }
+
             const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
             let dados;
             let titulo;
 
             if (dadosSalvos) {
-                // Usar dados salvos
-                dados = JSON.parse(dadosSalvos);
-                titulo = `Desempenho - ${atletaModalidade}`;
-                console.log('📊 Dados salvos encontrados:', dados);
+                try {
+                    dados = JSON.parse(dadosSalvos);
+                    titulo = `Desempenho - ${atletaModalidade}`;
+                } catch (e) {
+                    console.warn('⚠️ Erro ao interpretar dados salvos:', e);
+                    dados = obterDadosDesempenhoZerados();
+                    titulo = `Desempenho - ${atletaModalidade} (Não Avaliado)`;
+                }
             } else {
-                // Usar dados zerados
                 dados = obterDadosDesempenhoZerados();
                 titulo = `Desempenho - ${atletaModalidade} (Não Avaliado)`;
-                console.log('📊 Usando dados zerados (atleta não avaliado):', dados);
-                console.log('📊 Modalidade:', atletaModalidade);
-                console.log('📊 Categorias:', dados.categorias);
             }
 
-            // Destruir gráfico anterior se existir
-            if (window.performanceChart && typeof window.performanceChart.destroy === 'function') {
-                window.performanceChart.destroy();
+            if (!dados || !dados.categorias || typeof dados.categorias !== 'object') {
+                console.warn("⚠️ Nenhum dado de desempenho disponível");
+                return;
             }
 
-            console.log('📊 Criando gráfico com dados:', dados);
-            console.log('📊 Labels:', dados.categorias);
-
-            // Converter objeto categorias para arrays
             const labels = [];
             const esperado = [];
             const atingido = [];
 
-            Object.keys(dados.categorias).forEach(chave => {
-                const categoria = dados.categorias[chave];
+            Object.entries(dados.categorias).forEach(([chave, categoria]) => {
                 let label;
                 switch (chave) {
                     case '100m_livre': label = '100m Livre'; break;
@@ -1441,16 +1410,13 @@
                     case 'resistencia': label = 'Resistência'; break;
                     case 'tecnica': label = 'Técnica'; break;
                     case 'forca': label = 'Força'; break;
-                    default: label = chave; break;
+                    default: label = chave.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); break;
                 }
+
                 labels.push(label);
                 esperado.push(categoria.esperado || 0);
                 atingido.push(categoria.atingido || 0);
             });
-
-            console.log('📊 Labels processados:', labels);
-            console.log('📊 Esperado processado:', esperado);
-            console.log('📊 Atingido processado:', atingido);
 
             window.performanceChart = new Chart(ctx, {
                 type: 'bar',
@@ -1494,7 +1460,7 @@
                     },
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'top'
                         },
                         title: {
                             display: true,
@@ -1508,6 +1474,8 @@
                 }
             });
         }
+
+
 
         // Aguardar Chart.js carregar
         async function aguardarChartJS() {
@@ -1649,22 +1617,26 @@
 
             try {
                 const dadosSalvos = localStorage.getItem(`desempenho_${atletaId}`);
-                if (dadosSalvos) {
-                    const dados = JSON.parse(dadosSalvos);
-                    console.log('📊 Carregando dados salvos:', dados);
+                if (!dadosSalvos) return;
 
-                    // Preencher campos com dados salvos
-                    dados.categorias.forEach((categoria, index) => {
-                        const idEsperado = `esperado_${categoria.replace(/\s+/g, '_')}`;
-                        const idAtingido = `atingido_${categoria.replace(/\s+/g, '_')}`;
+                const dados = JSON.parse(dadosSalvos);
+                console.log('📊 Carregando dados salvos:', dados);
 
-                        const campoEsperado = document.getElementById(idEsperado);
-                        const campoAtingido = document.getElementById(idAtingido);
+                // Preencher campos com dados salvos
+                Object.entries(dados.categorias).forEach(([chave, categoria]) => {
+                    const esperado = categoria.esperado || 0;
+                    const atingido = categoria.atingido || 0;
 
-                        if (campoEsperado) campoEsperado.value = dados.desempenhoEsperado[index] || 80;
-                        if (campoAtingido) campoAtingido.value = dados.desempenhoAtingido[index] || 75;
-                    });
-                }
+                    // IDs dos campos devem seguir o padrão: esperado-100m_livre, atingido-100m_livre
+                    const idEsperado = `esperado-${chave}`;
+                    const idAtingido = `atingido-${chave}`;
+
+                    const campoEsperado = document.getElementById(idEsperado);
+                    const campoAtingido = document.getElementById(idAtingido);
+
+                    if (campoEsperado) campoEsperado.value = esperado;
+                    if (campoAtingido) campoAtingido.value = atingido;
+                });
             } catch (error) {
                 console.error('❌ Erro ao carregar dados salvos:', error);
             }

@@ -200,11 +200,53 @@ function carregarDadosDoAtleta() {
         return;
     }
 
-    document.getElementById("nome-atleta").textContent = decodeURIComponent(atletaNome);
-    document.getElementById("modalidade-atleta").textContent = decodeURIComponent(atletaModalidade);
+    document.getElementById("atletaNome").textContent = decodeURIComponent(atletaNome);
+    document.getElementById("atletaModalidade").textContent = decodeURIComponent(atletaModalidade);
+
 
     carregarDesempenhoDoAtleta(atletaId);
 }
 
+
+
+async function carregarResumoTreinos(atletaId) {
+    try {
+        const token = localStorage.getItem("token") || localStorage.getItem("jwt_token");
+        const response = await fetch(`/api/treinamentos?atleta_id=${atletaId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.warn('⚠️ Erro ao buscar treinos do atleta:', response.status);
+            return;
+        }
+
+        const treinos = await response.json();
+
+        const total = treinos.length;
+        const concluidos = treinos.filter(t => t.completed).length;
+        const horas = treinos
+            .filter(t => t.completed && t.carga)
+            .reduce((soma, t) => soma + t.carga, 0);
+
+        document.getElementById('totalTreinos').textContent = total;
+        document.getElementById('treinosConcluidos').textContent = concluidos;
+        document.getElementById('horasTreinamento').textContent = `${horas}h`;
+
+        console.log('📊 Resumo carregado:', { total, concluidos, horas });
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar resumo de treinos:', error);
+    }
+}
+
 // 🚀 Inicia tudo ao carregar a página
-document.addEventListener("DOMContentLoaded", carregarDadosDoAtleta);
+document.addEventListener("DOMContentLoaded", function () {
+    const { atletaId } = getParametrosDaURL();
+    carregarDadosDoAtleta();
+    carregarResumoTreinos(atletaId);
+});
+
