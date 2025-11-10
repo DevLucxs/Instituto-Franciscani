@@ -759,6 +759,8 @@
                 margin: 0;
             }
 
+
+
         .modal-actions {
             padding: 20px 25px;
             border-top: 1px solid #eee;
@@ -1591,8 +1593,6 @@
                 <input type="text" id="searchInput" name="searchAthlete" placeholder="Pesquisar atleta..." />
                 <div id="suggestionsBox"></div>
             </div>
-            <script src="/static/js/dashboard.js"></script>
-            <div class="header-actions">
                 <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
                     <i class="fas fa-bell"></i>
                 </div>
@@ -2060,59 +2060,60 @@
                     <div class="comparison-table-container">
                         <h4 data-translate="comparacao.comparacao_detalhada">Comparação Detalhada</h4>
                         <div class="comparison-table">
-                            <div class="comparison-row header">
-                                <div class="comparison-cell">Característica</div>
-                                <div class="comparison-cell">Atleta 1</div>
-                                <div class="comparison-cell">Atleta 2</div>
-                                <div class="comparison-cell">Diferencial</div>
-                            </div>
-                            <div class="comparison-row" id="row-name">
+                            <div class="comparison-row">
                                 <div class="comparison-cell">Nome</div>
                                 <div class="comparison-cell" id="name1">-</div>
                                 <div class="comparison-cell" id="name2">-</div>
-                                <div class="comparison-cell">-</div>
                             </div>
-                            <div class="comparison-row" id="row-sport">
-                                <div class="comparison-cell" data-translate="comparacao.modalidade">Modalidade</div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Modalidade</div>
                                 <div class="comparison-cell" id="sport1">-</div>
                                 <div class="comparison-cell" id="sport2">-</div>
-                                <div class="comparison-cell">-</div>
                             </div>
-                            <div class="comparison-row" id="row-frequencia">
-                                <div class="comparison-cell" data-translate="comparacao.frequencia">Frequência (%)</div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Frequência (%)</div>
                                 <div class="comparison-cell" id="freq1-detail">-</div>
                                 <div class="comparison-cell" id="freq2-detail">-</div>
-                                <div class="comparison-cell" id="freq-diff">-</div>
                             </div>
-                            <div class="comparison-row" id="row-resistencia">
-                                <div class="comparison-cell">Resistência</div>
-                                <div class="comparison-cell" id="resistencia1">-</div>
-                                <div class="comparison-cell" id="resistencia2">-</div>
-                                <div class="comparison-cell" id="resistencia-diff">-</div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Treinos Concluídos</div>
+                                <div class="comparison-cell" id="treinos1-detail">-</div>
+                                <div class="comparison-cell" id="treinos2-detail">-</div>
                             </div>
-                            <div class="comparison-row" id="row-tecnica">
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Carga Total (h)</div>
+                                <div class="comparison-cell" id="carga1">-</div>
+                                <div class="comparison-cell" id="carga2">-</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Medalhas</div>
+                                <div class="comparison-cell" id="medalhas1">-</div>
+                                <div class="comparison-cell" id="medalhas2">-</div>
+                            </div>
+                            <div class="comparison-row">
                                 <div class="comparison-cell">Técnica</div>
                                 <div class="comparison-cell" id="tecnica1">-</div>
                                 <div class="comparison-cell" id="tecnica2">-</div>
-                                <div class="comparison-cell" id="tecnica-diff">-</div>
                             </div>
-                            <div class="comparison-row" id="row-forca">
+                            <div class="comparison-row">
                                 <div class="comparison-cell">Força</div>
                                 <div class="comparison-cell" id="forca1">-</div>
                                 <div class="comparison-cell" id="forca2">-</div>
-                                <div class="comparison-cell" id="forca-diff">-</div>
                             </div>
-                            <div class="comparison-row" id="row-velocidade">
+                            <div class="comparison-row">
                                 <div class="comparison-cell">Velocidade</div>
                                 <div class="comparison-cell" id="velocidade1">-</div>
                                 <div class="comparison-cell" id="velocidade2">-</div>
-                                <div class="comparison-cell" id="velocidade-diff">-</div>
                             </div>
-                            <div class="comparison-row" id="row-ultima-comp">
-                                <div class="comparison-cell" data-translate="comparacao.ultima_competicao">Última Competição</div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Resistência</div>
+                                <div class="comparison-cell" id="resistencia1">-</div>
+                                <div class="comparison-cell" id="resistencia2">-</div>
+                            </div>
+                            <div class="comparison-row">
+                                <div class="comparison-cell">Última Competição</div>
                                 <div class="comparison-cell" id="ultima1">-</div>
                                 <div class="comparison-cell" id="ultima2">-</div>
-                                <div class="comparison-cell">-</div>
                             </div>
                         </div>
                     </div>
@@ -2143,12 +2144,9 @@
     </div>
 
 
-
-
     <script src="/static/js/settings.js"></script>
 
     <script>
-
         // Função para carregar atletas via API
 
         const API_BASE_URL = "http://127.0.0.1:8000/api"
@@ -2179,14 +2177,14 @@
 
                 const avatar = document.createElement('td');
                 avatar.innerHTML = `
-        <div class="athlete-info">
-            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
-            <div class="athlete-details">
-                <h4>${atleta.nome}</h4>
-                <p>${atleta.email}</p>
-            </div>
-        </div>
-        `;
+                        <div class="athlete-info">
+                            <div class="athlete-avatar">${atleta.nome[0]}${atleta.nome.split(' ')[1]?.[0] || ''}</div>
+                            <div class="athlete-details">
+                                <h4>${atleta.nome}</h4>
+                                <p>${atleta.email}</p>
+                            </div>
+                        </div>
+                        `;
 
                 const modalidade = document.createElement('td');
                 modalidade.textContent = atleta.modalidade || 'Não informado';
@@ -2514,10 +2512,10 @@
             const modalidade = athlete.modalidade || athlete.sport || "Modalidade não informada";
 
             preview.innerHTML = `
-    <div class="athlete-preview-avatar">${getIniciais(nome)}</div>
-    <div class="athlete-preview-name">${nome}</div>
-    <div class="athlete-preview-sport">${modalidade}</div>
-  `;
+                    <div class="athlete-preview-avatar">${getIniciais(nome)}</div>
+                    <div class="athlete-preview-name">${nome}</div>
+                    <div class="athlete-preview-sport">${modalidade}</div>
+                  `;
             preview.className = "athlete-preview has-athlete";
 
             checkComparisonReady();
@@ -2551,105 +2549,105 @@
             }
         }
 
-        function compareAthletes() {
-            console.log("Função compareAthletes chamada");
 
+        function safeFixed(value, decimals = 1, fallback = "--") {
+            return typeof value === "number" && !isNaN(value)
+                ? value.toFixed(decimals)
+                : fallback;
+        }
+
+        function calculateDifferential(a, b, suffix = "") {
+            const na = Number(a);
+            const nb = Number(b);
+            if (isNaN(na) || isNaN(nb)) return "-";
+            const diff = na - nb;
+            const sign = diff > 0 ? "+" : diff < 0 ? "" : "";
+            return `${sign}${diff}${suffix}`;
+        }
+
+        async function compareAthletes() {
             const athlete1Id = document.getElementById("athlete1")?.value;
             const athlete2Id = document.getElementById("athlete2")?.value;
 
-            if (!athlete1Id || !athlete2Id) {
-                alert("Por favor, selecione dois atletas para comparar.");
-                return;
-            }
-            if (athlete1Id === athlete2Id) {
-                alert("Por favor, selecione atletas diferentes para comparar.");
+            if (!athlete1Id || !athlete2Id || athlete1Id === athlete2Id) {
+                alert("Selecione dois atletas diferentes.");
                 return;
             }
 
-            const list = Array.isArray(window.atletasGlobais) ? window.atletasGlobais : [];
-            const athlete1 = list.find(a => String(a.id) === String(athlete1Id));
-            const athlete2 = list.find(a => String(a.id) === String(athlete2Id));
+            try {
+                const response = await fetch(`/api/comparar-atletas?id1=${athlete1Id}&id2=${athlete2Id}`);
+                if (!response.ok) throw new Error("Erro ao buscar dados comparativos");
 
-            if (!athlete1 || !athlete2) {
-                alert("Erro ao localizar os dados dos atletas. Atualize a página e tente novamente.");
-                return;
-            }
+                const data = await response.json();
+                const a1 = data.atleta_1;
+                const a2 = data.atleta_2;
 
-            // Normaliza nomes de campos (compatibilidade com diferentes payloads)
-            const a1 = {
-                nome: athlete1.nome || athlete1.name || "—",
-                modalidade: athlete1.modalidade || athlete1.sport || "—",
-                performance: athlete1.performance || athlete1.stats || {}
-            };
-            const a2 = {
-                nome: athlete2.nome || athlete2.name || "—",
-                modalidade: athlete2.modalidade || athlete2.sport || "—",
-                performance: athlete2.performance || athlete2.stats || {}
-            };
+                const p = (obj, key, fallback = "—") => (obj && obj[key] !== undefined ? obj[key] : fallback);
+                const safeSet = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                };
 
-            // Função helper para pegar valor com fallback
-            const p = (obj, key, fallback = "—") => (obj && obj[key] !== undefined ? obj[key] : fallback);
+                // Preencher dados básicos
+                safeSet("name1", a1.nome);
+                safeSet("name2", a2.nome);
+                safeSet("sport1", a1.modalidade);
+                safeSet("sport2", a2.modalidade);
 
-            // Preencher valores na UI (existindo os elementos)
-            const safeSet = (id, value) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = value;
-            };
+                // Preencher métricas principais
+                safeSet("freq1", `${safeFixed(p(a1.performance, "frequencia"))}%`);
+                safeSet("freq2", `${safeFixed(p(a2.performance, "frequencia"))}%`);
+                safeSet("freq1-detail", `${safeFixed(p(a1.performance, "frequencia"))}%`);
+                safeSet("freq2-detail", `${safeFixed(p(a2.performance, "frequencia"))}%`);
+                safeSet("freq-diff", calculateDifferential(p(a1.performance, "frequencia"), p(a2.performance, "frequencia"), "%"));
 
-            safeSet("freq1", `${p(a1.performance, "frequencia", "-")}%`);
-            safeSet("freq2", `${p(a2.performance, "frequencia", "-")}%`);
+                safeSet("treinos1", p(a1.performance, "treinosCompletos", "--"));
+                safeSet("treinos2", p(a2.performance, "treinosCompletos", "--"));
+                safeSet("carga1", `${safeFixed(p(a1.performance, "carga_total"))}h`);
+                safeSet("carga2", `${safeFixed(p(a2.performance, "carga_total"))}h`);
 
-            safeSet("treinos1", p(a1.performance, "treinosCompletos", p(a1.performance, "treinos_completos", "-")));
-            safeSet("treinos2", p(a2.performance, "treinosCompletos", p(a2.performance, "treinos_completos", "-")));
+                // Repetir para a tabela de comparação detalhada
+                safeSet("freq1-detail", `${safeFixed(p(a1.performance, "frequencia"))}%`);
+                safeSet("freq2-detail", `${safeFixed(p(a2.performance, "frequencia"))}%`);
 
-            safeSet("medalhas1", p(a1.performance, "medalhas", "-"));
-            safeSet("medalhas2", p(a2.performance, "medalhas", "-"));
+                safeSet("treinos1-detail", p(a1.performance, "treinosCompletos", "--"));
+                safeSet("treinos2-detail", p(a2.performance, "treinosCompletos", "--"));
 
-            safeSet("name1", a1.nome);
-            safeSet("name2", a2.nome);
 
-            safeSet("sport1", a1.modalidade);
-            safeSet("sport2", a2.modalidade);
+                // Preencher habilidades (se existirem)
 
-            // Detalhes e diferenciais
-            const freq1Val = p(a1.performance, "frequencia", "-");
-            const freq2Val = p(a2.performance, "frequencia", "-");
-            safeSet("freq1-detail", `${freq1Val}%`);
-            safeSet("freq2-detail", `${freq2Val}%`);
-            safeSet("freq-diff", calculateDifferential(freq1Val, freq2Val, '%'));
+                safeSet("resistencia1", safeFixed(p(a1.performance, "resistencia")));
+                safeSet("resistencia2", safeFixed(p(a2.performance, "resistencia")));
+                safeSet("resistencia-diff", calculateDifferential(p(a1.performance, "resistencia"), p(a2.performance, "resistencia")));
 
-            safeSet("resistencia1", p(a1.performance, "resistencia", "-"));
-            safeSet("resistencia2", p(a2.performance, "resistencia", "-"));
-            safeSet("resistencia-diff", calculateDifferential(p(a1.performance, "resistencia"), p(a2.performance, "resistencia")));
+                safeSet("tecnica1", safeFixed(p(a1.performance, "tecnica")));
+                safeSet("tecnica2", safeFixed(p(a2.performance, "tecnica")));
+                safeSet("tecnica-diff", calculateDifferential(p(a1.performance, "tecnica"), p(a2.performance, "tecnica")));
 
-            safeSet("tecnica1", p(a1.performance, "tecnica", "-"));
-            safeSet("tecnica2", p(a2.performance, "tecnica", "-"));
-            safeSet("tecnica-diff", calculateDifferential(p(a1.performance, "tecnica"), p(a2.performance, "tecnica")));
+                safeSet("medalhas1", p(a1.performance, "medalhas", "--"));
+                safeSet("medalhas2", p(a2.performance, "medalhas", "--"));
 
-            safeSet("forca1", p(a1.performance, "forca", "-"));
-            safeSet("forca2", p(a2.performance, "forca", "-"));
-            safeSet("forca-diff", calculateDifferential(p(a1.performance, "forca"), p(a2.performance, "forca")));
+                safeSet("forca1", safeFixed(p(a1.performance, "forca")));
+                safeSet("forca2", safeFixed(p(a2.performance, "forca")));
+                safeSet("forca-diff", calculateDifferential(p(a1.performance, "forca"), p(a2.performance, "forca")));
 
-            safeSet("velocidade1", p(a1.performance, "velocidade", "-"));
-            safeSet("velocidade2", p(a2.performance, "velocidade", "-"));
-            safeSet("velocidade-diff", calculateDifferential(p(a1.performance, "velocidade"), p(a2.performance, "velocidade")));
+                safeSet("velocidade1", safeFixed(p(a1.performance, "velocidade")));
+                safeSet("velocidade2", safeFixed(p(a2.performance, "velocidade")));
+                safeSet("velocidade-diff", calculateDifferential(p(a1.performance, "velocidade"), p(a2.performance, "velocidade")));
 
-            safeSet("ultima1", p(a1.performance, "ultimaCompeticao", p(a1.performance, "ultima_competicao", "-")));
-            safeSet("ultima2", p(a2.performance, "ultimaCompeticao", p(a2.performance, "ultima_competicao", "-")));
+                safeSet("ultima1", p(a1.performance, "ultimaCompeticao", "--"));
+                safeSet("ultima2", p(a2.performance, "ultimaCompeticao", "--"));
 
-            // Gerar análise (garanta que generateAnalysis aceita objetos no novo formato)
-            if (typeof generateAnalysis === "function") {
-                try { generateAnalysis(a1, a2); } catch (err) { console.warn("generateAnalysis falhou:", err); }
-            }
-
-            const resultsElement = document.getElementById("comparisonResults");
-            if (resultsElement) {
-                resultsElement.style.display = "block";
-            } else {
-                console.warn("Elemento 'comparisonResults' não encontrado");
+                // Exibir resultados
+                const resultsElement = document.getElementById("comparisonResults");
+                if (resultsElement) {
+                    resultsElement.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Erro na comparação:", err);
+                alert("Não foi possível comparar os atletas.");
             }
         }
-
 
         // Função para calcular anos de experiência
         function calculateExperience(joinDate) {
@@ -2682,7 +2680,7 @@
 
         // Função para gerar análise comparativa baseada em performance
         function generateAnalysis(athlete1, athlete2) {
-            console.log("Gerando análise para:", athlete1.name, "vs", athlete2.name);
+            console.log("Gerando análise para:", athlete1.nome, "vs", athlete2.nome);
 
             const analysisContent = document.getElementById("analysisContent");
             if (!analysisContent) {
@@ -2692,90 +2690,73 @@
 
             let analysis = "";
 
-            // Análise de frequência nos treinos
             const freq1 = athlete1.performance.frequencia;
             const freq2 = athlete2.performance.frequencia;
-            if (Math.abs(freq1 - freq2) > 10) {
+
+            if (typeof freq1 === "number" && typeof freq2 === "number" && Math.abs(freq1 - freq2) > 10) {
                 analysis += `<p>
-            <span class="analysis-highlight">${freq1 > freq2 ? athlete1.name : athlete2.name}</span> apresenta melhor frequência nos treinos (${Math.max(freq1, freq2).toFixed(1)}% vs ${Math.min(freq1, freq2).toFixed(1)}%), demonstrando maior comprometimento e disciplina.`;
+            <span class="analysis-highlight">${freq1 > freq2 ? athlete1.nome : athlete2.nome}</span> apresenta melhor frequência nos treinos (${safeFixed(Math.max(freq1, freq2))}% vs ${safeFixed(Math.min(freq1, freq2))}%), demonstrando maior comprometimento e disciplina.`;
             } else {
-                analysis += `
-        <p>
-            Ambos os atletas têm frequência similar nos treinos (${freq1.toFixed(1)}% vs ${freq2.toFixed(1)}%), indicando comprometimento equilibrado.`;
+                analysis += `<p>
+            Ambos os atletas têm frequência similar nos treinos (${safeFixed(freq1)}% vs ${safeFixed(freq2)}%), indicando comprometimento equilibrado.`;
             }
 
-            // Análise de treinos completos
             const treinos1 = athlete1.performance.treinosCompletos;
             const treinos2 = athlete2.performance.treinosCompletos;
-            if (Math.abs(treinos1 - treinos2) > 20) {
-                analysis += `
-        </p><p>
-            Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.name : athlete2.name}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
+            if (typeof treinos1 === "number" && typeof treinos2 === "number" && Math.abs(treinos1 - treinos2) > 20) {
+                analysis += `</p><p>
+            Em relação aos treinos completos, <span class="analysis-highlight">${treinos1 > treinos2 ? athlete1.nome : athlete2.nome}</span> tem ${Math.max(treinos1, treinos2)} treinos contra ${Math.min(treinos1, treinos2)}, mostrando maior volume de trabalho.`;
             }
 
-            // Análise de habilidades técnicas
             const tecnica1 = athlete1.performance.tecnica;
             const tecnica2 = athlete2.performance.tecnica;
-            if (Math.abs(tecnica1 - tecnica2) > 1) {
-                analysis += `
-        </p><p>
-            Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.name : athlete2.name}</span> se destaca (${Math.max(tecnica1, tecnica2).toFixed(1)} vs ${Math.min(tecnica1, tecnica2).toFixed(1)}), indicando maior refinamento técnico.`;
+            if (typeof tecnica1 === "number" && typeof tecnica2 === "number" && Math.abs(tecnica1 - tecnica2) > 1) {
+                analysis += `</p><p>
+            Na habilidade técnica, <span class="analysis-highlight">${tecnica1 > tecnica2 ? athlete1.nome : athlete2.nome}</span> se destaca (${safeFixed(tecnica1)} vs ${safeFixed(tecnica2)}), indicando maior refinamento técnico.`;
             }
 
-            // Análise de força vs velocidade
             const forca1 = athlete1.performance.forca;
             const forca2 = athlete2.performance.forca;
             const vel1 = athlete1.performance.velocidade;
             const vel2 = athlete2.performance.velocidade;
 
             if (forca1 > forca2 && vel1 > vel2) {
-                analysis += `
-        </p><p>
-            <span class="analysis-highlight">${athlete1.name}</span> apresenta vantagem tanto em força (${forca1.toFixed(1)} vs ${forca2.toFixed(1)}) quanto em velocidade (${vel1.toFixed(1)} vs ${vel2.toFixed(1)}), sendo um atleta mais completo.`;
+                analysis += `</p><p>
+            <span class="analysis-highlight">${athlete1.nome}</span> apresenta vantagem tanto em força (${safeFixed(forca1)} vs ${safeFixed(forca2)}) quanto em velocidade (${safeFixed(vel1)} vs ${safeFixed(vel2)}), sendo um atleta mais completo.`;
             } else if (forca2 > forca1 && vel2 > vel1) {
-                analysis += `
-        </p><p>
-            <span class="analysis-highlight">${athlete2.name}</span> apresenta vantagem tanto em força (${forca2.toFixed(1)} vs ${forca1.toFixed(1)}) quanto em velocidade (${vel2.toFixed(1)} vs ${vel1.toFixed(1)}), sendo um atleta mais completo.`;
+                analysis += `</p><p>
+            <span class="analysis-highlight">${athlete2.nome}</span> apresenta vantagem tanto em força (${safeFixed(forca2)} vs ${safeFixed(forca1)}) quanto em velocidade (${safeFixed(vel2)} vs ${safeFixed(vel1)}), sendo um atleta mais completo.`;
             } else {
-                analysis += `
-        </p><p>
-            Os atletas têm perfis complementares: ${athlete1.name} (Força: ${forca1.toFixed(1)}, Velocidade: ${vel1.toFixed(1)}) vs ${athlete2.name} (Força: ${forca2.toFixed(1)}, Velocidade: ${vel2.toFixed(1)}).`;
+                analysis += `</p><p>
+            Os atletas têm perfis complementares: ${athlete1.nome} (Força: ${safeFixed(forca1)}, Velocidade: ${safeFixed(vel1)}) vs ${athlete2.nome} (Força: ${safeFixed(forca2)}, Velocidade: ${safeFixed(vel2)}).`;
             }
 
-            // Análise de competições
             const medalhas1 = athlete1.performance.medalhas;
             const medalhas2 = athlete2.performance.medalhas;
-            if (Math.abs(medalhas1 - medalhas2) > 1) {
-                analysis += `
-        </p><p>
-            Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.name : athlete2.name}</span> tem mais medalhas (${Math.max(medalhas1, medalhas2)} vs ${Math.min(medalhas1, medalhas2)}), demonstrando melhor desempenho em competições.`;
+            if (typeof medalhas1 === "number" && typeof medalhas2 === "number" && Math.abs(medalhas1 - medalhas2) > 1) {
+                analysis += `</p><p>
+            Em competições, <span class="analysis-highlight">${medalhas1 > medalhas2 ? athlete1.nome : athlete2.nome}</span> tem mais medalhas (${medalhas1} vs ${medalhas2}), demonstrando melhor desempenho em competições.`;
             }
 
-            // Análise de modalidade
             if (athlete1.modalidade === athlete2.modalidade) {
-                analysis += `
-        </p><p>
+                analysis += `</p><p>
             Ambos competem na mesma modalidade (<span class="analysis-highlight">${athlete1.modalidade}</span>), facilitando comparações diretas de desempenho e ranking.`;
             } else {
-                analysis += `
-        </p><p>
+                analysis += `</p><p>
             As modalidades são diferentes: <span class="analysis-highlight">${athlete1.modalidade}</span> vs <span class="analysis-highlight">${athlete2.modalidade}</span>. Cada modalidade tem suas próprias exigências e critérios de avaliação.`;
             }
 
-            // Recomendações baseadas em performance
-            analysis += `
-        </p><p>
-            <strong>Recomendações de Treinamento:</strong> `;
+            analysis += `</p><p><strong>Recomendações de Treinamento:</strong> `;
 
-            if (freq1 < 80 || freq2 < 80) {
+            if (typeof freq1 === "number" && freq1 < 80 || typeof freq2 === "number" && freq2 < 80) {
                 analysis += `Para o atleta com menor frequência, considere programas de motivação e acompanhamento mais próximo. `;
             }
 
-            if (Math.abs(tecnica1 - tecnica2) > 1.5) {
+            if (typeof tecnica1 === "number" && typeof tecnica2 === "number" && Math.abs(tecnica1 - tecnica2) > 1.5) {
                 analysis += `Foque em exercícios técnicos para o atleta com menor pontuação técnica. `;
             }
 
-            if (Math.abs(forca1 - forca2) > 1.5) {
+            if (typeof forca1 === "number" && typeof forca2 === "number" && Math.abs(forca1 - forca2) > 1.5) {
                 analysis += `Desenvolva programas de força específicos para equilibrar o desenvolvimento físico. `;
             }
 
@@ -2783,6 +2764,7 @@
 
             analysisContent.innerHTML = analysis;
         }
+
 
         function renderTrainingsChart(
             athlete1Trainings,
@@ -2792,23 +2774,23 @@
         ) {
             const container = document.getElementById("trainingsChartContainer");
             container.innerHTML = `
-            <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                            <div style="display: flex; height: 100%; align-items: flex-end; justify-content: space-around;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 50px; background: var(--primary-color); height: ${(athlete1Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                    <span>${athlete1Trainings}</span>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
+                                    <span>${athlete1Trainings}</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="width: 50px; background: var(--info-color); height: ${(athlete2Trainings / (athlete1Trainings + athlete2Trainings)) * 150
                 }px; margin-bottom: 10px;"></div>
-                    <span>${athlete2Trainings}</span>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                <span style="color: var(--primary-color);">${athlete1Name}</span>
-                <span style="color: var(--info-color);">${athlete2Name}</span>
-            </div>
-            `;
+                                    <span>${athlete2Trainings}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                                <span style="color: var(--info-color);">${athlete2Name}</span>
+                            </div>
+                            `;
         }
 
         function renderGoalsChart(
@@ -2824,33 +2806,33 @@
 
             const container = document.getElementById("goalsChartContainer");
             container.innerHTML = `
-            <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
-                <div style="width: 45%;">
-                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                        <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
-                    </div>
-                    <div style="text-align: center; margin-top: 5px;">
-                        ${athlete1Percentage.toFixed(
+                            <div style="display: flex; height: 100%; align-items: center; justify-content: space-around;">
+                                <div style="width: 45%;">
+                                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                                        <div style="background: var(--primary-color); width: ${athlete1Percentage}%; height: 100%;"></div>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 5px;">
+                                        ${athlete1Percentage.toFixed(
                 1
             )}%
-                    </div>
-                </div>
-                <div style="width: 45%;">
-                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
-                        <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
-                    </div>
-                    <div style="text-align: center; margin-top: 5px;">
-                        ${athlete2Percentage.toFixed(
+                                    </div>
+                                </div>
+                                <div style="width: 45%;">
+                                    <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden;">
+                                        <div style="background: var(--info-color); width: ${athlete2Percentage}%; height: 100%;"></div>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 5px;">
+                                        ${athlete2Percentage.toFixed(
                 1
             )}%
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-                <span style="color: var(--primary-color);">${athlete1Name}</span>
-                <span style="color: var(--info-color);">${athlete2Name}</span>
-            </div>
-            `;
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                                <span style="color: var(--primary-color);">${athlete1Name}</span>
+                                <span style="color: var(--info-color);">${athlete2Name}</span>
+                            </div>
+                            `;
         }
 
         // Fechar modal de comparação clicando fora
@@ -2863,6 +2845,9 @@
         // Função de logout
         function logout() {
             if (confirm("Tem certeza que deseja sair?")) {
+                localStorage.removeItem("jwt_token");
+                localStorage.removeItem("usuario_info");
+
                 window.location.href = "/";
             }
         }
@@ -2876,6 +2861,9 @@
                 console.log('⚠️ Sistema de notificações não disponível');
             }
         }
+
+
+
 
         // Funções para os botões da tabela
         function showFilters() {
@@ -3102,12 +3090,12 @@
             if (filteredAthletes.length === 0) {
                 const noResultsRow = document.createElement("tr");
                 noResultsRow.innerHTML = `
-            <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
-                <h3>Nenhum atleta encontrado</h3>
-                <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
-            </td>
-            `;
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #ddd;"></i>
+                                <h3>Nenhum atleta encontrado</h3>
+                                <p>Tente ajustar os filtros ou limpar todos os filtros para ver todos os atletas.</p>
+                            </td>
+                            `;
                 tbody.appendChild(noResultsRow);
                 return;
             }
@@ -3119,12 +3107,12 @@
                 const athleteCell = document.createElement("td");
                 athleteCell.className = "athlete-info";
                 athleteCell.innerHTML = `
-            <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
-            <div class="athlete-details">
-                <h4>${athlete.nome}</h4>
-                <p>${athlete.email}</p>
-            </div>
-            `;
+                            <div class="athlete-avatar">${athlete.nome[0]}${athlete.nome.split(' ')[1]?.[0] || ''}</div>
+                            <div class="athlete-details">
+                                <h4>${athlete.nome}</h4>
+                                <p>${athlete.email}</p>
+                            </div>
+                            `;
 
                 const sportCell = document.createElement("td");
                 // Mapear modalidades para traduções

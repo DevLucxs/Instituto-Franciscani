@@ -1,14 +1,14 @@
-      document.addEventListener("DOMContentLoaded", function () {
+﻿      document.addEventListener("DOMContentLoaded", function () {
         
         
-        // Variáveis globais
+        // VariÃ¡veis globais
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
         const months = [
           "Janeiro",
           "Fevereiro",
-          "Março",
+          "MarÃ§o",
           "Abril",
           "Maio",
           "Junho",
@@ -25,7 +25,7 @@
         async function fetchEvents() {
         try {
             const response = await fetch("/api/eventos");
-            if (!response.ok) throw new Error("Não foi possível carregar os eventos.");
+            if (!response.ok) throw new Error("NÃ£o foi possÃ­vel carregar os eventos.");
             
             const serverEvents = await response.json();
             
@@ -79,7 +79,7 @@
         selectAlunosElement.addEventListener('search', async function(event){
           const query = event.detail.value;
 
-        // Limpa resultados antigos se o usuário apagar a busca
+        // Limpa resultados antigos se o usuÃ¡rio apagar a busca
         // A sua API exige 2+ caracteres
         if (!query || query.length < 2) {
             choicesAlunos.clearChoices();
@@ -97,7 +97,7 @@
             const response = await fetch(`/api/search/alunos/?q=${encodeURIComponent(query)}`);
             if (!response.ok) throw new Error('Falha na busca');
             
-            const sugestoes = await response.json(); // Ex: [{"id": 1, "nome": "João"}]
+            const sugestoes = await response.json(); // Ex: [{"id": 1, "nome": "JoÃ£o"}]
 
             // Formata os dados para o Choices.js (ele quer 'value' e 'label')
             const choicesData = sugestoes.map(aluno => ({
@@ -128,7 +128,7 @@
     eventModal.style.display = "none";
 }
 
-        // Inicializar o calendário
+        // Inicializar o calendÃ¡rio
         async function initCalendar() { 
         updateCalendarTitle();
         
@@ -137,20 +137,20 @@
         
         renderCalendar(); // Agora renderiza com os dados do banco
         setupEventListeners();
-        renderUpcomingEvents(); // E renderiza a lista de próximos
+        renderUpcomingEvents(); // E renderiza a lista de prÃ³ximos
         }
 
-        // Atualizar o título do calendário
+        // Atualizar o tÃ­tulo do calendÃ¡rio
         function updateCalendarTitle() {
           calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
         }
 
-        // Renderizar o calendário
+        // Renderizar o calendÃ¡rio
         function renderCalendar() {
-          // Limpar o grid do calendário
+          // Limpar o grid do calendÃ¡rio
           calendarGrid.innerHTML = "";
 
-          // Obter o primeiro dia do mês e o número de dias no mês
+          // Obter o primeiro dia do mÃªs e o nÃºmero de dias no mÃªs
           const firstDay = new Date(currentYear, currentMonth, 1).getDay();
           const daysInMonth = new Date(
             currentYear,
@@ -158,14 +158,14 @@
             0
           ).getDate();
 
-          // Dias do mês anterior
+          // Dias do mÃªs anterior
           const daysInPrevMonth = new Date(
             currentYear,
             currentMonth,
             0
           ).getDate();
 
-          // Preencher os dias do mês anterior
+          // Preencher os dias do mÃªs anterior
           for (let i = firstDay - 1; i >= 0; i--) {
             const day = daysInPrevMonth - i;
             const dateStr = formatDate(currentYear, currentMonth - 1, day);
@@ -174,7 +174,7 @@
             );
           }
 
-          // Preencher os dias do mês atual
+          // Preencher os dias do mÃªs atual
           const today = new Date();
           for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = formatDate(currentYear, currentMonth, i);
@@ -186,7 +186,7 @@
             calendarGrid.appendChild(createDayElement(i, dayClass, dateStr));
           }
 
-          // Preencher os dias do próximo mês
+          // Preencher os dias do prÃ³ximo mÃªs
           const totalCells = 42; // 6 semanas * 7 dias
           const remainingCells = totalCells - (firstDay + daysInMonth);
           for (let i = 1; i <= remainingCells; i++) {
@@ -236,7 +236,7 @@
 
         // Formatar data como YYYY-MM-DD
         function formatDate(year, month, day) {
-          // Ajustar o mês para ser baseado em 1
+          // Ajustar o mÃªs para ser baseado em 1
           const adjustedMonth = month + 1;
           return `${year}-${adjustedMonth.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
         }
@@ -308,7 +308,7 @@ function openAddEventModal(dateStr = "") {
         );
     }
 
-    // Limpar outros campos do formulário
+    // Limpar outros campos do formulÃ¡rio
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventTime").value = "";
     document.getElementById("eventLocation").value = "";
@@ -335,7 +335,7 @@ function openEditEventModal(eventId) {
     
     eventForm.setAttribute("data-editing-id", eventData.id);
 
-    // Preenche os campos do formulário
+    // Preenche os campos do formulÃ¡rio
     document.getElementById("eventTitle").value = eventData.title;
     document.getElementById("eventDate").value = eventData.date;
     document.getElementById("eventTime").value = eventData.time || "";
@@ -355,7 +355,7 @@ function openEditEventModal(eventId) {
             label: aluno.nome
         }));
 
-        // 4. Adiciona estes alunos como as *opções iniciais*
+        // 4. Adiciona estes alunos como as *opÃ§Ãµes iniciais*
         choicesAlunos.setChoices(choicesData, 'value', 'label', false);
 
         // 5. E define todos eles como *selecionados*
@@ -368,94 +368,75 @@ function openEditEventModal(eventId) {
     eventModal.style.display = "flex"; 
 }
 
-        // Salvar evento (novo ou edição)
-       // Função saveEvent() completa e atualizada
-async function saveEvent() {
-    const editingId = eventForm.getAttribute("data-editing-id");
-    
-    const alunosSelect = document.getElementById("eventAlunos");
-    const raw_aluno_ids = choicesAlunos.getValue(true); 
-    const alunos_ids = (Array.isArray(raw_aluno_ids) ? raw_aluno_ids : [])
-    .map(id => parseInt(id))      
-    .filter(id => !isNaN(id));
-    const treinadorId = document.body.dataset.treinadorId; 
-    const timeValue = document.getElementById("eventTime").value; 
-    let formattedTime = null;
+        // Salvar evento (novo ou ediÃ§Ã£o)
+       // FunÃ§Ã£o saveEvent() completa e atualizada
+          async function saveEvent() {
+              const editingIdRaw = eventForm.getAttribute("data-editing-id");
+              const editingId = editingIdRaw && editingIdRaw.trim() !== "" ? parseInt(editingIdRaw) : null;
 
-    if (timeValue) {
-    // CORREÇÃO: Verifica se o valor é 'HH:MM' (2 partes) ou 'HH:MM:SS' (3 partes)
-    if (timeValue.split(':').length === 2) {
-        // É 'HH:MM', então adiciona os segundos
-        formattedTime = timeValue + ":00";
-    } else {
-        // Já é 'HH:MM:SS', então usa o valor como está
-        formattedTime = timeValue;
-    }
-    }
+              const raw_aluno_ids = choicesAlunos.getValue(true);
+              const alunos_ids = (Array.isArray(raw_aluno_ids) ? raw_aluno_ids : [])
+                  .map(id => parseInt(id))
+                  .filter(id => !isNaN(id));
 
-    const newEventData = {
-        title: document.getElementById("eventTitle").value,
-        date: document.getElementById("eventDate").value,
-        time: formattedTime || null,
-        location: document.getElementById("eventLocation").value,
-        type: document.getElementById("eventType").value,
-        description: document.getElementById("eventDescription").value,
-        treinador_id: parseInt(treinadorId),
-        alunos_ids: alunos_ids,
-    };
+              const treinadorId = parseInt(document.body.dataset.treinadorId);
+              const timeValue = document.getElementById("eventTime").value;
+              const formattedTime = timeValue ? (timeValue.split(":").length === 2 ? timeValue + ":00" : timeValue) : null;
 
-    try {
-        let eventoSalvo; // Variável para armazenar a resposta
+              const newEventData = {
+                  title: document.getElementById("eventTitle").value,
+                  date: document.getElementById("eventDate").value,
+                  time: formattedTime,
+                  location: document.getElementById("eventLocation").value,
+                  type: document.getElementById("eventType").value,
+                  description: document.getElementById("eventDescription").value,
+                  treinador_id: treinadorId,
+                  alunos_ids: alunos_ids,
+              };
 
-        if (editingId) {
-            // --- INÍCIO DA LÓGICA DE ATUALIZAÇÃO (PUT) ---
-            const response = await fetch(`/api/eventos/${editingId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEventData)
-            });
-            if (!response.ok) throw new Error("Falha ao atualizar o evento.");
-            eventoSalvo = await response.json();
-            
-            // Atualiza o evento na lista local
-            const index = events.findIndex(ev => ev.id == editingId);
-            if (index !== -1) {
-                events[index] = eventoSalvo; // Substitui o antigo pelo novo
-            }
-            // --- FIM DA LÓGICA DE ATUALIZAÇÃO ---
+              try {
+                  let eventoSalvo;
 
-       } else {
-            // --- LÓGICA DE CRIAR (POST) ---
-            const response = await fetch("/api/CriarEventos", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEventData)
-            });
-            
-            // Se a resposta NÃO ESTIVER OK (ex: 422, 500)
-            if (!response.ok) {
-                // Tenta ler o JSON de erro que o backend enviou
-                const errorData = await response.json();
-                console.error("Erro de validação do servidor:", errorData);
-                throw new Error("Falha na validação dos dados: " + JSON.stringify(errorData.detail || errorData));
-            }
-            
-            // Se a resposta ESTIVER OK (200)
-            eventoSalvo = await response.json(); // Lê o JSON de sucesso
-            events.push(eventoSalvo); // Adiciona o novo evento à lista local
-        }
-        
-        renderCalendar();
-        renderUpcomingEvents();
-        closeEventModal();
+                  if (editingId) {
+                      const response = await fetch(`/api/eventos/${editingId}`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(newEventData)
+                      });
+                      if (!response.ok) throw new Error("Falha ao atualizar o evento.");
+                      eventoSalvo = await response.json();
 
-    } catch (error) {
-        console.error("Erro ao salvar evento:", error);
-        alert("Não foi possível salvar o evento.");
-    }
-}
+                      const index = events.findIndex(ev => ev.id === editingId);
+                      if (index !== -1) {
+                          events[index] = eventoSalvo;
+                      }
+                  } else {
+                      const response = await fetch("/api/CriarEventos", {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(newEventData)
+                      });
+                      if (!response.ok) {
+                          const errorData = await response.json();
+                          console.error("Erro de validação do servidor:", errorData);
+                          throw new Error("Falha na validação dos dados: " + JSON.stringify(errorData.detail || errorData));
+                      }
+                      eventoSalvo = await response.json();
+                      events.push(eventoSalvo);
+                  }
+
+                  renderCalendar();
+                  renderUpcomingEvents();
+                  closeEventModal();
+
+              } catch (error) {
+                  console.error("Erro ao salvar evento:", error);
+                  alert("Não foi possível salvar o evento.");
+              }
+          }
+
         // Excluir evento
-        async function deleteEvent(eventId) { 
+     async function deleteEvent(eventId) { 
         try {
             const response = await fetch(`/api/DeletarEventos/${eventId}`, {
                 method: 'DELETE'
@@ -475,29 +456,26 @@ async function saveEvent() {
             
         } catch (error) {
             console.error("Erro ao deletar evento:", error);
-            alert("Não foi possível deletar o evento.");
+            alert("NÃ£o foi possÃ­vel deletar o evento.");
         }
     }
-        /**
- * Renderiza a lista de "Próximos Eventos" na seção correspondente do HTML,
- * usando os dados da variável global 'events' (preenchida por fetchEvents).
- */
+   
 function renderUpcomingEvents() {
     
-    // 1. Encontra o contêiner principal da lista
+    // 1. Encontra o contÃªiner principal da lista
     const eventsListContainer = document.querySelector(".events-list"); 
     
-    // 2. Encontra (ou cria) o local específico para os itens da lista
-    //    Vamos usar um ID para ficar mais fácil
+    // 2. Encontra (ou cria) o local especÃ­fico para os itens da lista
+    //    Vamos usar um ID para ficar mais fÃ¡cil
     let itemsContainer = document.getElementById("upcoming-events-items");
     if (!itemsContainer) {
-        // Se o container específico não existir, criamos ele (mantendo o h3)
-        eventsListContainer.innerHTML = '<h3>Próximos Eventos</h3>'; // Garante que o título esteja lá
+        // Se o container especÃ­fico nÃ£o existir, criamos ele (mantendo o h3)
+        eventsListContainer.innerHTML = '<h3>PrÃ³ximos Eventos</h3>'; // Garante que o tÃ­tulo esteja lÃ¡
         itemsContainer = document.createElement('div');
         itemsContainer.id = 'upcoming-events-items';
         eventsListContainer.appendChild(itemsContainer);
     } else {
-        // Se já existir, apenas limpa os itens antigos
+        // Se jÃ¡ existir, apenas limpa os itens antigos
         itemsContainer.innerHTML = ''; 
     }
 
@@ -508,16 +486,16 @@ function renderUpcomingEvents() {
     const upcoming = events
         // Filtra: A data do evento deve ser hoje ou depois
         .filter(ev => new Date(ev.date + 'T00:00:00') >= hoje) 
-        // Ordena: Do mais próximo para o mais distante
+        // Ordena: Do mais prÃ³ximo para o mais distante
         .sort((a, b) => new Date(a.date + 'T00:00:00') - new Date(b.date + 'T00:00:00'));
 
-    // 4. Constrói e insere o HTML
+    // 4. ConstrÃ³i e insere o HTML
     if (upcoming.length === 0) {
         itemsContainer.innerHTML = '<p style="padding: 10px;">Sem eventos futuros.</p>';
         return;
     }
 
-    // Variável para acumular o HTML de todos os itens
+    // VariÃ¡vel para acumular o HTML de todos os itens
     let allEventsHtml = ''; 
 
     upcoming.forEach(ev => {
@@ -526,16 +504,16 @@ function renderUpcomingEvents() {
         const dia = dataObj.getDate();
         const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
 
-        // Formata a hora (ex: 09:00h) - Garantindo que não quebre se for null
-        let horaFormatada = '--:--h'; // Valor padrão
+        // Formata a hora (ex: 09:00h) - Garantindo que nÃ£o quebre se for null
+        let horaFormatada = '--:--h'; // Valor padrÃ£o
         if (ev.time) {
             try {
                  // Tenta formatar - assume formato HH:MM:SS ou HH:MM
                  const [h, m] = ev.time.split(':');
                  horaFormatada = `${h.padStart(2, '0')}:${m.padStart(2, '0')}h`;
             } catch (e) {
-                console.warn("Formato de hora inválido para evento:", ev.id, ev.time);
-                // Mantém o valor padrão se o formato for inesperado
+                console.warn("Formato de hora invÃ¡lido para evento:", ev.id, ev.time);
+                // MantÃ©m o valor padrÃ£o se o formato for inesperado
             }
         }
 
@@ -547,7 +525,7 @@ function renderUpcomingEvents() {
                     <div class="event-month">${mes}</div>
                 </div>
                 <div class="event-details">
-                    <div class="event-title">${ev.title || 'Evento sem título'}</div>
+                    <div class="event-title">${ev.title || 'Evento sem tÃ­tulo'}</div>
                     <div class="event-info">
                         <span class="event-time">
                             <i class="fas fa-clock"></i> ${horaFormatada}
@@ -570,14 +548,14 @@ function renderUpcomingEvents() {
         `;
     });
 
-    // Insere todo o HTML de uma vez no contêiner (mais eficiente)
+    // Insere todo o HTML de uma vez no contÃªiner (mais eficiente)
     itemsContainer.innerHTML = allEventsHtml;
     }
 
         // Inicializar
         initCalendar();
 
-        // Expor funções globais para botões inline
+        // Expor funÃ§Ãµes globais para botÃµes inline
         window.openEditEventModal = openEditEventModal;
         window.deleteEvent = deleteEvent;
       });

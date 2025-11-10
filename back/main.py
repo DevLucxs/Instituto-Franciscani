@@ -18,13 +18,11 @@ from fastapi import APIRouter, Depends
 from models import User, UserType, Feedback
 from urllib.parse import quote
 import json
+from fastapi import Query
+from fastapi.middleware.cors import CORSMiddleware
 
 
-UPLOAD_DIRECTORY = "/static/uploads/dietas" #Variável referente a dieta
-os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-VIDEO_UPLOAD_DIRECTORY = "/static/uploads/videos" #Variável referente aos vídeos
-os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
 
 class VideoUpdate(BaseModel):
     titulo: str
@@ -36,6 +34,13 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Servindo arquivos estáticos
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
 app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
@@ -44,10 +49,10 @@ app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 templates = Jinja2Templates(directory="front/templates")
 
 
-UPLOAD_DIRECTORY = "/uploads/dietas" #Variável referente a dieta
+UPLOAD_DIRECTORY = "./uploads/dietas" #Variável referente a dieta
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-VIDEO_UPLOAD_DIRECTORY = "/uploads/videos" #Variável referente aos vídeos
+VIDEO_UPLOAD_DIRECTORY = "./uploads/videos" #Variável referente aos vídeos
 os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
 
 
@@ -178,7 +183,7 @@ async def api_desempenho(atleta_id: int):
     db: Session = SessionLocal()
 
     atleta = db.query(models.User).filter(
-        models.User.id == atleta_id,
+        models.User.id ==  atleta_id,
         models.User.tipo == models.UserType.aluno
     ).first()
 
@@ -480,7 +485,20 @@ async def calendario(request: Request, treinador_id: int):
 @app.get("/treinador/avaliaratleta", response_class=HTMLResponse)
 async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str):
     db = SessionLocal()
+
     treinador = db.query(models.User).filter(models.User.tipo == models.UserType.treinador).first()
+
+    total_treinos = db.query(models.Treinamento).filter(models.Treinamento.atleta_id == id).count()
+
+    treinos_concluidos = db.query(models.Treinamento).filter(
+        models.Treinamento.atleta_id == id,
+        models.Treinamento.completed == True
+    ).count()
+
+    horas_treinamento = db.query(func.sum(models.Treinamento.carga)).filter(
+        models.Treinamento.atleta_id == id
+    ).scalar() or 0
+
     db.close()
 
     return templates.TemplateResponse("pages/avaliar-atleta.html", {
@@ -488,8 +506,13 @@ async def avaliacao_atleta(request: Request, id: int, nome: str, modalidade: str
         "id": id,
         "nome": nome,
         "modalidade": modalidade,
-        "treinador": treinador
+        "treinador": treinador,
+        "total_treinos": total_treinos,
+        "treinos_concluidos": treinos_concluidos,
+        "horas_treinamento": round(horas_treinamento, 1)
     })
+
+
 
 
 
@@ -501,9 +524,9 @@ async def criar_feedback(
     usuario: User = Depends(get_usuario_logado),
     db: Session = Depends(get_db)
 ):
-    # ✅ Verificação corrigida
     if usuario.tipo != UserType.treinador:
         raise HTTPException(status_code=403, detail="Somente treinadores podem enviar feedback")
+
 
     try:
         novo_feedback = Feedback(
@@ -683,11 +706,17 @@ async def adicionar_desempenho(desempenho: dict = Body(...)):
 # ==========================================
 # ROTAS DE TREINAMENTOS
 # ==========================================
-
-
 @app.get("/api/treinamentos", response_class=JSONResponse)
-def listar_treinamentos(db: Session = Depends(get_db)):
-    treinamentos = db.query(models.Treinamento).all()
+def listar_treinamentos(
+    atleta_id: int = Query(None),
+    db: Session = Depends(get_db),
+    usuario = Depends(get_usuario_logado)  # ✅ exige autenticação
+):
+    if atleta_id is not None:
+        treinamentos = db.query(models.Treinamento).filter(models.Treinamento.atleta_id == atleta_id).all()
+    else:
+        treinamentos = db.query(models.Treinamento).all()
+
     result = []
     for t in treinamentos:
         result.append({
@@ -767,20 +796,19 @@ async def upload_dieta(atleta_id: int, file: UploadFile = File(...)):
         db.close()
         return JSONResponse(status_code=404, content={"message": "Atleta não encontrado"})
 
-    # Define um caminho único para o arquivo
-    file_path = os.path.join(UPLOAD_DIRECTORY, f"dieta_{atleta_id}_{file.filename}")
-    
-    # Salva o arquivo no servidor
+    # Caminho físico para salvar o arquivo
+    file_path = os.path.join("./uploads/dietas", f"dieta_{atleta_id}_{file.filename}")
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    
-    # Atualiza o caminho do arquivo no banco de dados do atleta
-    atleta.dieta_filepath = file_path
+
+    # Caminho público para o navegador acessar
+    url_path = f"/uploads/dietas/dieta_{atleta_id}_{file.filename}"
+    atleta.dieta_filepath = url_path
     db.commit()
-    
-    return JSONResponse(status_code=200, content={"message": f"Dieta enviada para {atleta.nome} com sucesso!", "filepath": file_path})
-    # Não está sendo enviado ao aluno ainda..
     db.close()
+
+    return JSONResponse(status_code=200, content={"message": "Dieta enviada com sucesso!", "filepath": url_path})
+
 
 
 @app.post("/api/videos")
@@ -925,6 +953,51 @@ async def update_video(
         print(f"Erro ao atualizar vídeo: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao atualizar o vídeo.")
 
+
+
+@app.post("/api/analise/importar")
+async def importar_analise(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    contents = await file.read()
+    decoded = contents.decode("utf-8").splitlines()
+
+    import csv
+    reader = csv.DictReader(decoded)
+    eventos = []
+    for row in reader:
+        evento = models.AnaliseEvento(
+            video_id=int(row["video_id"]),
+            tipo=row["tipo"],
+            tempo=row["tempo"],
+            descricao=row.get("descricao", "")
+        )
+        eventos.append(evento)
+
+    db.add_all(eventos)
+    db.commit()
+    return {"mensagem": "Análise importada com sucesso", "total_eventos": len(eventos)}
+
+
+@app.get("/api/analise/{video_id}")
+def get_analise_video(video_id: int, db: Session = Depends(get_db)):
+    video = db.query(models.Video).filter(models.Video.id == video_id).first()
+
+    if not video:
+        raise HTTPException(status_code=404, detail="Vídeo não encontrado")
+
+    # Exemplo: supondo que os eventos estejam em uma tabela chamada VideoEvento
+    eventos = db.query(models.VideoEvento).filter(models.VideoEvento.video_id == video_id).all()
+
+    resultado = []
+    for e in eventos:
+        resultado.append({
+            "tipo": e.tipo,
+            "tempo": e.tempo,
+            "descricao": e.descricao
+        })
+
+    return {"eventos": resultado}
+
+
 # Buscar todos os eventos
 @app.get("/api/eventos")
 async def get_eventos(db: Session = Depends(get_db)):
@@ -946,6 +1019,32 @@ async def get_eventos(db: Session = Depends(get_db)):
                 "alunos_ids": [p.id for p in ev.participantes] # Lista de IDs de alunos
             })
         return eventos_list
+
+
+@app.get("/api/eventos/proximos", response_class=JSONResponse)
+def listar_eventos_proximos(db: Session = Depends(get_db)):
+    hoje = datetime.now().date()
+    eventos = db.query(models.Evento).filter(models.Evento.data >= hoje).order_by(models.Evento.data.asc()).all()
+
+    resultado = []
+    for e in eventos:
+        resultado.append({
+            "id": e.id,
+            "titulo": e.titulo,
+            "data": e.data.isoformat(),
+            "hora": e.hora.isoformat() if e.hora else None,
+            "local": e.local,
+            "descricao": e.descricao,
+            "tipo": e.tipo
+        })
+
+    return {"eventos": resultado}
+
+
+
+
+
+
 
 # Este é o schema que valida os dados que chegam do JavaScript para criar o evento na rota seguinte
 class EventoCreate(BaseModel):
@@ -1139,11 +1238,21 @@ async def get_eventos_for_aluno(aluno_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Erro ao buscar eventos do aluno")
     
 # Rotas para Treinamentos (CRUD)
+
 @app.get("/api/treinamentos", response_model=List[TreinamentoOut])
-async def get_treinamentos(db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
-    # Lista todos os treinamentos (pode filtrar por treinador ou atleta se quiser)
-    treinamentos = db.query(models.Treinamento).all()
-    return treinamentos
+async def get_treinamentos(
+    atleta_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_usuario_logado)
+):
+    if atleta_id and current_user.id != atleta_id and current_user.tipo != models.UserType.treinador:
+        raise HTTPException(status_code=403, detail="Acesso negado")
+
+    query = db.query(models.Treinamento)
+    if atleta_id:
+        query = query.filter(models.Treinamento.atleta_id == atleta_id)
+
+    return query.all()
 
 @app.post("/api/treinamentos", response_model=TreinamentoOut)
 async def create_treinamento(treinamento_data: TreinamentoCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_usuario_logado)):
@@ -1219,6 +1328,77 @@ async def get_dieta_aluno(aluno_id: int, db: Session = Depends(get_db)):
         # Pega qualquer outro erro
         print(f"Erro ao buscar dieta do aluno: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao buscar dieta")
+
+@app.get("/api/comparar-atletas", response_class=JSONResponse)
+def comparar_atletas(id1: int = Query(...), id2: int = Query(...), db: Session = Depends(get_db)):
+    def resumo(atleta_id):
+        treinos = db.query(models.Treinamento).filter(models.Treinamento.atleta_id == atleta_id).all()
+        total = len(treinos)
+        concluidos = sum(1 for t in treinos if t.completed)
+        carga_total = sum(t.carga for t in treinos if t.carga)
+        eficiencia = round((concluidos / total) * 100, 1) if total else 0
+
+        atleta = db.query(models.User).filter(models.User.id == atleta_id).first()
+        modalidade = atleta.modalidade.lower() if atleta and atleta.modalidade else ""
+
+        # Parâmetros técnicos adaptados à modalidade
+        tecnica = forca = velocidade = resistencia = None
+        if "natação" in modalidade:
+            tecnica = round(carga_total * 0.3, 1)
+            velocidade = round(carga_total * 0.4, 1)
+            resistencia = round(carga_total * 0.3, 1)
+        elif "musculação" in modalidade:
+            forca = round(carga_total * 0.6, 1)
+            resistencia = round(carga_total * 0.4, 1)
+        elif "futebol" in modalidade:
+            tecnica = round(carga_total * 0.25, 1)
+            velocidade = round(carga_total * 0.35, 1)
+            resistencia = round(carga_total * 0.4, 1)
+        else:
+            tecnica = round(carga_total * 0.25, 1)
+            forca = round(carga_total * 0.25, 1)
+            velocidade = round(carga_total * 0.25, 1)
+            resistencia = round(carga_total * 0.25, 1)
+
+        # Medalhas e última competição
+        medalhas = sum(1 for t in treinos if "competição" in (t.tipo or "").lower())
+        datas = [t.data for t in treinos if "competição" in (t.tipo or "").lower() and t.data]
+        ultimaCompeticao = max(datas) if datas else None
+
+        return {
+            "frequencia": eficiencia,
+            "treinosCompletos": concluidos,
+            "carga_total": round(carga_total, 1),
+            "eficiencia": eficiencia,
+            "tecnica": tecnica,
+            "forca": forca,
+            "velocidade": velocidade,
+            "resistencia": resistencia,
+            "medalhas": medalhas,
+            "ultimaCompeticao": ultimaCompeticao.isoformat() if ultimaCompeticao else None
+        }
+
+    atleta_1 = db.query(models.User).filter(models.User.id == id1, models.User.tipo == models.UserType.aluno).first()
+    atleta_2 = db.query(models.User).filter(models.User.id == id2, models.User.tipo == models.UserType.aluno).first()
+
+    if not atleta_1 or not atleta_2:
+        raise HTTPException(status_code=404, detail="Um ou ambos os atletas não foram encontrados")
+
+    return {
+        "atleta_1": {
+            "id": atleta_1.id,
+            "nome": atleta_1.nome,
+            "modalidade": atleta_1.modalidade,
+            "performance": resumo(atleta_1.id)
+        },
+        "atleta_2": {
+            "id": atleta_2.id,
+            "nome": atleta_2.nome,
+            "modalidade": atleta_2.modalidade,
+            "performance": resumo(atleta_2.id)
+        }
+    }
+
 
 # Logout
 @app.get("/logout")

@@ -1,47 +1,55 @@
 ﻿function showSettings() {
+    const idiomaAtual = window.sistemaIdiomas ? window.sistemaIdiomas.obterIdiomaAtual() : 'pt';
+
     const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
+    modal.className = 'modal';
+    modal.style.display = 'flex';
     modal.innerHTML = `
-    <div class="modal-content settings-modal">
-      <header class="modal-header">
-         <h2>Configurações do Sistema</h2>
-         <button class="close-modal" onclick="this.closest('.modal-overlay').remove()" title="Fechar configurações" aria-label="Fechar modal de configurações">&times;</button>
-      </header>
-      <div class="settings-content">
-        <div class="form-group">
-          <label>Notificações por Email</label>
-          <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-        </div>
-        <div class="form-group">
-          <label>Notificações Push</label>
-          <input type="checkbox" id="pushNotifications" name="pushNotifications" checked>
-        </div>
-        <div class="form-group">
-          <label>Idioma</label>
-          <select name="idioma">
-            <option>Português</option>
-            <option>English</option>
-            <option>Español</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Tema</label>
-          <select name="tema">
-            <option>Claro</option>
-            <option>Escuro</option>
-            <option>Automático</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()" title="Cancelar configurações" aria-label="Fechar modal sem salvar">Cancelar</button>
-        <button class="btn btn-primary" onclick="salvarConfiguracoes()" title="Salvar configurações" aria-label="Salvar alterações nas configurações">Salvar</button>
-      </div>
-    </div>
-  `;
+              <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                  <h2 data-translate="config.titulo">Configurações do Sistema</h2>
+                  <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate-title="geral.fechar">&times;</button>
+                </div>
+                <div class="settings-content">
+                  <div class="form-group">
+                    <label data-translate="config.notificacoes_email">Notificações por Email</label>
+                    <input type="checkbox" checked>
+                  </div>
+                  <div class="form-group">
+                    <label data-translate="config.notificacoes_push">Notificações Push</label>
+                    <input type="checkbox" checked>
+                  </div>
+                  <div class="form-group">
+                    <label data-translate="config.idioma">Idioma</label>
+                    <select id="selectIdioma" onchange="alterarIdioma(this.value)">
+                      <option value="pt" ${idiomaAtual === 'pt' ? 'selected' : ''} data-translate="config.portugues">Português</option>
+                      <option value="en" ${idiomaAtual === 'en' ? 'selected' : ''} data-translate="config.ingles">English</option>
+                      <option value="es" ${idiomaAtual === 'es' ? 'selected' : ''} data-translate="config.espanhol">Español</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label data-translate="config.tema">Tema</label>
+                    <select>
+                      <option data-translate="config.claro">Claro</option>
+                      <option data-translate="config.escuro">Escuro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-actions">
+                  <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate="config.cancelar">Cancelar</button>
+                  <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-translate="config.salvar">Salvar</button>
+                </div>
+              </div>
+            `;
 
     document.body.appendChild(modal);
 
+    // Aplicar traduções ao modal
+    if (window.sistemaIdiomas) {
+        window.sistemaIdiomas.aplicarIdioma(window.sistemaIdiomas.obterIdiomaAtual());
+    }
+
+    // Fechar modal ao clicar fora
     modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             modal.remove();

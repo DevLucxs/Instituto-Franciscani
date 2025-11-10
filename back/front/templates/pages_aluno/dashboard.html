@@ -1213,19 +1213,19 @@
         function mostrarNotificacao(texto, cor, icone) {
             const notification = document.createElement('div');
             notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${cor};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        z-index: 9999;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-    `;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${cor};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+        `;
             notification.innerHTML = `<i class="${icone}"></i> ${texto}`;
             document.body.appendChild(notification);
             setTimeout(() => notification.remove(), 4000);
@@ -1405,13 +1405,13 @@
                 bloco.style.marginBottom = '20px';
 
                 bloco.innerHTML = `
-                      <div class="trainer-avatar">${iniciais}</div>
-                      <div class="trainer-info">
-                        <h4>${fb.treinador_nome || 'Treinador'}</h4>
-                        <p style="margin: 4px 0;">${fb.texto}</p>
-                        <small style="color: gray;">${dataFormatada}</small>
-                      </div>
-                    `;
+                          <div class="trainer-avatar">${iniciais}</div>
+                          <div class="trainer-info">
+                            <h4>${fb.treinador_nome || 'Treinador'}</h4>
+                            <p style="margin: 4px 0;">${fb.texto}</p>
+                            <small style="color: gray;">${dataFormatada}</small>
+                          </div>
+                        `;
 
                 container.appendChild(bloco);
             });
@@ -1529,70 +1529,6 @@
         // SISTEMA DE SINCRONIZAÇÃO DE DESEMPENHO
         // =====================================================
 
-
-
-        // Função para montar ou atualizar o gráfico
-        window.atualizarGraficoDesempenho = function (categoriasData) {
-            if (!categoriasData || typeof categoriasData !== 'object') {
-                console.warn("⚠️ Dados de categorias inválidos para o gráfico.");
-                return;
-            }
-
-            const categorias = Object.keys(categoriasData);
-            const esperado = categorias.map(cat => {
-                const valor = categoriasData[cat]?.esperado;
-                return valor != null ? Number(valor) : 100;
-            });
-            const atingido = categorias.map(cat => {
-                const valor = categoriasData[cat]?.atingido;
-                return valor != null ? Number(valor) : 0;
-            });
-
-            const ctx = document.getElementById("performanceChart")?.getContext("2d");
-            if (!ctx) {
-                console.warn("⚠️ Elemento canvas 'performanceChart' não encontrado.");
-                return;
-            }
-
-            if (window.performanceChartInstance) {
-                window.performanceChartInstance.destroy();
-            }
-
-            window.performanceChartInstance = new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: categorias,
-                    datasets: [
-                        {
-                            label: "Esperado",
-                            data: esperado,
-                            backgroundColor: "rgba(0, 0, 94, 0.6)",
-                        },
-                        {
-                            label: "Atingido",
-                            data: atingido,
-                            backgroundColor: "rgba(72, 149, 239, 0.6)",
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        };
-
-
-
-
-
-
-
-
         let carregandoDesempenho = false;
 
         // Função para buscar dados do servidor e atualizar gráfico
@@ -1646,17 +1582,17 @@
 
                     const notification = document.createElement('div');
                     notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                z-index: 9999;
-                font-weight: 500;
-            `;
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                    z-index: 9999;
+                    font-weight: 500;
+                `;
                     notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
                     document.body.appendChild(notification);
                     setTimeout(() => notification.remove(), 3000);
@@ -1733,8 +1669,9 @@
                 }
             });
 
-            const esperadoData = Object.values(categorias).map(cat => cat.esperado);
-            const atingidoData = Object.values(categorias).map(cat => cat.atingido);
+            const esperadoData = Object.values(categorias).map(cat => cat.esperado ?? 80);
+
+            const atingidoData = Object.values(categorias).map(cat => cat.atingido ?? 75);
 
             console.log('📊 [SINCRONIZAÇÃO] Dados preparados:', {
                 labels: labels,
@@ -1811,17 +1748,17 @@
                 // Mostrar notificação
                 const notification = document.createElement('div');
                 notification.style.cssText = `
-                            position: fixed;
-                            top: 20px;
-                            right: 20px;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            padding: 15px 20px;
-                            border-radius: 8px;
-                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                            z-index: 9999;
-                            font-weight: 500;
-                          `;
+                                position: fixed;
+                                top: 20px;
+                                right: 20px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                padding: 15px 20px;
+                                border-radius: 8px;
+                                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                                z-index: 9999;
+                                font-weight: 500;
+                              `;
                 notification.innerHTML = '<i class="fas fa-sync-alt"></i> Desempenho atualizado pelo professor!';
 
                 document.body.appendChild(notification);
@@ -1944,12 +1881,12 @@
             if (videos.length === 0) {
                 // Mostrar mensagem quando não há vídeos
                 videosGrid.innerHTML = `
-                            <div class="no-videos">
-                              <i class="fas fa-video-slash"></i>
-                              <p>Nenhum vídeo disponível</p>
-                              <small>Seus vídeos de treino aparecerão aqui quando forem enviados</small>
-                            </div>
-                          `;
+                                <div class="no-videos">
+                                  <i class="fas fa-video-slash"></i>
+                                  <p>Nenhum vídeo disponível</p>
+                                  <small>Seus vídeos de treino aparecerão aqui quando forem enviados</small>
+                                </div>
+                              `;
                 return;
             }
 
@@ -1976,16 +1913,16 @@
             // AQUI ESTÁ A CORREÇÃO:
             // Colocando o HTML da thumbnail de volta
             videoDiv.innerHTML = `
-            <div class="video-thumbnail">
-                <i class="fas fa-play"></i>
-            </div>
-            <div class="video-info">
-                <h4>${video.titulo}</h4>
-                <p>${video.descricao || 'Vídeo de treinamento'}</p>
-                <small>Postado • ${tempoRelativo}</small>
-                <small class="video-datetime">${dataHoraCompleta}</small>
-            </div>
-        `;
+                <div class="video-thumbnail">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="video-info">
+                    <h4>${video.titulo}</h4>
+                    <p>${video.descricao || 'Vídeo de treinamento'}</p>
+                    <small>Postado • ${tempoRelativo}</small>
+                    <small class="video-datetime">${dataHoraCompleta}</small>
+                </div>
+            `;
 
             return videoDiv;
         }
@@ -2218,12 +2155,12 @@
             if (competicoesFuturas.length === 0) {
                 // Mensagem de "Nenhuma competição"
                 container.innerHTML = `
-                <div class="sem-dados" style="padding: 10px 0;">
-                    <i class="fas fa-calendar-times" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
-                    <p style="font-size: 14px; color: #555;">Nenhuma competição futura</p>
-                    <small style="font-size: 12px;">Seu treinador não agendou nada ainda.</small>
-                </div>
-            `;
+                    <div class="sem-dados" style="padding: 10px 0;">
+                        <i class="fas fa-calendar-times" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p style="font-size: 14px; color: #555;">Nenhuma competição futura</p>
+                        <small style="font-size: 12px;">Seu treinador não agendou nada ainda.</small>
+                    </div>
+                `;
                 return;
             }
 
@@ -2244,17 +2181,17 @@
                 const tipoIcone = '🏆';
 
                 const eventoHtml = `
-                <div class="competition-item">
-                    <div class="competition-date">
-                        <div class="day">${dia}</div>
-                        <div class="month">${mes}</div>
+                    <div class="competition-item">
+                        <div class="competition-date">
+                            <div class="day">${dia}</div>
+                            <div class="month">${mes}</div>
+                        </div>
+                        <div class="competition-details">
+                            <h4>${tipoIcone} ${ev.titulo}</h4>
+                            <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
+                        </div>
                     </div>
-                    <div class="competition-details">
-                        <h4>${tipoIcone} ${ev.titulo}</h4>
-                        <p>${ev.local || 'Local a definir'}${horaFormatada}</p>
-                    </div>
-                </div>
-            `;
+                `;
                 container.innerHTML += eventoHtml;
             });
         } // <-- FIM DA FUNÇÃO "atualizarListaCompeticoes"
@@ -2386,12 +2323,12 @@
 
             if (atividadesRealizadas.length === 0) {
                 container.innerHTML = `
-                <div class="sem-dados" style="padding: 10px 0;">
-                    <i class="fas fa-running" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
-                    <p style="font-size: 14px; color: #555;">Nenhum treino realizado</p>
-                    <small style="font-size: 12px;">Seus treinos deste mês aparecerão aqui.</small>
-                </div>
-            `;
+                    <div class="sem-dados" style="padding: 10px 0;">
+                        <i class="fas fa-running" style="font-size: 36px; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p style="font-size: 14px; color: #555;">Nenhum treino realizado</p>
+                        <small style="font-size: 12px;">Seus treinos deste mês aparecerão aqui.</small>
+                    </div>
+                `;
                 return;
             }
 
@@ -2400,14 +2337,14 @@
                 const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 
                 const atividadeHtml = `
-                <div class="activity-item">
-                    <i class="fas fa-running"></i>
-                    <div>
-                        <strong>${ev.titulo}</strong>
+                    <div class="activity-item">
+                        <i class="fas fa-running"></i>
+                        <div>
+                            <strong>${ev.titulo}</strong>
+                        </div>
+                        <span class="activity-date">${dataFormatada}</span>
                     </div>
-                    <span class="activity-date">${dataFormatada}</span>
-                </div>
-            `;
+                `;
                 container.innerHTML += atividadeHtml;
             });
         }
@@ -2418,6 +2355,7 @@
             renderizarCalendario(); // Re-renderiza o calendário
             renderizarAtividadesRealizadas(); // Re-renderiza as atividades
         });
+
 
         document.getElementById('next-month').addEventListener('click', () => {
             dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + 1);
@@ -2461,6 +2399,8 @@
 
 
 
+
+
         // Sistema de calendário integrado com dashboard-aluno.js
 
         // Expor função globalmente para uso por outros scripts
@@ -2487,5 +2427,82 @@
 
 
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const alunoId = document.querySelector(".student-details").dataset.atletaId;
+            const container = document.getElementById("atividades-container");
+            const token = localStorage.getItem("token") || localStorage.getItem("jwt_token");
+
+            if (!token) {
+                console.warn("Token ausente. Redirecionando para login.");
+                window.location.href = "/";
+                return;
+            }
+
+            fetch(`http://127.0.0.1:8000/api/treinamentos?atleta_id=${alunoId}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`Erro ${res.status}: ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then(treinamentos => {
+                    container.innerHTML = "";
+
+                    if (!Array.isArray(treinamentos) || treinamentos.length === 0) {
+                        container.innerHTML = `
+              <div class="sem-dados">
+                <i class="fas fa-info-circle"></i>
+                <p>Sem treinamentos registrados</p>
+                <small>Seu treinador ainda não programou treinos para você.</small>
+              </div>
+            `;
+                        return;
+                    }
+
+                    treinamentos.forEach(t => {
+                        container.innerHTML += `
+              <div class="treino-item">
+                <div>
+                  <div class="treino-data">${formatarData(t.data)}</div>
+                  <div class="treino-tipo">${t.tipo}</div>
+                  <div class="treino-duracao">${t.hora}</div>
+                </div>
+                <div class="treino-status ${t.completed ? 'completado' : 'pendente'}">
+                  ${t.completed ? '✔ Concluído' : '⏳ Pendente'}
+                </div>
+              </div>
+            `;
+                    });
+                })
+                .catch(err => {
+                    console.error("Erro ao carregar treinamentos:", err);
+                    container.innerHTML = `
+            <div class="sem-dados">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Erro ao carregar treinamentos</p>
+              <small>Verifique sua conexão ou faça login novamente.</small>
+            </div>
+          `;
+                });
+
+            function formatarData(dataStr) {
+                const d = new Date(dataStr);
+                return d.toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric"
+                });
+            }
+        });
+    </script>
+
+
 </body>
 </html>

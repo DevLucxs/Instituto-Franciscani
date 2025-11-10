@@ -32,6 +32,8 @@ class User(Base):
     endereco = Column(String(100), nullable=True)
     data_cadastro = Column(DateTime(timezone=True), server_default=func.now())
     dieta_filepath = Column(String(255), nullable=True)
+    foco = Column(String(255), nullable=True)  
+    ano_ingresso = Column(Integer, nullable=True)  
     # Eventos que este usuário (treinador) criou
     eventos_criados = relationship("Evento", back_populates="criador", foreign_keys="Evento.treinador_id")
     
@@ -66,7 +68,7 @@ class Desempenho(Base):
     tempo = Column(Float)
     distancia = Column(Integer)
     data_atualizacao = Column(DateTime, default=datetime.utcnow)
-    tempo_esperado = Column(Float)
+    tempo_esperado = Column(Float, default=100.0)
 
     atleta = relationship("User", back_populates="desempenhos")
 
@@ -132,3 +134,12 @@ class Treinamento(Base):
 
 # Adicione o relacionamento inverso no User (depois da classe User existente)
 User.treinamentos = relationship("Treinamento", back_populates="atleta")
+
+
+class AnaliseEvento(Base):
+    __tablename__ = "analise_eventos"
+    id = Column(Integer, primary_key=True, index=True)
+    video_id = Column(Integer, ForeignKey("videos.id"))
+    tipo = Column(String(50))         # ← tamanho definido
+    tempo = Column(String(20))        # ← tempo como string, ex: "00:02:15"
+    descricao = Column(String(255))   # ← descrição com limite razoável

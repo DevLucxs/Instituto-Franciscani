@@ -48,10 +48,12 @@ async function realizarLogin() {
 // 💾 Salvar avaliação
 async function salvarAvaliacao() {
     const token = localStorage.getItem("jwt_token");
-    if (!token) {
-        alert("Você precisa estar logado para salvar uma avaliação.");
+    const usuarioInfo = JSON.parse(localStorage.getItem("usuario_info") || "{}");
+    if (usuarioInfo.tipo !== "treinador") {
+        alert("❌ Apenas treinadores podem enviar avaliações.");
         return;
     }
+
 
     const { atletaId } = getParametrosDaURL();
     const texto = document.getElementById("avaliacaoTexto").value.trim();
@@ -78,11 +80,6 @@ async function salvarAvaliacao() {
 
         const resultado = await response.json();
 
-        if (response.status === 403) {
-            alert("❌ Apenas treinadores podem enviar avaliações.");
-            return;
-        }
-
         if (response.ok && resultado.sucesso) {
             alert("✅ Avaliação salva com sucesso!");
             document.getElementById("avaliacaoTexto").value = "";
@@ -95,19 +92,22 @@ async function salvarAvaliacao() {
     }
 }
 
+
 // 📊 Atualiza gráfico de desempenho
 function atualizarGraficoDesempenho(categoriasData) {
     if (!categoriasData || typeof categoriasData !== 'object') return;
 
     const categorias = Object.keys(categoriasData);
-    const esperado = categorias.map(cat => categoriasData[cat]?.esperado ?? 100);
-    const atingido = categorias.map(cat => categoriasData[cat]?.atingido ?? 0);
+    const esperado = categorias.map(cat => categoriasData[cat]?.esperado ?? null);
+    const atingido = categorias.map(cat => categoriasData[cat]?.atingido ?? null);
 
-    const ctx = document.getElementById("performanceChart")?.getContext("2d");
+    const canvas = document.getElementById("performanceChart");
+    const ctx = canvas?.getContext("2d");
     if (!ctx) return;
 
     if (window.performanceChartInstance) {
         window.performanceChartInstance.destroy();
+        window.performanceChartInstance = null;
     }
 
     window.performanceChartInstance = new Chart(ctx, {
@@ -130,11 +130,25 @@ function atualizarGraficoDesempenho(categoriasData) {
         options: {
             responsive: true,
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: Math.round,
+                    font: {
+                        weight: 'bold'
+                    }
+                }
             }
         }
     });
 }
+
+
 
 // 📡 Carrega desempenho do atleta com cache
 async function carregarDesempenhoDoAtleta(atletaId) {
@@ -200,11 +214,53 @@ function carregarDadosDoAtleta() {
         return;
     }
 
-    document.getElementById("nome-atleta").textContent = decodeURIComponent(atletaNome);
-    document.getElementById("modalidade-atleta").textContent = decodeURIComponent(atletaModalidade);
+    document.getElementById("atletaNome").textContent = decodeURIComponent(atletaNome);
+    document.getElementById("atletaModalidade").textContent = decodeURIComponent(atletaModalidade);
+
 
     carregarDesempenhoDoAtleta(atletaId);
 }
 
+
+
+async function carregarResumoTreinos(atletaId) {
+    try {
+        const token = localStorage.getItem("token") || localStorage.getItem("jwt_token");
+        const response = await fetch(`/api/treinamentos?atleta_id=${atletaId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.warn('⚠️ Erro ao buscar treinos do atleta:', response.status);
+            return;
+        }
+
+        const treinos = await response.json();
+
+        const total = treinos.length;
+        const concluidos = treinos.filter(t => t.completed).length;
+        const horas = treinos
+            .filter(t => t.completed && t.carga)
+            .reduce((soma, t) => soma + t.carga, 0);
+
+        document.getElementById('totalTreinos').textContent = total;
+        document.getElementById('treinosConcluidos').textContent = concluidos;
+        document.getElementById('horasTreinamento').textContent = `${horas}h`;
+
+        console.log('📊 Resumo carregado:', { total, concluidos, horas });
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar resumo de treinos:', error);
+    }
+}
+
 // 🚀 Inicia tudo ao carregar a página
-document.addEventListener("DOMContentLoaded", carregarDadosDoAtleta);
+document.addEventListener("DOMContentLoaded", function () {
+    const { atletaId } = getParametrosDaURL();
+    carregarDadosDoAtleta();
+    carregarResumoTreinos(atletaId);
+});
+
