@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 import os
 from database import get_db
 import models
-from fastapi import Request 
-
+from fastapi import Request, Cookie, Header
+from typing import Optional
+from models import User
 
 # Carregar variáveis do .env
 load_dotenv()
@@ -29,25 +30,29 @@ def criar_token_acesso(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def get_usuario_logado(
+    jwt_token: Optional[str] = Cookie(default=None),
+    authorization: Optional[str] = Header(default=None),
+    db: Session = Depends(get_db)
+):
+    # Tenta pegar o token do cookie
+    token = jwt_token
 
-def get_usuario_logado(request: Request, db: Session = Depends(get_db)):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
+    # Se não tiver no cookie, tenta pegar do header Authorization
+    if not token and authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]  # remove "Bearer "
+
+    if not token:
         raise HTTPException(status_code=401, detail="Token ausente")
 
-    token = auth_header.replace("Bearer ", "")
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
-        if not email:
-            raise HTTPException(status_code=401, detail="Token inválido")
-
-        usuario = db.query(models.User).filter(models.User.email == email).first()
+        usuario = db.query(User).filter(User.email == email).first()
         if not usuario:
             raise HTTPException(status_code=401, detail="Usuário não encontrado")
-
         return usuario
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
-
 

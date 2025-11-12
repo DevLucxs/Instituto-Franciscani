@@ -36,7 +36,8 @@ class User(Base):
     ano_ingresso = Column(Integer, nullable=True)  
     # Eventos que este usuário (treinador) criou
     eventos_criados = relationship("Evento", back_populates="criador", foreign_keys="Evento.treinador_id")
-    
+    codigo_recuperacao = Column(String, nullable=True)
+
     # Eventos que este usuário (aluno) está participando
     eventos_participantes = relationship(
         "Evento",

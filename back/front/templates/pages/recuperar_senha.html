@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Senha | Instituto Franciscani</title>
+    <link rel="icon" href="/static/img/logo_if_icon.png" type="image/png" />
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .form-container h2 {
+            font-size: 24px;
+            color: #00005e;
+            margin-bottom: 10px;
+        }
+
+        .form-container p {
+            font-size: 14px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .form-container input[type="email"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .form-container button[type="submit"] {
+            background-color: #F8C705;
+            color: #00005E;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+            .form-container button[type="submit"]:hover {
+                background-color: #010146;
+            }
+
+
+
+
+        .logo {
+            text-align: center;
+            margin-bottom: -20px;
+        }
+
+        .login-link {
+            margin-top: 8px;
+            text-align: left;
+        }
+
+            .login-link a {
+                font-size: 13px;
+                color: white;
+                text-decoration: none;
+            }
+
+                .login-link a:hover {
+                    text-decoration: underline;
+                }
+
+        .form-container .mensagem {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+            .form-container .mensagem.error {
+                color: red;
+            }
+
+            .form-container .mensagem.success {
+                color: green;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left"></div>
+        <div class="right">
+            <form id="recuperarForm" class="form-container" method="POST" action="/recuperar-senha">
+                <div class="logo"><img src="/static/img/logo_if.png" alt="" width="300px"></div>
+
+                <h2>Recuperar Senha</h2>
+                <p>Digite seu e-mail cadastrado para receber instruções de redefinição.</p>
+
+                <input type="email" name="email" id="email" placeholder="Email" required />
+
+                <button type="submit">Enviar instruções</button>
+
+                <div class="login-link">
+                    <a href="/"> Sign Up</a>
+                </div>
+
+                {% if error %}
+                <div class="mensagem error">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="mensagem success">{{ success }}</div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("recuperarForm");
+
+            form.addEventListener("submit", (event) => {
+                const email = document.getElementById("email").value.trim();
+
+                if (!email) {
+                    event.preventDefault();
+                    alert("Por favor, insira seu e-mail.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

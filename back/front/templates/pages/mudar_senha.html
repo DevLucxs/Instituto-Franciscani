@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redefinir Senha | Instituto Franciscani</title>
+    <link rel="icon" href="/static/img/logo_if_icon.png" type="image/png" />
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="left"></div>
+        <div class="right">
+            <form class="form-container" id="senhaForm" method="POST" action="/mudar-senha">
+                <div class="logo"><img src="/static/img/logo_if.png" alt="" width="300px"></div>
+
+                <input type="hidden" name="codigo" value="{{ codigo }}" />
+
+                <div class="password-container">
+                    <input type="password" name="nova_senha" id="nova_senha" placeholder="Nova Senha" required />
+                    <button type="button" class="toggle-password" onclick="toggleSenha('nova_senha')">Mostrar</button>
+                </div>
+
+                <div class="password-container">
+                    <input type="password" name="confirmar_senha" id="confirmar_senha" placeholder="Confirmar Senha" required />
+                    <button type="button" class="toggle-password" onclick="toggleSenha('confirmar_senha')">Mostrar</button>
+                </div>
+
+                <button type="submit">Alterar Senha</button>
+
+                {% if error %}
+                <p style="color:red; margin-top:10px;">{{ error }}</p>
+                {% endif %}
+                {% if success %}
+                <p style="color:green; margin-top:10px;">{{ success }}</p>
+                <script>
+                    setTimeout(() => {
+                        window.location.href = "/"; // ou "/login" se sua rota de login for diferente
+                    }, 3000); // redireciona após 3 segundos
+                </script>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Alterna visibilidade da senha
+        function toggleSenha(idCampo) {
+            const campo = document.getElementById(idCampo);
+            if (campo) {
+                campo.type = campo.type === 'password' ? 'text' : 'password';
+            }
+        }
+
+        // Validação de campos antes do envio
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("senhaForm");
+
+            form.addEventListener("submit", (event) => {
+                const senha = document.getElementById("nova_senha").value.trim();
+                const confirmar = document.getElementById("confirmar_senha").value.trim();
+
+                if (!senha || !confirmar) {
+                    event.preventDefault();
+                    alert("Por favor, preencha todos os campos.");
+                } else if (senha !== confirmar) {
+                    event.preventDefault();
+                    alert("As senhas não coincidem.");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -20,7 +20,10 @@ from urllib.parse import quote
 import json
 from fastapi import Query
 from fastapi.middleware.cors import CORSMiddleware
-
+from utils.email import enviar_email
+import secrets
+import random
+from passlib.hash import pbkdf2_sha256
 
 
 
@@ -55,6 +58,23 @@ os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 VIDEO_UPLOAD_DIRECTORY = "./uploads/videos" #Variável referente aos vídeos
 os.makedirs(VIDEO_UPLOAD_DIRECTORY, exist_ok=True)
 
+def migrar_senhas_antigas():
+    db = SessionLocal()
+    usuarios = db.query(models.User).all()
+    atualizados = 0
+
+    for usuario in usuarios:
+        senha = usuario.senha
+
+        # Verifica se a senha parece estar em texto puro (sem prefixo de hash)
+        if not senha.startswith("$pbkdf2-sha256$") and len(senha) < 50:
+            from passlib.hash import pbkdf2_sha256
+            usuario.senha = pbkdf2_sha256.hash(senha)
+            atualizados += 1
+
+    db.commit()
+    db.close()
+    print(f"✅ {atualizados} senhas atualizadas para formato seguro.")
 
 # Função para popular usuários
 @app.on_event("startup")
@@ -63,6 +83,7 @@ def startup_event():
     Função executada apenas uma vez na inicialização do servidor.
     """
     db = SessionLocal()
+    migrar_senhas_antigas()
     try:
         # Lógica da seed_users
         users_exist = db.query(models.User).count() > 0
@@ -96,6 +117,8 @@ def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 
+def gerar_codigo_verificacao():
+    return str(random.randint(100000, 999999))  # Ex: "482731"
 
 
 # Página de login
@@ -108,17 +131,35 @@ async def login_page(request: Request):
 async def login(request: Request, email: str = Form(...), senha: str = Form(...)):
     db = SessionLocal()
     user = get_user_by_email(db, email)
-    db.close()
 
-    if not user or user.senha != senha:
-        # Se for requisição via navegador (formulário), renderiza a página
-        if request.headers.get("accept", "").startswith("text/html"):
-            return templates.TemplateResponse(
-                "index.html",
-                {"request": request, "error": "Credenciais inválidas!"}
-            )
-        # Se for via fetch(), retorna JSON
-        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+    if not user:
+        db.close()
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": "Credenciais inválidas!"
+        })
+
+    try:
+        if pbkdf2_sha256.verify(senha, user.senha):
+            # senha já está em hash seguro, tudo certo
+            pass
+        elif senha == user.senha:
+            # senha está em texto puro — atualiza para hash seguro
+            user.senha = pbkdf2_sha256.hash(senha)
+            db.commit()
+        else:
+            db.close()
+            return templates.TemplateResponse("index.html", {
+                "request": request,
+                "error": "Credenciais inválidas!"
+            })
+    except Exception as e:
+        print("Erro ao verificar senha:", e)
+        db.close()
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": "Credenciais inválidas!"
+        })
 
     # Gerar token JWT
     token = criar_token_acesso({"sub": user.email})
@@ -130,7 +171,8 @@ async def login(request: Request, email: str = Form(...), senha: str = Form(...)
         "tipo": user.tipo.value
     }
 
-    # Se for requisição via navegador (formulário), redireciona e salva cookies
+    db.close()
+
     if request.headers.get("accept", "").startswith("text/html"):
         destino = f"/{user.tipo.value}/dashboard/{user.id}"
         response = RedirectResponse(url=destino, status_code=303)
@@ -142,11 +184,114 @@ async def login(request: Request, email: str = Form(...), senha: str = Form(...)
         )
         return response
 
-    # Se for via fetch(), retorna JSON para salvar no localStorage
     return JSONResponse(content={
         "token": token,
         "usuario": usuario_info
     })
+
+
+@app.get("/recuperar-senha", response_class=HTMLResponse)
+async def recuperar_senha_page(request: Request):
+    return templates.TemplateResponse("pages/recuperar_senha.html", {"request": request})
+
+
+@app.post("/recuperar-senha")
+async def recuperar_senha(request: Request, email: str = Form(...)):
+    db = SessionLocal()
+    usuario = db.query(models.User).filter(models.User.email == email).first()
+
+    if not usuario:
+        db.close()
+        return templates.TemplateResponse("pages/recuperar_senha.html", {
+            "request": request,
+            "error": "Email não encontrado."
+        })
+
+    # ⚠️ Acesse os dados ANTES de fechar a sessão
+    nome = usuario.nome
+
+    # Gerar código e salvar
+    codigo = secrets.token_urlsafe(16)
+    usuario.codigo_recuperacao = codigo
+    db.commit()
+    db.close()
+
+    # Montar link
+    link = f"http://localhost:8000/mudar-senha/{codigo}"
+    corpo = f"""
+Olá {nome},
+
+Clique no link abaixo para redefinir sua senha:
+
+🔗 {link}
+
+Este link é válido por tempo limitado.
+"""
+
+    enviar_email(email, "Redefinição de senha - Instituto Franciscani", corpo)
+
+    return templates.TemplateResponse("pages/recuperar_senha.html", {
+        "request": request,
+        "success": "Link de redefinição enviado para seu e-mail."
+    })
+
+
+
+
+@app.post("/mudar-senha", response_class=HTMLResponse)
+async def mudar_senha(
+    request: Request,
+    codigo: str = Form(...),
+    nova_senha: str = Form(...),
+    confirmar_senha: str = Form(...)
+):
+    if nova_senha != confirmar_senha:
+        return templates.TemplateResponse("pages/mudar_senha.html", {
+            "request": request,
+            "error": "As senhas não coincidem.",
+            "codigo": codigo
+        })
+
+    if len(nova_senha) > 72:
+        return templates.TemplateResponse("pages/mudar_senha.html", {
+            "request": request,
+            "error": "A senha não pode ter mais de 72 caracteres.",
+            "codigo": codigo
+        })
+
+    db = SessionLocal()
+    usuario = db.query(models.User).filter_by(codigo_recuperacao=codigo).first()
+
+    if not usuario:
+        db.close()
+        return templates.TemplateResponse("pages/mudar_senha.html", {
+            "request": request,
+            "error": "Código inválido ou expirado.",
+            "codigo": codigo
+        })
+
+    usuario.senha = pbkdf2_sha256.hash(nova_senha)
+    usuario.codigo_recuperacao = None
+    db.commit()
+    db.close()
+
+    return templates.TemplateResponse("pages/mudar_senha.html", {
+        "request": request,
+        "success": "Senha atualizada com sucesso!",
+        "codigo": codigo
+    })
+
+
+
+
+
+@app.get("/mudar-senha/{codigo}", response_class=HTMLResponse)
+async def mudar_senha_form(request: Request, codigo: str):
+    return templates.TemplateResponse("pages/mudar_senha.html", {
+        "request": request,
+        "codigo": codigo
+    })
+
 
 @app.get("/api/usuario/me")
 def usuario_logado(usuario = Depends(get_usuario_logado)):

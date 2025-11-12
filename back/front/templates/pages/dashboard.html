@@ -1318,7 +1318,6 @@
                 <div id="suggestionsBox"></div>
             </div>
 
-            <script src="/static/js/dashboard.js" defer></script>
 
             <div class="header-actions">
                 <div class="action-icon" onclick="showNotifications()" title="Notificações" aria-label="Ver notificações">
@@ -1694,6 +1693,23 @@
 
 
     <script src="/static/js/analise-video.js"></script>
+    <script src="/static/js/dashboard.js" defer></script>
+    <script src="/static/js/idioma.js"></script>
+    <script src="/static/js/settings.js"></script>
+
+    <script>
+        function alterarIdioma(codigo) {
+            if (window.sistemaIdiomas) {
+                window.sistemaIdiomas.aplicarIdioma(codigo);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.sistemaIdiomas) {
+                window.sistemaIdiomas.aplicarIdioma(window.sistemaIdiomas.obterIdiomaAtual());
+            }
+        });
+    </script>
 
     <script>
 
@@ -1758,25 +1774,25 @@
 
                 // Gera o HTML para este item (Note: sem os botões de ação)
                 allEventsHtml += `
-                                            <div class="event-list-item" data-event-id="${ev.id}">
-                                                <div class="event-date">
-                                                    <div class="event-day">${dia}</div>
-                                                    <div class="event-month">${mes}</div>
-                                                </div>
-                                                <div class="event-details">
-                                                    <div class="event-title">${ev.title || 'Evento sem título'}</div>
-                                                    <div class="event-info">
-                                                        <span class="event-time">
-                                                            <i class="fas fa-clock"></i> ${horaFormatada}
-                                                        </span>
-                                                        ${ev.location ? `
-                                                        <span class="event-location">
-                                                            <i class="fas fa-map-marker-alt"></i> ${ev.location}
-                                                        </span>` : ''}
-                                                    </div>
-                                                </div>
-                                                </div>
-                                        `;
+                                                        <div class="event-list-item" data-event-id="${ev.id}">
+                                                            <div class="event-date">
+                                                                <div class="event-day">${dia}</div>
+                                                                <div class="event-month">${mes}</div>
+                                                            </div>
+                                                            <div class="event-details">
+                                                                <div class="event-title">${ev.title || 'Evento sem título'}</div>
+                                                                <div class="event-info">
+                                                                    <span class="event-time">
+                                                                        <i class="fas fa-clock"></i> ${horaFormatada}
+                                                                    </span>
+                                                                    ${ev.location ? `
+                                                                    <span class="event-location">
+                                                                        <i class="fas fa-map-marker-alt"></i> ${ev.location}
+                                                                    </span>` : ''}
+                                                                </div>
+                                                            </div>
+                                                            </div>
+                                                    `;
             });
 
             // Insere todo o HTML de uma vez no contêiner
@@ -1811,12 +1827,12 @@
                 const itemsContainer = document.getElementById("upcoming-events-items");
                 if (itemsContainer) {
                     itemsContainer.innerHTML = `
-                            <div class="no-competitions">
-                                <i class="fas fa-calendar-times"></i>
-                                <p>Erro ao carregar eventos</p>
-                                <small>Verifique a conexão ou tente novamente mais tarde</small>
-                            </div>
-                        `;
+                                        <div class="no-competitions">
+                                            <i class="fas fa-calendar-times"></i>
+                                            <p>Erro ao carregar eventos</p>
+                                            <small>Verifique a conexão ou tente novamente mais tarde</small>
+                                        </div>
+                                    `;
                 }
             }
         }
@@ -2218,14 +2234,11 @@
 
         // Função de logout
         function logout() {
-            if (confirm('Tem certeza que deseja sair?')) {
-
-                localStorage.removeItem("jwt_token");
-                localStorage.removeItem("usuario_info");
-
-                window.location.href = '/';
-            }
+            document.cookie = "jwt_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "usuario_info=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            location.replace("/");
         }
+
 
         // Função para detectar novos cadastros e criar notificações
         function detectarNovosCadastros() {
@@ -2323,11 +2336,11 @@
                 const toast = document.createElement('div');
                 toast.className = 'toast-notification';
                 toast.innerHTML = `
-                                        <div class="toast-content">
-                                          <span>${mensagem}</span>
-                                          <button onclick="this.parentElement.parentElement.remove()">&times;</button>
-                                      </div>
-                                    `;
+                                                    <div class="toast-content">
+                                                      <span>${mensagem}</span>
+                                                      <button onclick="this.parentElement.parentElement.remove()">&times;</button>
+                                                  </div>
+                                                `;
 
                 document.body.appendChild(toast);
 
@@ -2593,42 +2606,42 @@
             modal.className = 'modal';
             modal.style.display = 'flex';
             modal.innerHTML = `
-                                      <div class="modal-content" style="max-width: 600px;">
-                                        <div class="modal-header">
-                                          <h2 data-translate="config.titulo">Configurações do Sistema</h2>
-                                          <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate-title="geral.fechar">&times;</button>
-                                        </div>
-                                        <div class="settings-content">
-                                          <div class="form-group">
-                                            <label data-translate="config.notificacoes_email">Notificações por Email</label>
-                                            <input type="checkbox" checked>
-                                          </div>
-                                          <div class="form-group">
-                                            <label data-translate="config.notificacoes_push">Notificações Push</label>
-                                            <input type="checkbox" checked>
-                                          </div>
-                                          <div class="form-group">
-                                            <label data-translate="config.idioma">Idioma</label>
-                                            <select id="selectIdioma" onchange="alterarIdioma(this.value)">
-                                              <option value="pt" ${idiomaAtual === 'pt' ? 'selected' : ''} data-translate="config.portugues">Português</option>
-                                              <option value="en" ${idiomaAtual === 'en' ? 'selected' : ''} data-translate="config.ingles">English</option>
-                                              <option value="es" ${idiomaAtual === 'es' ? 'selected' : ''} data-translate="config.espanhol">Español</option>
-                                            </select>
-                                          </div>
-                                          <div class="form-group">
-                                            <label data-translate="config.tema">Tema</label>
-                                            <select>
-                                              <option data-translate="config.claro">Claro</option>
-                                              <option data-translate="config.escuro">Escuro</option>
-                                            </select>
-                                          </div>
-                                        </div>
-                                        <div class="modal-actions">
-                                          <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate="config.cancelar">Cancelar</button>
-                                          <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-translate="config.salvar">Salvar</button>
-                                        </div>
-                                      </div>
-                                    `;
+                                                  <div class="modal-content" style="max-width: 600px;">
+                                                    <div class="modal-header">
+                                                      <h2 data-translate="config.titulo">Configurações do Sistema</h2>
+                                                      <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate-title="geral.fechar">&times;</button>
+                                                    </div>
+                                                    <div class="settings-content">
+                                                      <div class="form-group">
+                                                        <label data-translate="config.notificacoes_email">Notificações por Email</label>
+                                                        <input type="checkbox" checked>
+                                                      </div>
+                                                      <div class="form-group">
+                                                        <label data-translate="config.notificacoes_push">Notificações Push</label>
+                                                        <input type="checkbox" checked>
+                                                      </div>
+                                                      <div class="form-group">
+                                                        <label data-translate="config.idioma">Idioma</label>
+                                                        <select id="selectIdioma" onchange="alterarIdioma(this.value)">
+                                                          <option value="pt" ${idiomaAtual === 'pt' ? 'selected' : ''} data-translate="config.portugues">Português</option>
+                                                          <option value="en" ${idiomaAtual === 'en' ? 'selected' : ''} data-translate="config.ingles">English</option>
+                                                          <option value="es" ${idiomaAtual === 'es' ? 'selected' : ''} data-translate="config.espanhol">Español</option>
+                                                        </select>
+                                                      </div>
+                                                      <div class="form-group">
+                                                        <label data-translate="config.tema">Tema</label>
+                                                        <select>
+                                                          <option data-translate="config.claro">Claro</option>
+                                                          <option data-translate="config.escuro">Escuro</option>
+                                                        </select>
+                                                      </div>
+                                                    </div>
+                                                    <div class="modal-actions">
+                                                      <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()" data-translate="config.cancelar">Cancelar</button>
+                                                      <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-translate="config.salvar">Salvar</button>
+                                                    </div>
+                                                  </div>
+                                                `;
 
             document.body.appendChild(modal);
 
@@ -2739,12 +2752,12 @@
 
             if (!videos || videos.length === 0) {
                 videosList.innerHTML = `
-                                        <div style="text-align: center; padding: 40px; color: #666;">
-                                          <i class="fas fa-video" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                                          <p>Nenhum vídeo postado ainda.</p>
-                                          <small>Use o botão "Postar Novo Vídeo" para começar.</small>
-                                        </div>
-                                      `;
+                                                    <div style="text-align: center; padding: 40px; color: #666;">
+                                                      <i class="fas fa-video" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                                                      <p>Nenhum vídeo postado ainda.</p>
+                                                      <small>Use o botão "Postar Novo Vídeo" para começar.</small>
+                                                    </div>
+                                                  `;
                 return;
             }
 
@@ -2756,30 +2769,30 @@
                 const dataHoraCompleta = formatarDataHoraCompleta(dataUpload);
 
                 html += `
-                                        <div class="video-item">
-                                          <div class="video-thumbnail">
-                                            <i class="fas fa-play-circle"></i>
-                                          </div>
-                                          <div class="video-info">
-                                            <h4>${video.titulo}</h4>
-                                            <p class="video-athlete">${video.atleta_nome}</p>
-                                            <p class="video-time" title="${dataHoraCompleta}">${tempoRelativo}</p>
-                                            <p class="video-datetime">${dataHoraCompleta}</p>
-                                            ${video.descricao ? `<p class="video-description">${video.descricao}</p>` : ''}
-                                          </div>
-                                          <div class="video-actions">
-                                            <button class="btn btn-primary btn-sm" onclick="visualizarVideo('${video.url_video}', '${video.titulo}', '${video.descricao || ''}', '${video.atleta_nome}', '${dataHoraCompleta}')">
-                                              <i class="fas fa-eye"></i> Visualizar
-                                            </button>
-                                            <button class="btn btn-outline btn-sm" onclick="editarVideo(${video.id})">
-                                              <i class="fas fa-edit"></i> Editar
-                                            </button>
-                                            <button class="btn btn-outline btn-sm" onclick="excluirVideo(${video.id})">
-                                              <i class="fas fa-trash"></i> Excluir
-                                            </button>
-                                          </div>
-                                        </div>
-                                      `;
+                                                    <div class="video-item">
+                                                      <div class="video-thumbnail">
+                                                        <i class="fas fa-play-circle"></i>
+                                                      </div>
+                                                      <div class="video-info">
+                                                        <h4>${video.titulo}</h4>
+                                                        <p class="video-athlete">${video.atleta_nome}</p>
+                                                        <p class="video-time" title="${dataHoraCompleta}">${tempoRelativo}</p>
+                                                        <p class="video-datetime">${dataHoraCompleta}</p>
+                                                        ${video.descricao ? `<p class="video-description">${video.descricao}</p>` : ''}
+                                                      </div>
+                                                      <div class="video-actions">
+                                                        <button class="btn btn-primary btn-sm" onclick="visualizarVideo('${video.url_video}', '${video.titulo}', '${video.descricao || ''}', '${video.atleta_nome}', '${dataHoraCompleta}')">
+                                                          <i class="fas fa-eye"></i> Visualizar
+                                                        </button>
+                                                        <button class="btn btn-outline btn-sm" onclick="editarVideo(${video.id})">
+                                                          <i class="fas fa-edit"></i> Editar
+                                                        </button>
+                                                        <button class="btn btn-outline btn-sm" onclick="excluirVideo(${video.id})">
+                                                          <i class="fas fa-trash"></i> Excluir
+                                                        </button>
+                                                      </div>
+                                                    </div>
+                                                  `;
             });
 
             html += '</div>';
@@ -3255,12 +3268,12 @@
 
             if (!competicoes || competicoes.length === 0) {
                 container.innerHTML = `
-                        <div class="no-competitions">
-                            <i class="fas fa-calendar-times"></i>
-                            <p>Nenhuma competição agendada</p>
-                            <small>Adicione eventos no calendário para vê-los aqui</small>
-                        </div>
-                    `;
+                                    <div class="no-competitions">
+                                        <i class="fas fa-calendar-times"></i>
+                                        <p>Nenhuma competição agendada</p>
+                                        <small>Adicione eventos no calendário para vê-los aqui</small>
+                                    </div>
+                                `;
                 return;
             }
 
@@ -3312,17 +3325,17 @@
                 }
 
                 html += `
-                        <div class="competition-item">
-                            <div class="competition-date">
-                                <div class="day">${dia}</div>
-                                <div class="month">${mes}</div>
-                            </div>
-                            <div class="competition-details">
-                                <h4>${tipoExibicao} ${titulo}</h4>
-                                <p>${local} - ${hora}</p>
-                            </div>
-                        </div>
-                    `;
+                                    <div class="competition-item">
+                                        <div class="competition-date">
+                                            <div class="day">${dia}</div>
+                                            <div class="month">${mes}</div>
+                                        </div>
+                                        <div class="competition-details">
+                                            <h4>${tipoExibicao} ${titulo}</h4>
+                                            <p>${local} - ${hora}</p>
+                                        </div>
+                                    </div>
+                                `;
             });
 
             container.innerHTML = html;
@@ -3339,12 +3352,12 @@
             }
 
             container.innerHTML = `
-                            <div class="no-competitions">
-                              <i class="fas fa-exclamation-triangle"></i>
-                              <p>Erro ao carregar competições</p>
-                              <small>Tente recarregar a página</small>
-                            </div>
-                          `;
+                                        <div class="no-competitions">
+                                          <i class="fas fa-exclamation-triangle"></i>
+                                          <p>Erro ao carregar competições</p>
+                                          <small>Tente recarregar a página</small>
+                                        </div>
+                                      `;
         }
 
 
@@ -3476,6 +3489,8 @@
 
 
         document.addEventListener("DOMContentLoaded", atualizarComparativo);
+
     </script>
+
 </body>
 </html>

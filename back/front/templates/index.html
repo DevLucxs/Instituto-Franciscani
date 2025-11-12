@@ -23,7 +23,8 @@
                 </div>
 
                 <button type="submit">Entrar</button>
-                <button type="button" class="forgot-password">Esqueceu a senha?</button>
+                <button type="button" class="forgot-password" onclick="window.location.href='/recuperar-senha'">Esqueceu a senha?</button>
+
 
                 {% if error %}
                 <p style="color:red; margin-top:10px;">{{ error }}</p>

@@ -1,4 +1,4 @@
-* {
+﻿* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -108,6 +108,35 @@ button[type="submit"] {
     text-align: end;
 }
 
+
+.form-container input[type="password"] {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 16px;
+    color: #00005E;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.form-container button[type="submit"] {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #F8C705;
+    color: #00005E;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button[type="submit"]:hover {
+    background-color: #F8C705;
+}
+
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -118,3 +147,5 @@ button[type="submit"] {
         height: 200px;
     }
 }
+
+

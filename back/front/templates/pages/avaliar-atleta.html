@@ -1730,12 +1730,11 @@
         }
 
         function logout() {
-            if (confirm('Tem certeza que deseja sair?')) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('jwt_token');
-                window.location.href = '/';
-            }
+            document.cookie = "jwt_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "usuario_info=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            location.replace("/");
         }
+
 
         // Inicializar sistema de idiomas
         document.addEventListener('DOMContentLoaded', function () {
